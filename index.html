@@ -2494,6 +2494,52 @@
             border: 1px solid var(--text-3);
         }
 
+        /* ── IBJJF Accordion (Minha Jornada unificada) ── */
+        .ibjjf-node { cursor: pointer; }
+        .ibjjf-node-chevron {
+            font-size: 10px;
+            color: var(--text-3);
+            margin-left: 6px;
+            transition: transform 0.25s ease;
+            flex-shrink: 0;
+        }
+        .ibjjf-node.open .ibjjf-node-chevron { transform: rotate(180deg); color: var(--accent); }
+        .ibjjf-node-body {
+            display: none;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(201,162,58,0.12);
+        }
+        .ibjjf-node.open .ibjjf-node-body { display: block; }
+
+        .ibjjf-grau-entry {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 7px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+        .ibjjf-grau-entry:last-child { border-bottom: none; padding-bottom: 0; }
+        .ibjjf-grau-entry-dot {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            background: var(--bg-elevated);
+            border: 1.5px solid var(--text-3);
+            flex-shrink: 0;
+        }
+        .ibjjf-grau-entry-dot.filled   { background: var(--accent); border-color: var(--accent); }
+        .ibjjf-grau-entry-dot.faixa-dot { background: #9b5cf6; border-color: #9b5cf6; }
+        .ibjjf-grau-entry-dot.start-dot { background: #2ecc71; border-color: #2ecc71; }
+        .ibjjf-grau-entry-info  { flex: 1; display: flex; align-items: center; justify-content: space-between; }
+        .ibjjf-grau-entry-label { font-size: 11px; font-weight: 600; color: var(--text-2); }
+        .ibjjf-grau-entry-label.filled    { color: var(--text-1); }
+        .ibjjf-grau-entry-label.faixa-lbl { color: #a78bfa; font-weight: 700; }
+        .ibjjf-grau-entry-label.start-lbl { color: #2ecc71; }
+        .ibjjf-grau-entry-date       { font-size: 10px; font-weight: 700; color: var(--accent); font-family: 'Sora', sans-serif; }
+        .ibjjf-grau-entry-date.empty { color: var(--text-3); font-weight: 400; font-style: italic; }
+        .ibjjf-node.completed { opacity: 0.72; }
+        .ibjjf-node.completed.has-history { opacity: 0.88; }
+
         .ibjjf-grau-dot.filled {
             background: var(--accent);
             border-color: var(--accent);
@@ -7598,12 +7644,25 @@
                             <div class="evo-seals-title" id="evoSealsTitle">🏅 Selos de Grau</div>
                             <div class="evo-seals-tabs" id="evoSealsTabs">
                                 <button class="evo-seals-tab active" onclick="switchSealsTab('seals', event)">🏅 Selos</button>
+                                <button class="evo-seals-tab" id="evoFreqTab" onclick="switchSealsTab('freq', event)">📊 Frequência</button>
                                 <button class="evo-seals-tab disabled" id="evoTeoricaTab" onclick="switchSealsTab('teorica', event)">📝 Teórica</button>
                                 <button class="evo-seals-tab disabled" id="evoPraticaTab" onclick="switchSealsTab('pratica', event)">🥋 Prova Prática</button>
                             </div>
                             <div id="evoSealsTabSeals" class="evo-seals-tab-content active">
                                 <div class="evo-seals-row" id="evoSealsRow"></div>
                                 <div class="evo-exam-link" id="evoExamLink" data-module="exame" onclick="openExamCalendar()">📅 Solicitar Exame Prático →</div>
+                            </div>
+                            <div id="evoSealsTabFreq" class="evo-seals-tab-content">
+                                <div class="evo-freq" id="evoFreqSection">
+                                    <div class="evo-freq-row">
+                                        <div class="evo-freq-left">📊 Frequência Semestre</div>
+                                        <div class="evo-freq-pct" id="evoFreqPct">0%</div>
+                                    </div>
+                                    <div class="evo-freq-bar-bg">
+                                        <div class="evo-freq-bar-fill" id="evoFreqBarFill" style="width:0%"></div>
+                                    </div>
+                                    <div class="evo-freq-sub" id="evoFreqDetail">0 de 48 aulas possíveis</div>
+                                </div>
                             </div>
                             <div id="evoSealsTabTeorica" class="evo-seals-tab-content">
                                 <div id="teoricaContainer">
@@ -7625,17 +7684,6 @@
                             </div>
                         </div>
 
-                        <div class="evo-freq" id="evoFreqSection">
-                            <div class="evo-freq-row">
-                                <div class="evo-freq-left">📊 Frequência Semestre</div>
-                                <div class="evo-freq-pct" id="evoFreqPct">0%</div>
-                            </div>
-                            <div class="evo-freq-bar-bg">
-                                <div class="evo-freq-bar-fill" id="evoFreqBarFill" style="width:0%"></div>
-                            </div>
-                            <div class="evo-freq-sub" id="evoFreqDetail">0 de 48 aulas possíveis</div>
-                        </div>
-
                         <div class="evo-criteria-section" id="evoFaixaCriteria">
                             <div class="evo-criteria-header">
                                 <div class="evo-criteria-header-icon">🏅</div>
@@ -7649,7 +7697,40 @@
 
                         <div class="ibjjf-roadmap">
                             <div class="ibjjf-title" id="ibjjfTitle">🎓 Sistema de Graduação</div>
-                            <div class="ibjjf-subtitle" id="ibjjfSubtitle">Seu caminho da Faixa Branca até a Faixa Preta</div>
+                            <div class="ibjjf-subtitle" id="ibjjfSubtitle">Toque em uma faixa para ver sua jornada</div>
+
+                            <!-- Quando você começou a treinar (integrado) -->
+                            <div class="evo-inicio-box" id="evoInicioBox">
+                                <div class="evo-inicio-label">📅 Quando você começou a treinar?</div>
+                                <div class="evo-inicio-row">
+                                    <input type="date" id="evoInicioDate" class="evo-inicio-input">
+                                    <button class="evo-inicio-btn" id="evoInicioBtn" onclick="saveMyInicioTreino()">Salvar</button>
+                                </div>
+                                <div class="evo-inicio-saved" id="evoInicioSaved" style="display:none;">
+                                    ✅ <span id="evoInicioSavedText"></span>
+                                    <span class="evo-inicio-edit" onclick="editInicioTreino()">editar</span>
+                                </div>
+                            </div>
+
+                            <!-- Declarar graus anteriores (integrado) — rebuilt dynamically per modality -->
+                            <div class="evo-declare-box" id="evoDeclareBox">
+                                <div class="evo-declare-header" onclick="toggleDeclareForm()">
+                                    <span>📋 Já possui graus ou faixas anteriores?</span>
+                                    <span class="evo-declare-toggle" id="evoDeclareToggle">▸</span>
+                                </div>
+                                <div class="evo-declare-form" id="evoDeclareForm" style="display:none;">
+                                    <!-- Rebuilt by populateDeclareForm() based on active modality -->
+                                    <div id="evoDeclFormContent"></div>
+                                    <div id="evoDeclMsg" style="font-size:11px;color:var(--text-3);margin-top:4px;"></div>
+                                </div>
+                            </div>
+
+                            <!-- Apt notification -->
+                            <div class="evo-apt-msg" id="evoAptMsg" style="display:none;">
+                                <div class="evo-apt-icon">🏅</div>
+                                <div class="evo-apt-text" id="evoAptText">Você atingiu os critérios para o próximo grau!</div>
+                                <div class="evo-apt-sub">Fale com seu professor para avançar</div>
+                            </div>
 
                             <div class="ibjjf-legend">
                                 <div class="ibjjf-legend-item"><div class="ibjjf-legend-dot past"></div>Concluída</div>
@@ -7673,49 +7754,9 @@
                             </div>
                         </div>
 
-                        <!-- Graduation Timeline -->
-                        <div class="evo-timeline" id="evoTimeline">
-                            <div class="evo-timeline-title">🏆 Minha Jornada</div>
-
-                            <!-- Student: set own start date -->
-                            <div class="evo-inicio-box" id="evoInicioBox">
-                                <div class="evo-inicio-label">📅 Quando você começou a treinar?</div>
-                                <div class="evo-inicio-row">
-                                    <input type="date" id="evoInicioDate" class="evo-inicio-input">
-                                    <button class="evo-inicio-btn" id="evoInicioBtn" onclick="saveMyInicioTreino()">Salvar</button>
-                                </div>
-                                <div class="evo-inicio-saved" id="evoInicioSaved" style="display:none;">
-                                    ✅ <span id="evoInicioSavedText"></span>
-                                    <span class="evo-inicio-edit" onclick="editInicioTreino()">editar</span>
-                                </div>
-                            </div>
-
-                            <!-- Student: declare prior grades/belts — rebuilt dynamically per modality -->
-                            <div class="evo-declare-box" id="evoDeclareBox">
-                                <div class="evo-declare-header" onclick="toggleDeclareForm()">
-                                    <span>📋 Já possui graus ou faixas anteriores?</span>
-                                    <span class="evo-declare-toggle" id="evoDeclareToggle">▸</span>
-                                </div>
-                                <div class="evo-declare-form" id="evoDeclareForm" style="display:none;">
-                                    <!-- Rebuilt by populateDeclareForm() based on active modality -->
-                                    <div id="evoDeclFormContent"></div>
-                                    <div id="evoDeclMsg" style="font-size:11px;color:var(--text-3);margin-top:4px;"></div>
-                                </div>
-                            </div>
-
-                            <!-- Apt notification -->
-                            <div class="evo-apt-msg" id="evoAptMsg" style="display:none;">
-                                <div class="evo-apt-icon">🏅</div>
-                                <div class="evo-apt-text" id="evoAptText">Você atingiu os critérios para o próximo grau!</div>
-                                <div class="evo-apt-sub">Fale com seu professor para avançar</div>
-                            </div>
-
-                            <div style="position:relative;padding-left:10px;">
-                                <div class="evo-tl-line"></div>
-                                <div id="evoTimelineContent">
-                                    <div class="evo-tl-start">Sua jornada será registrada aqui pelo professor 🥋</div>
-                                </div>
-                            </div>
+                        <!-- Graduation Timeline — hidden for BJJ (data lives in accordion nodes) -->
+                        <div id="evoTimeline" style="display:none;">
+                            <div id="evoTimelineContent"></div>
                         </div>
                     </div>
                     </div>
@@ -9110,7 +9151,20 @@
                         <div id="saTrialMsg" style="font-size:11px;text-align:center;margin-top:4px;"></div>
                     </div>
 
-                    <!-- Stats gerais -->
+                    <!-- Painel CTM — Criar/Gerenciar Clientes -->
+                    <div class="admin-section">
+                        <div class="admin-section-header">
+                            <div class="admin-section-title">🏢 Painel CTM — Gerenciar Clientes</div>
+                        </div>
+                        <div style="font-size:11px;color:var(--adm-text-3);margin-bottom:12px;line-height:1.6;">
+                            Criar novos clientes, configurar trial e gerenciar o registry completo.
+                        </div>
+                        <button onclick="abrirPainelCTM()"
+                            style="width:100%;padding:12px;background:rgba(201,162,58,0.1);color:#C9A23A;border:1.5px solid rgba(201,162,58,0.4);border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;">
+                            🚀 Abrir Painel SuperAdmin CTM
+                        </button>
+                        <div id="saPainelMsg" style="font-size:11px;text-align:center;margin-top:6px;color:var(--adm-text-3);"></div>
+                    </div>
                     <div class="admin-section">
                         <div class="admin-section-header">
                             <div class="admin-section-title">📊 Visão Geral</div>
@@ -11362,7 +11416,7 @@
                     confirmarBtn:  '✓ Confirmar Treino',
                     evolucaoTitulo:'Minha Evolução',
                     roadmapTitulo: '🥋 Sistema de Graduação — BJJ',
-                    roadmapSub:    'Seu caminho da Faixa Branca até a Faixa Preta',
+                    roadmapSub:    'Toque em uma faixa para ver sua jornada',
                 },
                 ui: {
                     mostrarFaixa:     true,
@@ -11849,8 +11903,8 @@
                             nivelEl.textContent = nivelManual ? '🏷️ ' + nivelManual : '';
                         }
                         // Frequência permanece visível
-                        var freq = document.getElementById('evoFreqSection');
-                        if (freq) freq.style.display = '';
+                        var freqTab = document.getElementById('evoFreqTab');
+                        if (freqTab) freqTab.style.display = '';
                     } else if (nenhumCard) {
                         nenhumCard.style.display = 'none';
                     }
@@ -11864,9 +11918,9 @@
                 var seals = document.getElementById('evoSealsSection');
                 if (seals) seals.style.display = ui.mostrarGraus ? '' : 'none';
 
-                // Frequência
-                var freq = document.getElementById('evoFreqSection');
-                if (freq) freq.style.display = ui.mostrarFrequencia ? '' : 'none';
+                // Frequência — controla botão da aba
+                var freqTab = document.getElementById('evoFreqTab');
+                if (freqTab) freqTab.style.display = ui.mostrarFrequencia ? '' : 'none';
 
                 // Critérios de exame
                 var crit = document.getElementById('evoFaixaCriteria');
@@ -12857,12 +12911,16 @@
                         var fw = document.createElement('div'); fw.style.cssText = 'flex:1;';
                         var fl = document.createElement('label'); fl.style.cssText = 'font-size:10px;color:var(--text-3);display:block;margin-bottom:3px;'; fl.textContent = 'Graduação Muay Thai (Kruang Prajied)';
                         var fs = document.createElement('select'); fs.id = 'stuFaixa_' + mod.id; fs.style.cssText = 'width:100%;padding:6px;background:var(--bg-elevated);color:var(--text-1);border:1px solid var(--border);border-radius:6px;font-size:13px;';
-                        faixasArr.forEach(function(f) {
+                        faixasArr.forEach(function(f, idx) {
                             var o = document.createElement('option');
                             o.value = f.id;
-                            o.textContent = (f.emoji ? f.emoji + ' ' : '') + 'Grau ' + f.grau + ' — ' + f.label + ' (' + f.nivel + ')';
+                            var grauNum = (f.grau !== undefined && f.grau !== null) ? f.grau
+                                        : (parseInt(f.id) > 0 ? parseInt(f.id) : idx + 1);
+                            var labelClean = (f.label || '').replace(/\s*\(Grau\s*\d+\)\s*/i, '').trim();
+                            var nivelStr = f.nivel ? ' (' + f.nivel + ')' : '';
+                            o.textContent = (f.emoji ? f.emoji + ' ' : '') + 'Grau ' + grauNum + ' — ' + labelClean + nivelStr;
                             var grauSalvoNum = parseInt(nivelSalvo) || grauSalvo;
-                            if (f.id === nivelSalvo || String(f.grau) === String(nivelSalvo) || f.grau === grauSalvoNum) o.selected = true;
+                            if (f.id === nivelSalvo || String(grauNum) === String(nivelSalvo) || grauNum === grauSalvoNum) o.selected = true;
                             fs.appendChild(o);
                         });
                         fw.appendChild(fl); fw.appendChild(fs); gradBlock.appendChild(fw);
@@ -13900,9 +13958,9 @@
             var seals = document.getElementById('evoSealsSection');
             if (seals) seals.style.display = isKid ? 'none' : '';
             
-            // Frequency section → adults only
-            var freq = document.getElementById('evoFreqSection');
-            if (freq) freq.style.display = isKid ? 'none' : '';
+            // Frequency tab → adults only
+            var freqTab = document.getElementById('evoFreqTab');
+            if (freqTab) freqTab.style.display = isKid ? 'none' : '';
             
             // Criteria section → adults only
             var criteria = document.getElementById('evoFaixaCriteria');
@@ -15570,11 +15628,15 @@
             }
             if (ModalidadeGuard.canRender(modId, 'mostrarRoadmap')) {
                 renderIBJJFRoadmap(faixa, grau, totalTreinos);
-                // Atualiza título do roadmap conforme schema
+                // Atualiza título do roadmap conforme schema (sobrescreve só se schema definir)
                 var schema = ModalidadeGuard.getSchema(modId);
                 var sub = document.getElementById('ibjjfSubtitle');
-                if (sub && schema && schema.nomenclatura.roadmapSub)
-                    sub.textContent = schema.nomenclatura.roadmapSub;
+                if (sub) {
+                    if (schema && schema.nomenclatura && schema.nomenclatura.roadmapSub)
+                        sub.textContent = schema.nomenclatura.roadmapSub;
+                    else if (ModalidadeGuard.hasFaixa(modId))
+                        sub.textContent = 'Toque em uma faixa para ver sua jornada';
+                }
             }
             if (ModalidadeGuard.canRender(modId, 'mostrarPrajied')) {
                 renderPrajiedSection(modId, faixa, grau);
@@ -15889,6 +15951,18 @@
         function getIBJJFBelts() { return _isKidsMode ? IBJJF_BELTS_KIDS : IBJJF_BELTS; }
         function getFaixaToIBJJF() { return _isKidsMode ? FAIXA_TO_IBJJF_KIDS : FAIXA_TO_IBJJF; }
 
+        // Cache de graduações de Minha Jornada → usado no accordion do roadmap IBJJF
+        var _myGraduacoesCache = null;
+
+        // Alterna accordion de cada nó de faixa no roadmap
+        function toggleIBJJFNode(beltId) {
+            var node = document.getElementById('ibjjf-node-' + beltId);
+            if (!node) return;
+            var isOpen = node.classList.contains('open');
+            document.querySelectorAll('.ibjjf-node.open').forEach(function(n) { n.classList.remove('open'); });
+            if (!isOpen) node.classList.add('open');
+        }
+
         function renderIBJJFRoadmap(faixaAtual, grauAtual, totalTreinos) {
             var track = document.getElementById('ibjjfTrack');
             var fillEl = document.getElementById('ibjjfTrackFill');
@@ -15896,59 +15970,175 @@
             track.appendChild(fillEl);
 
             // Only call IBJJF belt functions for BJJ modalities
-            var belts = (ModalidadeGuard.hasFaixa(modId)) ? getIBJJFBelts() : [];
-            var faixaMap = (ModalidadeGuard.hasFaixa(modId)) ? getFaixaToIBJJF() : {};
+            // modId é local de loadEvolucao; usa activeModality diretamente aqui
+            var _modIdRoad = activeModality || (userModalidades && userModalidades[0]) || (currentUser && currentUser.modalidadePrincipal) || 'bjj_adulto';
+            var belts = (ModalidadeGuard.hasFaixa(_modIdRoad)) ? getIBJJFBelts() : [];
+            var faixaMap = (ModalidadeGuard.hasFaixa(_modIdRoad)) ? getFaixaToIBJJF() : {};
+            var isBJJ = ModalidadeGuard.hasFaixa(_modIdRoad);
             var currentId = faixaMap[faixaAtual] || 'branca';
             var currentIdx = -1;
             for (var ai = 0; ai < belts.length; ai++) { if (belts[ai].id === currentId) { currentIdx = ai; break; } }
             var nextIdx = currentIdx + 1;
 
+            // ── Helpers de data ──
+            function _fmtLong(ds) {
+                if (!ds) return '';
+                var MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+                var dp = (ds||'').match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+                if (dp) return parseInt(dp[1]) + ' ' + MESES[parseInt(dp[2])-1] + ' ' + dp[3];
+                var dp2 = (ds||'').split('-');
+                if (dp2.length >= 3) return parseInt(dp2[2]) + ' ' + MESES[parseInt(dp2[1])-1] + ' ' + dp2[0];
+                return ds;
+            }
+
+            // ── Build history map from Minha Jornada cache (apenas BJJ) ──
+            var histMap  = {};
+            var inicioDate = null;
+            if (isBJJ && _myGraduacoesCache) {
+                for (var hi = 0; hi < _myGraduacoesCache.length; hi++) {
+                    var hev = _myGraduacoesCache[hi];
+                    if (hev.tipo === 'inicio') { inicioDate = _fmtLong(hev.data); continue; }
+                    var hf = hev.faixa || '';
+                    if (!histMap[hf]) histMap[hf] = { graus: {}, faixaDate: null, pendingGraus: {}, pendingFaixa: null };
+                    var isPend = (hev.status === 'PENDENTE');
+                    if (hev.tipo === 'grau') {
+                        if (isPend) histMap[hf].pendingGraus[parseInt(hev.grau)] = _fmtLong(hev.data);
+                        else        histMap[hf].graus[parseInt(hev.grau)]        = _fmtLong(hev.data);
+                    } else if (hev.tipo === 'faixa') {
+                        if (isPend) histMap[hf].pendingFaixa = true;
+                        else        histMap[hf].faixaDate    = _fmtLong(hev.data);
+                    }
+                }
+            }
+
             var completedNodes = 0;
 
             for (var i = 0; i < belts.length; i++) {
                 var belt = belts[i];
-
                 var state = 'future';
-                if (i < currentIdx) state = 'completed';
+                if (i < currentIdx)      state = 'completed';
                 else if (i === currentIdx) state = 'current';
-                else if (i === nextIdx) state = 'next';
-
+                else if (i === nextIdx)    state = 'next';
                 if (state === 'completed' || state === 'current') completedNodes++;
 
-                var node = document.createElement('div');
-                node.className = 'ibjjf-node ' + state;
+                var beltHist = histMap[belt.name] || null;
+                var hasHist  = isBJJ && beltHist &&
+                    (Object.keys(beltHist.graus).length > 0 || beltHist.faixaDate);
 
+                var node = document.createElement('div');
+                node.className = 'ibjjf-node ' + state + (hasHist ? ' has-history' : '');
+                if (isBJJ) {
+                    node.id = 'ibjjf-node-' + belt.id;
+                    node.setAttribute('onclick', 'toggleIBJJFNode("' + belt.id + '")');
+                }
+
+                // ── Header ──
                 var h = '<div class="ibjjf-node-inner">';
                 h += '<div class="ibjjf-belt-band ' + belt.cls + '"></div>';
                 h += '<div class="ibjjf-belt-info">';
                 h += '<div class="ibjjf-belt-name">' + belt.name + '</div>';
-
                 var meta = [];
-                if (belt.age) meta.push('Idade: ' + belt.age);
+                if (belt.age)          meta.push('Idade: ' + belt.age);
                 if (belt.minMonths > 0) meta.push('min ' + belt.minMonths + ' meses');
                 if (belt.minTreinos > 0) meta.push(belt.minTreinos + ' treinos');
                 h += '<div class="ibjjf-belt-meta">' + meta.join(' · ') + '</div>';
                 h += '</div>';
 
                 h += '<div class="ibjjf-belt-badges">';
+                var maxG = belt.graus || 4;
                 if (state === 'current') {
-                    var maxG = belt.graus || 4;
                     if (maxG > 0) {
                         h += '<div class="ibjjf-grau-dots">';
-                        for (var g = 0; g < maxG; g++) {
+                        for (var g = 0; g < maxG; g++)
                             h += '<div class="ibjjf-grau-dot' + (g < grauAtual ? ' filled' : '') + '"></div>';
-                        }
                         h += '</div>';
                     }
                     h += '<div class="ibjjf-status-tag here" style="margin-left:8px">VOCÊ</div>';
+                } else if (state === 'completed') {
+                    if (maxG > 0) {
+                        h += '<div class="ibjjf-grau-dots">';
+                        for (var gc = 0; gc < maxG; gc++) h += '<div class="ibjjf-grau-dot filled"></div>';
+                        h += '</div>';
+                    }
+                    var fdStr = beltHist && beltHist.faixaDate ? ' ' + beltHist.faixaDate : '';
+                    h += '<div class="ibjjf-status-tag done">✓' + fdStr + '</div>';
                 } else if (state === 'next') {
                     h += '<div class="ibjjf-status-tag goal">META</div>';
-                } else if (state === 'completed') {
-                    h += '<div class="ibjjf-status-tag done">✓</div>';
                 }
+                if (isBJJ) h += '<span class="ibjjf-node-chevron">▾</span>';
                 h += '</div></div>';
 
+                // ── Accordion body (só para BJJ) ──
+                if (isBJJ) {
+                    h += '<div class="ibjjf-node-body">';
+
+                    // Início da jornada (só no 1º nó)
+                    if (i === 0 && inicioDate) {
+                        h += '<div class="ibjjf-grau-entry">'
+                           + '<div class="ibjjf-grau-entry-dot start-dot"></div>'
+                           + '<div class="ibjjf-grau-entry-info">'
+                           + '<span class="ibjjf-grau-entry-label start-lbl">🥋 Início da Jornada</span>'
+                           + '<span class="ibjjf-grau-entry-date">' + inicioDate + '</span>'
+                           + '</div></div>';
+                    }
+
+                    if (state === 'future') {
+                        h += '<div style="font-size:11px;color:var(--text-3);padding:4px 0;">Requisitos IBJJF:</div>';
+                        if (belt.age)        h += _grauEntryReq('Idade mínima', belt.age);
+                        if (belt.minMonths)  h += _grauEntryReq('Tempo mínimo', belt.minMonths + ' meses');
+                        if (belt.minTreinos) h += _grauEntryReq('Mínimo de treinos', belt.minTreinos + '');
+                    } else {
+                        if (maxG === 0) {
+                            // Kids sem graus — só data da faixa
+                            var bDate = beltHist && beltHist.faixaDate ? beltHist.faixaDate : null;
+                            h += '<div class="ibjjf-grau-entry">'
+                               + '<div class="ibjjf-grau-entry-dot faixa-dot"></div>'
+                               + '<div class="ibjjf-grau-entry-info">'
+                               + '<span class="ibjjf-grau-entry-label faixa-lbl">🥋 Faixa ' + belt.name + '</span>'
+                               + (bDate ? '<span class="ibjjf-grau-entry-date">' + bDate + '</span>'
+                                        : '<span class="ibjjf-grau-entry-date empty">Aguardando professor</span>')
+                               + '</div></div>';
+                        } else {
+                            for (var gh = 1; gh <= maxG; gh++) {
+                                var ghDate    = beltHist && beltHist.graus[gh]              ? beltHist.graus[gh] : null;
+                                var ghPend    = beltHist && beltHist.pendingGraus && beltHist.pendingGraus[gh];
+                                var isReached = (state === 'completed') || (state === 'current' && gh <= grauAtual);
+                                var dotCls  = (isReached || ghDate) ? 'filled' : '';
+                                var lblCls  = (isReached || ghDate) ? 'filled' : '';
+                                var dateHtml;
+                                if (ghDate)        dateHtml = '<span class="ibjjf-grau-entry-date">' + ghDate + '</span>';
+                                else if (ghPend)   dateHtml = '<span class="ibjjf-grau-entry-date empty">⏳ Aguardando aprovação</span>';
+                                else if (isReached) dateHtml = '<span class="ibjjf-grau-entry-date empty">Data não registrada</span>';
+                                else                dateHtml = '<span class="ibjjf-grau-entry-date empty">—</span>';
+                                h += '<div class="ibjjf-grau-entry">'
+                                   + '<div class="ibjjf-grau-entry-dot ' + dotCls + '"></div>'
+                                   + '<div class="ibjjf-grau-entry-info">'
+                                   + '<span class="ibjjf-grau-entry-label ' + lblCls + '">🏅 ' + gh + 'º Grau · ' + belt.name + '</span>'
+                                   + dateHtml
+                                   + '</div></div>';
+                            }
+                            // Promoção de faixa
+                            var fxDate = beltHist && beltHist.faixaDate  ? beltHist.faixaDate : null;
+                            var fxPend = beltHist && beltHist.pendingFaixa;
+                            var fxHtml;
+                            if (fxDate)         fxHtml = '<span class="ibjjf-grau-entry-date">' + fxDate + '</span>';
+                            else if (fxPend)    fxHtml = '<span class="ibjjf-grau-entry-date empty">⏳ Aguardando aprovação</span>';
+                            else if (state==='completed') fxHtml = '<span class="ibjjf-grau-entry-date empty">Data não registrada</span>';
+                            else                fxHtml = '<span class="ibjjf-grau-entry-date empty">—</span>';
+                            h += '<div class="ibjjf-grau-entry">'
+                               + '<div class="ibjjf-grau-entry-dot faixa-dot"></div>'
+                               + '<div class="ibjjf-grau-entry-info">'
+                               + '<span class="ibjjf-grau-entry-label faixa-lbl">🥋 Promoção · Faixa ' + belt.name + '</span>'
+                               + fxHtml
+                               + '</div></div>';
+                        }
+                    }
+                    h += '</div>'; // close node-body
+                }
+
                 node.innerHTML = h;
+                // Auto-abre faixa atual
+                if (isBJJ && state === 'current') node.classList.add('open');
                 track.appendChild(node);
             }
 
@@ -15969,6 +16159,16 @@
             overallPct = Math.min(overallPct, 100);
             document.getElementById('ibjjfOverallPct').textContent = overallPct + '%';
             setTimeout(function() { document.getElementById('ibjjfOverallFill').style.width = overallPct + '%'; }, 300);
+        }
+
+        // Helper: linha de requisito no dropdown de faixa futura
+        function _grauEntryReq(label, val) {
+            return '<div class="ibjjf-grau-entry">'
+                 + '<div class="ibjjf-grau-entry-dot"></div>'
+                 + '<div class="ibjjf-grau-entry-info">'
+                 + '<span class="ibjjf-grau-entry-label">' + label + '</span>'
+                 + '<span class="ibjjf-grau-entry-date empty">' + val + '</span>'
+                 + '</div></div>';
         }
 
         function renderMotivation(freq) {
@@ -16596,10 +16796,18 @@
 
             // ── PRAJIED (Muay Thai) — seleciona Grau diretamente ────────────
             if (tipoGrad === 'prajied') {
+                var labelKruang = (schema && schema.nomenclatura && schema.nomenclatura.faixa) || 'Kruang Prajied';
+                html += '<div class="evo-declare-hint" style="margin-bottom:6px;">Selecione o <strong>' + escapeHtml(labelKruang) + '</strong> que você já possuía ao ingressar:</div>';
                 html += '<div class="evo-declare-row">';
                 html += '<select id="evoDeclNivel" style="flex:1;">';
-                faixas.forEach(function(f) {
-                    html += '<option value="' + escapeHtml(f.id) + '">' + (f.emoji || '') + ' Grau ' + f.grau + ' — ' + escapeHtml(f.label) + '</option>';
+                faixas.forEach(function(f, idx) {
+                    // f.grau pode ser undefined em schemas dinâmicos; fallback para parseInt(f.id) ou índice+1
+                    var grauNum = (f.grau !== undefined && f.grau !== null) ? f.grau
+                                : (parseInt(f.id) > 0 ? parseInt(f.id) : idx + 1);
+                    var label   = f.label || f.nome || ('Grau ' + grauNum);
+                    // Evita duplicar "(Grau X)" se já estiver no label
+                    var labelClean = label.replace(/\s*\(Grau\s*\d+\)\s*/i, '').trim();
+                    html += '<option value="' + escapeHtml(f.id) + '">' + (f.emoji || '') + ' Grau ' + grauNum + ' — ' + escapeHtml(labelClean) + '</option>';
                 });
                 html += '</select></div>';
                 html += '<div class="evo-declare-row">';
@@ -16856,6 +17064,9 @@
 
                 if (data.success) {
                     var events = data.events || [];
+
+                    // Salva no cache para o accordion do roadmap IBJJF
+                    _myGraduacoesCache = events;
                     
                     // Handle inicio box
                     var inicioEvent = null;
@@ -16888,6 +17099,14 @@
                     }
                     
                     checkAptStatus();
+
+                    // Re-renderiza o roadmap accordion com o histórico real (apenas BJJ)
+                    var _rMod = activeModality || (userModalidades && userModalidades[0]) || 'bjj_adulto';
+                    if (typeof ModalidadeGuard !== 'undefined' && ModalidadeGuard.hasFaixa(_rMod) && currentUser) {
+                        var _gradR = (typeof getGradAtiva === 'function') ? getGradAtiva(_rMod) : { faixa: currentUser.faixa || 'Branca', grau: parseInt(currentUser.grau) || 0 };
+                        var _trR   = (typeof getTreinosAtivos === 'function') ? getTreinosAtivos() : parseInt(currentUser.treinos) || 0;
+                        renderIBJJFRoadmap(_gradR.faixa, _gradR.grau, _trR);
+                    }
                 }
             } catch(e) {
                 container.innerHTML = '<div class="evo-tl-start">Erro ao carregar timeline</div>';
@@ -20682,6 +20901,11 @@
             if (tab === 'seals') {
                 document.getElementById('evoSealsTabSeals').classList.add('active');
                 document.querySelector('.evo-seals-tab:first-child').classList.add('active');
+            } else if (tab === 'freq') {
+                var ft = document.getElementById('evoFreqTab');
+                if (ft && ft.classList.contains('disabled')) return;
+                document.getElementById('evoSealsTabFreq').classList.add('active');
+                if (ft) ft.classList.add('active');
             } else if (tab === 'teorica') {
                 var tt = document.getElementById('evoTeoricaTab');
                 if (tt && tt.classList.contains('disabled')) return;
@@ -24832,6 +25056,19 @@
             } catch(e) {
                 if (msgEl) { msgEl.style.color='#f87171'; msgEl.textContent='❌ ' + e.message; }
             }
+        }
+
+        function abrirPainelCTM() {
+            var token = getSessionToken();
+            var msgEl = document.getElementById('saPainelMsg');
+            if (!token) {
+                if (msgEl) msgEl.textContent = 'Faça login primeiro para obter o token.';
+                return;
+            }
+            var scriptBase = SCRIPT_URL.split('?')[0];
+            var url = scriptBase + '?painel=1&token=' + encodeURIComponent(token);
+            if (msgEl) msgEl.textContent = 'Abrindo painel...';
+            window.open(url, '_blank');
         }
 
         async function checkSuperAdmin() {
