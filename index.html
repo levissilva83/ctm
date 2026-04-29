@@ -10980,19 +10980,23 @@
 
     <script>
         // ── Multi-tenant: lê ?ctm= da URL e cola no SCRIPT_URL ──
-        // Link de cada cliente: index.html?ctm=alpha_bjj
-        // Na 1ª visita o ?ctm= é salvo; nas próximas não precisa mais.
+        // URL limpa → sempre matrix. URL com ?ctm= → cliente específico.
         (function() {
             try {
                 var p = new URLSearchParams(window.location.search).get('ctm');
-                if (p) localStorage.setItem('ctm_id', p.trim().toLowerCase());
+                if (p) {
+                    localStorage.setItem('ctm_id', p.trim().toLowerCase());
+                } else {
+                    // URL limpa: força matrix (ignora localStorage)
+                    localStorage.setItem('ctm_id', 'matrix');
+                }
             } catch(e) {}
         })();
         var _ctmId = (function() {
-            try { return localStorage.getItem('ctm_id') || ''; } catch(e) { return ''; }
+            try { return localStorage.getItem('ctm_id') || 'matrix'; } catch(e) { return 'matrix'; }
         })();
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzzxQj8QoTZwIQ0X7BFGAJ4L35iD6_l8eecKwYS7iKd1Z_aDl-R0Mj8dQPzKEHWLsBTyA/exec'
-                         + (_ctmId ? '?ctm=' + _ctmId : '');
+                         + '?ctm=' + _ctmId;
 
         // ===== PWA INSTALL PROMPT =====
         (function() {
