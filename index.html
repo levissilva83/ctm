@@ -9411,12 +9411,15 @@
                                 <div id="saFormContador" style="font-size:10px;color:var(--adm-text-3);margin-top:6px;"></div>
                             </div>
 
-                            <!-- Botão salvar -->
+                            <!-- Botões salvar / excluir -->
                             <button onclick="saFormSalvar()"
-                                style="width:100%;padding:13px;background:linear-gradient(135deg,var(--adm-primary),var(--adm-primary-bright));color:#000;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;">
+                                style="width:100%;padding:13px;background:linear-gradient(135deg,var(--adm-primary),var(--adm-primary-bright));color:#000;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:8px;">
                                 💾 Salvar Contrato
                             </button>
-                            <div id="saFormMsg" style="font-size:11px;text-align:center;margin-top:8px;min-height:16px;"></div>
+                            <button id="saFormExcluirBtn" onclick="saFormExcluir()" style="display:none;width:100%;padding:10px;background:rgba(248,113,113,0.08);color:#f87171;border:1.5px solid rgba(248,113,113,0.3);border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;">
+                                🗑️ Excluir contrato
+                            </button>
+                            <div id="saFormMsg" style="font-size:11px;text-align:center;margin-top:8px;min-height:16px;white-space:pre-wrap;"></div>
                         </div>
 
                         <!-- Editor antigo mantido oculto para compatibilidade -->
@@ -25124,6 +25127,9 @@
             }
             document.getElementById('saFormEmail').value    = emailPresel || '';
             document.getElementById('saFormEmail').readOnly = !!emailPresel;
+            // Mostra botão excluir apenas para contratos existentes
+            var exclBtn = document.getElementById('saFormExcluirBtn');
+            if (exclBtn) exclBtn.style.display = emailPresel ? 'block' : 'none';
             document.getElementById('saFormEmail').style.color = emailPresel ? 'var(--adm-text-3)' : '';
             document.getElementById('saFormPlano').value    = (contrato && contrato.plano)   || 'profissional';
             document.getElementById('saFormStatus').value   = (contrato && contrato.status)  || 'TRIAL';
@@ -25144,6 +25150,22 @@
             // Renderiza checkboxes de modalidades
             _saFormRenderMods(contrato ? (contrato.lista || []) : []);
             document.getElementById('saModForm').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        async function saFormExcluir() {
+            var email = (document.getElementById('saFormEmail')||{}).value.trim();
+            if (!email) return;
+            if (!confirm('⚠️ Excluir contrato de ' + email + '?\n\nEsta ação remove a linha do LICENCIADOS.\nOs dados do cliente (planilha, alunos) NÃO são apagados.')) return;
+            saFormMsg('Excluindo...', '#f87171');
+            try {
+                var res = await secureFetch('excluirContrato', { targetEmail: email });
+                if (res && res.success) {
+                    saFormMsg('✅ Contrato excluído!', '#14532d');
+                    setTimeout(function() { saFormFechar(); saModInit(); }, 1500);
+                } else {
+                    saFormMsg((res && res.message) || 'Erro ao excluir', '#f87171');
+                }
+            } catch(e) { saFormMsg('Erro: ' + e.message, '#f87171'); }
         }
 
         function saFormFechar() {
@@ -25236,7 +25258,7 @@
             saFormMsg('Salvando...', 'var(--adm-text-3)');
 
             try {
-                var res = await secureFetch('setModalidadesContrato', {
+                var res = await secureFetch('salvarContrato', {
                     targetEmail: email,
                     modalidades: modalidadesPayload,
                     sheetId:     sheetId,
