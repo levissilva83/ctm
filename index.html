@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <!-- ═══ CTM MANAGER — PROPRIEDADE DE IDE SYSTEMS TECNOLOGIA ════
+         Todos os direitos reservados. Cópia ou redistribuição não
+         autorizada deste software é crime (Lei 9.610/98 e 9.279/96).
+         CNPJ: 00.000.000/0001-00 | contato@idesystems.com.br
+    ═══════════════════════════════════════════════════════════════ -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, viewport-fit=cover">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -7348,6 +7353,137 @@
         .asn-animate-d4 { animation-delay: 0.20s; }
         
 </style>
+
+    <script>
+    // ═══ CTM MANAGER — PROTEÇÃO DE CÓDIGO ════════════════════════
+    (function(){
+        'use strict';
+
+        // ── Fingerprint da instância ──────────────────────────────
+        var _CTM_OWNER    = 'IDE Systems Tecnologia';
+        var _CTM_DOMAIN   = 'ctapp.online';
+        var _CTM_BUILD    = '2025-04-30-v1';
+        var _CTM_CONTACT  = 'idesystemstecnologia@gmail.com';
+        var _CTM_WA       = '5511984760689';
+
+        // ── Detecta domínio não autorizado ────────────────────────
+        function _checkDomain() {
+            var host = window.location.hostname;
+            // Domínios autorizados
+            var allowed = ['ctapp.online', 'www.ctapp.online', 'localhost', '127.0.0.1', ''];
+            if (allowed.indexOf(host) === -1) {
+                // Envia alerta para o dono
+                _reportUnauthorized('domain', host);
+                // Não bloqueia — apenas notifica silenciosamente
+            }
+        }
+
+        // ── Detecta tentativa de view-source / DevTools ───────────
+        var _devToolsOpen = false;
+        var _dt_threshold = 160;
+        function _checkDevTools() {
+            var w = window.outerWidth - window.innerWidth;
+            var h = window.outerHeight - window.innerHeight;
+            if (w > _dt_threshold || h > _dt_threshold) {
+                if (!_devToolsOpen) {
+                    _devToolsOpen = true;
+                    _reportUnauthorized('devtools', window.location.hostname);
+                }
+            } else {
+                _devToolsOpen = false;
+            }
+        }
+
+        // ── Desabilita atalhos de inspeção ────────────────────────
+        document.addEventListener('keydown', function(e) {
+            // F12
+            if (e.key === 'F12') { e.preventDefault(); return false; }
+            // Ctrl+Shift+I / Ctrl+Shift+J / Ctrl+U / Ctrl+S
+            if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j')) {
+                e.preventDefault(); return false;
+            }
+            if (e.ctrlKey && (e.key === 'u' || e.key === 'U')) {
+                e.preventDefault(); return false;
+            }
+            if (e.ctrlKey && (e.key === 's' || e.key === 'S')) {
+                e.preventDefault(); return false;
+            }
+        });
+
+        // ── Desabilita menu de contexto (botão direito) ───────────
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault(); return false;
+        });
+
+        // ── Desabilita seleção de texto ───────────────────────────
+        document.addEventListener('selectstart', function(e) {
+            // Permite seleção em inputs e textareas
+            var tag = (e.target || {}).tagName || '';
+            if (['INPUT','TEXTAREA','SELECT'].indexOf(tag) === -1) {
+                e.preventDefault();
+            }
+        });
+
+        // ── Detecta drag & download de arquivos ───────────────────
+        document.addEventListener('dragstart', function(e) {
+            e.preventDefault(); return false;
+        });
+
+        // ── Notifica dono via GAS ─────────────────────────────────
+        var _reportedKeys = {};
+        function _reportUnauthorized(tipo, valor) {
+            var key = tipo + ':' + valor;
+            if (_reportedKeys[key]) return; // não repete mesma notificação
+            _reportedKeys[key] = true;
+            try {
+                var payload = {
+                    action:    'reportUnauthorizedAccess',
+                    tipo:      tipo,
+                    valor:     valor,
+                    userAgent: navigator.userAgent,
+                    url:       window.location.href,
+                    ts:        new Date().toISOString()
+                };
+                // Usa fetch silencioso — não afeta UX
+                fetch('https://script.google.com/macros/s/AKfycbzzxQj8QoTZwIQ0X7BFGAJ4L35iD6_l8eecKwYS7iKd1Z_aDl-R0Mj8dQPzKEHWLsBTyA/exec', {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                }).catch(function(){});
+            } catch(e) {}
+        }
+
+        // ── Watermark invisível no DOM ────────────────────────────
+        function _addWatermark() {
+            var wm = document.createElement('div');
+            wm.id = '__ctm_wm';
+            wm.setAttribute('data-owner', _CTM_OWNER);
+            wm.setAttribute('data-build', _CTM_BUILD);
+            wm.setAttribute('data-domain', _CTM_DOMAIN);
+            wm.style.cssText = 'display:none;pointer-events:none;user-select:none;';
+            wm.textContent   = '© ' + _CTM_OWNER + ' | ' + _CTM_BUILD;
+            document.body && document.body.appendChild(wm);
+        }
+
+        // ── Detecta se watermark foi removido (DOM tampering) ─────
+        function _checkIntegrity() {
+            var wm = document.getElementById('__ctm_wm');
+            if (!wm) {
+                _addWatermark(); // recria
+                _reportUnauthorized('dom_tamper', window.location.hostname);
+            }
+        }
+
+        // ── Inicialização ─────────────────────────────────────────
+        window.addEventListener('load', function() {
+            _checkDomain();
+            _addWatermark();
+            setInterval(_checkDevTools,  2000);
+            setInterval(_checkIntegrity, 5000);
+        });
+
+    })();
+    // ═════════════════════════════════════════════════════════════
+    </script>
 </head>
 <body>
     <div class="app">
@@ -11095,7 +11231,7 @@
         var _ctmId = (function() {
             try { return localStorage.getItem('ctm_id') || 'matrix'; } catch(e) { return 'matrix'; }
         })();
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw4OuFJEo_ggn1wu_fo2Vwk3Vga8u_GN-Aw9i4AQ23YttUKhGulLxG3mfjmvOaxseSV/exec'
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx6j5RPh8_iaP7RJxwCmuBlnLPWrV6941JcQI0q7C2TsOCDB0MefiWNdeY1PMBmcfQi/exec'
                          + '?ctm=' + _ctmId;
 
         // ── Verifica se o cliente existe no registry ──────────────
@@ -11299,6 +11435,95 @@
         // ═══════════════════════════════════════
 
         // Catálogo de modalidades disponíveis — pode ser expandido pelo admin
+        // ── Plano e limites globais (carregado via getAssinatura) ──
+        var _planLimits = { alunos: 9999, modalidades: 99, filiais: 99, cobranca: true };
+        var _planId     = '';
+        var _planNomes  = {
+            'basico':       'CT Manager Básico',
+            'profissional': 'CT Manager Pro',
+            'premium':      'CT Manager Premium',
+            'trial':        'Trial'
+        };
+        var _planUpgrade = {
+            'basico':       'profissional',
+            'profissional': 'premium',
+            'trial':        'basico'
+        };
+
+        // Mostra badge de bloqueio por plano em um elemento
+        function _lockByPlan(elId, recurso, planoNecessario) {
+            var el = document.getElementById(elId);
+            if (!el) return;
+            var nomePlano = _planNomes[planoNecessario] || planoNecessario;
+            var lock = document.createElement('div');
+            lock.className = 'plan-lock-overlay';
+            lock.style.cssText = [
+                'position:absolute;inset:0;border-radius:inherit;z-index:10',
+                'background:rgba(10,10,20,0.82)',
+                'display:flex;flex-direction:column;align-items:center;justify-content:center',
+                'cursor:pointer;gap:4px;padding:8px;text-align:center'
+            ].join(';');
+            lock.innerHTML =
+                '<div style="font-size:18px;">🔒</div>' +
+                '<div style="font-size:11px;font-weight:800;color:#C9A23A;line-height:1.3;">' + recurso + '</div>' +
+                '<div style="font-size:10px;color:rgba(255,255,255,0.55);">Disponível no</div>' +
+                '<div style="font-size:11px;font-weight:700;color:#fff;">' + nomePlano + '</div>';
+            lock.onclick = function(e) {
+                e.stopPropagation();
+                _showUpgradeModal(recurso, planoNecessario);
+            };
+            el.style.position = 'relative';
+            el.appendChild(lock);
+        }
+
+        function _fecharUpgradeModal() { var m=document.getElementById('upgradeModal'); if(m) m.remove(); }
+
+        function _showUpgradeModal(recurso, planoNecessario) {
+            var nomePlano = _planNomes[planoNecessario] || planoNecessario;
+            var existing = document.getElementById('upgradeModal');
+            if (existing) existing.remove();
+            var overlay = document.createElement('div');
+            overlay.id = 'upgradeModal';
+            overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.88);display:flex;align-items:center;justify-content:center;padding:24px;';
+            overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
+            overlay.innerHTML =
+                '<div style="background:var(--bg-card,#1a1a2e);border:1.5px solid rgba(201,162,58,0.4);border-radius:18px;padding:28px 24px;max-width:340px;width:100%;text-align:center;">' +
+                    '<div style="font-size:40px;margin-bottom:12px;">🔒</div>' +
+                    '<div style="font-size:18px;font-weight:800;color:#C9A23A;margin-bottom:6px;">' + recurso + '</div>' +
+                    '<div style="font-size:13px;color:rgba(255,255,255,0.65);margin-bottom:20px;line-height:1.6;">' +
+                        'Este recurso está disponível a partir do<br>' +
+                        '<strong style="color:#fff;">' + nomePlano + '</strong>' +
+                    '</div>' +
+                    '<button onclick="_fecharUpgradeModal();switchAdminTab(&quot;adm-assinatura&quot;);asnIniciarSeNecessario();" ' +
+                        'style="width:100%;padding:13px;background:linear-gradient(135deg,#C9A23A,#f5c542);color:#000;border:none;border-radius:11px;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:10px;">' +
+                        '🚀 Ver planos e fazer upgrade' +
+                    '</button>' +
+                    '<button onclick="_fecharUpgradeModal()" ' +
+                        'style="background:none;border:none;color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer;">Fechar</button>' +
+                '</div>';
+            document.body.appendChild(overlay);
+        }
+
+        // Aplica locks baseado nos limites do plano atual
+        function _aplicarLocksPlano() {
+            // Remove locks antigos
+            document.querySelectorAll('.plan-lock-overlay').forEach(function(el){ el.remove(); });
+            // Atualiza ícone de cadeado no nav
+            var navLock = document.getElementById('bnavPagLock');
+            if (navLock) navLock.style.display = _planLimits.cobranca ? 'none' : 'inline';
+            if (!_planId) return;
+            // Cobrança (Básico não tem)
+            if (!_planLimits.cobranca) {
+                _lockByPlan('pagamentosAdminSection',  '💳 Sistema de Cobrança', 'profissional');
+                _lockByPlan('admPagamentos',           '💳 Sistema de Cobrança', 'profissional');
+            }
+            // Filiais (Básico/Pro limitados)
+            if (_planLimits.filiais < 3) {
+                var planNeeded = _planLimits.filiais < 2 ? 'profissional' : 'premium';
+                _lockByPlan('addCTSection', '🏠 Múltiplas Filiais', planNeeded);
+            }
+        }
+
         // MODALIDADES_CATALOG — dinâmico, carregado via getModalidades
         // Fonte única: planilha "Modalidades" (SuperAdmin gerencia o catálogo)
         // Filtrado pelo contrato do licenciado (col H de LICENCIADOS)
@@ -25053,17 +25278,22 @@
         async function _carregarPlanosSelect(selectedValue) {
             var sel = document.getElementById('saFormPlano');
             if (!sel) return;
-            // Se não tiver token, usa fallback direto
-            if (!getSessionToken()) {
-                sel.innerHTML = '<option value="profissional">CT Manager Pro — R$ 69,90</option>' +
-                    '<option value="basico">CT Manager Básico — R$ 59,90</option>' +
-                    '<option value="premium">CT Manager Premium — R$ 99,90</option>' +
-                    '<option value="trial">Trial (período de teste)</option>';
-                if (selectedValue) sel.value = selectedValue;
-                return;
-            }
+            sel.innerHTML = '<option value="">⏳ Carregando...</option>';
+            var FALLBACK_OPTS =
+                '<option value="profissional">CT Manager Pro — R$ 69,90</option>' +
+                '<option value="basico">CT Manager Básico — R$ 59,90</option>' +
+                '<option value="premium">CT Manager Premium — R$ 99,90</option>' +
+                '<option value="trial">Trial (período de teste)</option>';
             try {
-                var res = await secureFetch('getPlanos', {});
+                // Fetch direto sem auth — getPlanos é público
+                var scriptUrl = typeof SCRIPT_URL !== 'undefined'
+                    ? SCRIPT_URL.split('?')[0]
+                    : 'https://script.google.com/macros/s/AKfycbzzxQj8QoTZwIQ0X7BFGAJ4L35iD6_l8eecKwYS7iKd1Z_aDl-R0Mj8dQPzKEHWLsBTyA/exec';
+                var raw = await fetch(scriptUrl, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'getPlanos' })
+                });
+                var res = await raw.json();
                 var planos = (res && res.planos) ? res.planos : [];
                 if (!planos.length) throw new Error('sem planos');
                 sel.innerHTML = '<option value="">— Selecione o plano —</option>';
@@ -25074,7 +25304,6 @@
                     if (opt.value === selectedValue) opt.selected = true;
                     sel.appendChild(opt);
                 });
-                // Trial como opção extra se não estiver nos planos
                 if (!planos.find(function(p){ return (p.id||p.id_plano) === 'trial'; })) {
                     var optT = document.createElement('option');
                     optT.value = 'trial'; optT.textContent = 'Trial (período de teste)';
@@ -25083,10 +25312,7 @@
                 }
                 if (selectedValue) sel.value = selectedValue;
             } catch(e) {
-                sel.innerHTML = '<option value="profissional">CT Manager Pro</option>' +
-                    '<option value="basico">CT Manager Básico</option>' +
-                    '<option value="premium">CT Manager Premium</option>' +
-                    '<option value="trial">Trial</option>';
+                sel.innerHTML = FALLBACK_OPTS;
                 if (selectedValue) sel.value = selectedValue;
             }
         }
@@ -28243,10 +28469,28 @@
         }
 
         /* Modal para selecionar quais modalidades o CT usa */
-        function openCTModModal(encCt) {
+        async function openCTModModal(encCt) {
             var ctName = decodeURIComponent(encCt);
-            var catalog = MODALIDADES_CATALOG || [];
             var selected = _ctModsSelected[ctName] || [];
+
+            // ── Busca modalidades do contrato deste CT via LICENCIADOS ────
+            // Isso garante que só aparecem as modalidades contratadas
+            var catalog = [];
+            try {
+                var res = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'getModalidadesCT', ct: ctName })
+                });
+                var data = await res.json();
+                if (data && data.modalidades && data.modalidades.length > 0) {
+                    catalog = data.modalidades;
+                } else {
+                    // Fallback: usa catálogo global (SuperAdmin vê tudo)
+                    catalog = MODALIDADES_CATALOG || [];
+                }
+            } catch(e) {
+                catalog = MODALIDADES_CATALOG || [];
+            }
 
             var overlay = document.createElement('div');
             overlay.id = 'ctModModalOverlay';
@@ -31353,11 +31597,14 @@
                     ]);
                     _planos     = (r1 && r1.planos)     ? r1.planos     : [];
                     _assinatura = (r2 && r2.assinatura) ? r2.assinatura : null;
+                    if (r2 && r2.limites) { _planLimits = r2.limites; _planId = r2.plano || ''; }
                 } catch(e2) { _planos = []; _assinatura = null; }
             }
             _hideLoad();
             _render();
             _iniciado = true;
+            // Aplica locks após carregar limites
+            setTimeout(_aplicarLocksPlano, 500);
         };
 
         function _render() {
