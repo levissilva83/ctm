@@ -11099,7 +11099,7 @@
         var _ctmId = (function() {
             try { return localStorage.getItem('ctm_id') || 'matrix'; } catch(e) { return 'matrix'; }
         })();
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw4eMVLu-UPcaquOm7j5G6KUK1xJHsjPUkDKLnh93HSgYQOwnD9VUybfWsTGNCaIx1M/exec'
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxepIxiZHQaHiAXb_5-HGk5xIgXM1wJzk_jPWZ4MB0dsMfk7_f_AGzMNfqpQyeQc5j5/exec'
                          + '?ctm=' + _ctmId;
 
         // ── Verifica se o cliente existe no registry ──────────────
@@ -25057,9 +25057,19 @@
         async function _carregarPlanosSelect(selectedValue) {
             var sel = document.getElementById('saFormPlano');
             if (!sel) return;
+            // Se não tiver token, usa fallback direto
+            if (!getSessionToken()) {
+                sel.innerHTML = '<option value="profissional">CT Manager Pro — R$ 69,90</option>' +
+                    '<option value="basico">CT Manager Básico — R$ 59,90</option>' +
+                    '<option value="premium">CT Manager Premium — R$ 99,90</option>' +
+                    '<option value="trial">Trial (período de teste)</option>';
+                if (selectedValue) sel.value = selectedValue;
+                return;
+            }
             try {
                 var res = await secureFetch('getPlanos', {});
                 var planos = (res && res.planos) ? res.planos : [];
+                if (!planos.length) throw new Error('sem planos');
                 sel.innerHTML = '<option value="">— Selecione o plano —</option>';
                 planos.forEach(function(p) {
                     var opt = document.createElement('option');
@@ -25068,19 +25078,18 @@
                     if (opt.value === selectedValue) opt.selected = true;
                     sel.appendChild(opt);
                 });
-                // Adiciona TRIAL como opção de status especial (não é plano pago)
+                // Trial como opção extra se não estiver nos planos
                 if (!planos.find(function(p){ return (p.id||p.id_plano) === 'trial'; })) {
                     var optT = document.createElement('option');
-                    optT.value = 'trial';
-                    optT.textContent = 'Trial (período de teste)';
+                    optT.value = 'trial'; optT.textContent = 'Trial (período de teste)';
                     if (selectedValue === 'trial') optT.selected = true;
                     sel.appendChild(optT);
                 }
+                if (selectedValue) sel.value = selectedValue;
             } catch(e) {
-                // Fallback para planos hardcoded se API falhar
-                sel.innerHTML = '<option value="profissional">Profissional</option>' +
-                    '<option value="basico">Básico</option>' +
-                    '<option value="premium">Premium</option>' +
+                sel.innerHTML = '<option value="profissional">CT Manager Pro</option>' +
+                    '<option value="basico">CT Manager Básico</option>' +
+                    '<option value="premium">CT Manager Premium</option>' +
                     '<option value="trial">Trial</option>';
                 if (selectedValue) sel.value = selectedValue;
             }
@@ -25332,7 +25341,7 @@
                 html += '<label style="display:flex;align-items:center;gap:10px;padding:11px 13px;' +
                     'background:' + (checked ? 'rgba(' + corRGB + ',0.07)' : 'var(--adm-bg-card)') + ';' +
                     'border:1.5px solid ' + (checked ? cor : 'var(--adm-border)') + ';' +
-                    'border-radius:9px;cursor:pointer;transition:all 0.15s;" ' +
+                    'border-radius:9px;cursor:pointer;transition:all 0.15s;position:relative;" ' +
                     'id="saModLabel_' + escapeHtml(m.id) + '">' +
                     '<input type="checkbox" value="' + escapeHtml(m.id) + '"' +
                     (checked ? ' checked' : '') +
@@ -25343,7 +25352,9 @@
                         '<div style="font-size:13px;font-weight:700;color:var(--adm-text-1);">' + escapeHtml(m.nome) + '</div>' +
                         '<div style="font-size:10px;color:var(--adm-text-3);">' + escapeHtml(gl) + (!m.ativo ? ' · Inativa' : '') + '</div>' +
                     '</div>' +
-                    '<div style="width:11px;height:11px;border-radius:50%;background:' + cor + ';flex-shrink:0;"></div>' +
+                    (checked
+                      ? '<span style="font-size:11px;font-weight:800;color:' + cor + ';background:rgba(' + corRGB + ',0.15);padding:2px 7px;border-radius:8px;">✓ Contratado</span>'
+                      : '<span style="font-size:10px;color:var(--adm-text-3);">— </span>') +
                 '</label>';
             });
             el.innerHTML = html;
@@ -25405,7 +25416,24 @@
                     sheetId:     sheetIdVal.trim()
                 });
                 if (res && res.success) {
-                    _saModMsg('✅ Contrato salvo! ' + (payload.length ? payload.length + ' modalidade(s) contratada(s)' : 'Acesso a todas'), 'success');
+                    // Monta resumo do contrato
+                    var planoEl  = document.getElementById('saFormPlano');
+                    var statusEl = document.getElementById('saFormStatus');
+                    var planoTxt = planoEl ? (planoEl.options[planoEl.selectedIndex] ? planoEl.options[planoEl.selectedIndex].textContent : planoEl.value) : '';
+                    var statusTxt= statusEl ? statusEl.value : '';
+                    var modNomes = payload.map(function(id) {
+                        for (var j = 0; j < _saModCatalogo.length; j++) if (_saModCatalogo[j].id === id) return _saModCatalogo[j].icon + ' ' + _saModCatalogo[j].nome;
+                        return id;
+                    });
+                    var resumo = [
+                        '✅ Contrato salvo com sucesso!',
+                        '📧 Email: ' + _saModEmailAtual,
+                        '📦 Plano: ' + planoTxt,
+                        '🔖 Status: ' + statusTxt,
+                        '🎯 Modalidades (' + (payload.length || 'todas') + '): ' + (modNomes.length ? modNomes.join(', ') : 'Todas as modalidades ativas'),
+                        '📊 Sheet ID: ' + (sheetIdVal.trim() ? sheetIdVal.trim().substring(0,20) + '...' : 'não informado')
+                    ].join('\n');
+                    _saModMsg(resumo, 'success');
                     // Atualiza lista local sem rebuscar tudo
                     for (var i = 0; i < _saModContratos.length; i++) {
                         if (_saModContratos[i].email === _saModEmailAtual) {
@@ -25421,8 +25449,9 @@
                             break;
                         }
                     }
-                    _saModRenderLista(); // Atualiza os cards
-                    saModFecharEditor();
+                    _saModRenderLista();
+                    // Fecha editor após 3s para o usuário ler o resumo
+                    setTimeout(saModFecharEditor, 3000);
                 } else {
                     _saModMsg((res && res.message) || 'Erro ao salvar', 'error');
                 }
@@ -25434,6 +25463,11 @@
             if (!el) return;
             var cores = { success:'#4ade80', error:'#f87171', info:'var(--adm-primary)' };
             el.style.color = cores[tipo] || cores.info;
+            el.style.whiteSpace = 'pre-line';
+            el.style.padding = tipo === 'success' ? '10px 12px' : '0';
+            el.style.background = tipo === 'success' ? 'rgba(74,222,128,0.06)' : 'transparent';
+            el.style.borderRadius = '8px';
+            el.style.fontSize = '12px';
             el.textContent = msg;
         }
 
@@ -28077,8 +28111,13 @@
             var ctObj = _ctAdminData.find(function(c){ return (typeof c==='string'?c:c.name) === ctName; });
             if (!ctObj) { contentEl.innerHTML = '<div class="admin-empty">CT não encontrado</div>'; return; }
 
-            var schedule = ctScheduleCache[ctName] || {};
-            var hpd      = (typeof ctObj === 'object' && ctObj.horariosPorDia) ? ctObj.horariosPorDia : {};
+            var schedule  = ctScheduleCache[ctName] || {};
+            // horariosSlotsRaw preserves rich format {modId: {dia: [{inicio,fim,limite,listaPresenca}]}}
+            // horariosPorDia is normalized (strings only) — used for checkin windows
+            var hpdRich  = (typeof ctObj === 'object' && ctObj.horariosSlotsRaw) ? ctObj.horariosSlotsRaw : null;
+            var hpd      = (typeof ctObj === 'object' && ctObj.horariosPorDia)   ? ctObj.horariosPorDia   : {};
+            // Prefer rich format for editing; fall back to normalized
+            if (!hpdRich || Object.keys(hpdRich).length === 0) hpdRich = hpd;
             var catalog  = MODALIDADES_CATALOG || [];
 
             // ── Determina quais modalidades este CT usa ──────────────────
@@ -28148,7 +28187,10 @@
             // ── Painéis (um por modalidade, todos no DOM, só 1 visível) ──
             ctMods.forEach(function(mod) {
                 var isActive   = mod.id === activeModId;
-                var modHpd     = hpd[mod.id] || {};
+                // Use rich slots for rendering (preserves fim, limite, listaPresenca)
+                var modHpdNorm = hpd[mod.id]     || {};
+                var modHpdRich = hpdRich[mod.id]  || modHpdNorm;
+                var modHpd     = modHpdRich;
                 var safePanel  = safeCtEnc+'_'+mod.id;
                 var corRGB     = mod.corRGB || '201,162,58';
 
@@ -28357,18 +28399,31 @@
         function _getSlotsForDay(ctName, modId, dk, modHpd) {
             if (!_slotsData[ctName]) _slotsData[ctName] = {};
             if (!_slotsData[ctName][modId]) _slotsData[ctName][modId] = {};
-            if (_slotsData[ctName][modId][dk] !== undefined) return _slotsData[ctName][modId][dk];
-            var raw = modHpd ? modHpd[dk] : null;
-            var slots = [];
-            if (Array.isArray(raw)) {
-                slots = raw.map(function(s){ return typeof s === 'string' ? {inicio:s,fim:'',limite:0,listaPresenca:false} : s; });
-            } else if (raw) {
-                slots = raw.toString().split(',').map(function(t){
-                    return {inicio:t.trim(),fim:'',limite:0,listaPresenca:false};
-                }).filter(function(s){return s.inicio;});
+            // If modHpd is provided AND cache is not set, always initialize from modHpd
+            // (allows re-reading when panel is re-opened)
+            if (_slotsData[ctName][modId][dk] !== undefined && !modHpd) {
+                return _slotsData[ctName][modId][dk];
             }
-            _slotsData[ctName][modId][dk] = slots;
-            return slots;
+            // Read from modHpd if provided (rich or normalized)
+            if (modHpd) {
+                var raw = modHpd[dk] || null;
+                var slots = [];
+                if (Array.isArray(raw)) {
+                    slots = raw.map(function(s){
+                        return typeof s === 'string'
+                            ? {inicio:s, fim:'', limite:0, listaPresenca:false}
+                            : {inicio:s.inicio||'', fim:s.fim||'', limite:parseInt(s.limite)||0, listaPresenca:!!s.listaPresenca};
+                    }).filter(function(s){ return s.inicio; });
+                } else if (raw && raw.toString().trim()) {
+                    slots = raw.toString().split(',').map(function(t){
+                        return {inicio:t.trim(), fim:'', limite:0, listaPresenca:false};
+                    }).filter(function(s){ return s.inicio; });
+                }
+                _slotsData[ctName][modId][dk] = slots;
+                return slots;
+            }
+            // Cache exists, use it
+            return _slotsData[ctName][modId][dk] || [];
         }
 
         function _updateSlot(ctName, modId, dk, idx, field, val) {
@@ -28382,14 +28437,63 @@
             var slots = _getSlotsForDay(ctName, modId, dk, null);
             slots.push({inicio:'',fim:'',limite:0,listaPresenca:false});
             markCTUnsaved2();
-            openCTPanel(ctName);
+            // Re-render just this day's container
+            var safeKey = encodeURIComponent(ctName)+'_'+modId;
+            var dayContainer = document.getElementById('ctDayTimes2_'+safeKey+'_'+dk);
+            if (dayContainer) {
+                // Re-render using current _slotsData
+                var newHtml = _renderSlotsForDay(ctName, modId, dk, safeKey);
+                dayContainer.innerHTML = newHtml;
+                // Also append add-button after container (parent has it outside)
+            } else {
+                openCTPanel(ctName); // fallback
+            }
+        }
+
+        function _renderSlotsForDay(ctName, modId, dk, safeKey) {
+            var slots = _getSlotsForDay(ctName, modId, dk, null);
+            var ctEsc = escapeHtml(ctName);
+            var html  = '';
+            slots.forEach(function(sl, si) {
+                var slObj = (typeof sl === 'string') ? {inicio:sl,fim:'',limite:0,listaPresenca:false} : sl;
+                html += '<div style="background:var(--adm-bg-elevated);border:1px solid var(--adm-border);border-radius:8px;padding:8px 10px;margin-bottom:6px;">';
+                html += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">';
+                html += '<span style="font-size:10px;color:var(--adm-text-3);font-weight:700;">INÍCIO</span>';
+                html += '<input type="text" value="'+escapeHtml(slObj.inicio||'')+'" maxlength="5" placeholder="HH:MM" '
+                     +  'onchange="_updateSlot(\''+ctEsc+'\',\''+modId+'\',\''+dk+'\','+si+',\'inicio\',this.value)" '
+                     +  'style="width:58px;padding:4px 6px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:6px;font-size:13px;text-align:center;">';
+                html += '<span style="font-size:10px;color:var(--adm-text-3);font-weight:700;">FIM <span style="font-weight:400;">(opt)</span></span>';
+                html += '<input type="text" value="'+escapeHtml(slObj.fim||'')+'" maxlength="5" placeholder="HH:MM" '
+                     +  'onchange="_updateSlot(\''+ctEsc+'\',\''+modId+'\',\''+dk+'\','+si+',\'fim\',this.value)" '
+                     +  'style="width:58px;padding:4px 6px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:6px;font-size:13px;text-align:center;">';
+                html += '<button onclick="_removeSlot(\''+ctEsc+'\',\''+modId+'\',\''+dk+'\','+si+')" '
+                     +  'style="margin-left:auto;width:22px;height:22px;border-radius:6px;background:rgba(248,113,113,0.1);color:#f87171;border:none;font-size:11px;cursor:pointer;">✕</button>';
+                html += '</div>';
+                html += '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">';
+                html += '<label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--adm-text-3);cursor:pointer;">';
+                html += '<input type="number" min="0" max="999" value="'+(slObj.limite||0)+'" '
+                     +  'onchange="_updateSlot(\''+ctEsc+'\',\''+modId+'\',\''+dk+'\','+si+',\'limite\',parseInt(this.value)||0)" '
+                     +  'style="width:48px;padding:3px 5px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:5px;font-size:12px;">👥 Limite</label>';
+                html += '<label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--adm-text-3);cursor:pointer;">';
+                html += '<input type="checkbox"'+(slObj.listaPresenca?' checked':'')+' '
+                     +  'onchange="_updateSlot(\''+ctEsc+'\',\''+modId+'\',\''+dk+'\','+si+',\'listaPresenca\',this.checked)" '
+                     +  'style="accent-color:var(--adm-primary);"> 📋 Lista presença</label>';
+                html += '</div></div>';
+            });
+            return html;
         }
 
         function _removeSlot(ctName, modId, dk, idx) {
             var slots = _getSlotsForDay(ctName, modId, dk, null);
             slots.splice(idx, 1);
             markCTUnsaved2();
-            openCTPanel(ctName);
+            var safeKey = encodeURIComponent(ctName)+'_'+modId;
+            var dayContainer = document.getElementById('ctDayTimes2_'+safeKey+'_'+dk);
+            if (dayContainer) {
+                dayContainer.innerHTML = _renderSlotsForDay(ctName, modId, dk, safeKey);
+            } else {
+                openCTPanel(ctName);
+            }
         }
 
         function _renderDayRows(ctName, modId, schedule, modHpd) {
@@ -28728,6 +28832,42 @@
             return schedule;
         }
 
+        function _mostrarResumoHorarios(ctName) {
+            var DAY_LABELS = {seg:'Seg',ter:'Ter',qua:'Qua',qui:'Qui',sex:'Sex',sab:'Sáb',dom:'Dom'};
+            var linhas = ['✅ Horários salvos para ' + ctName + '!', ''];
+            var mods = MODALIDADES_CATALOG || [];
+            mods.forEach(function(mod) {
+                var dias = _slotsData[ctName] && _slotsData[ctName][mod.id];
+                if (!dias) return;
+                var hasSlots = false;
+                var modLinhas = [mod.icon + ' ' + mod.nome + ':'];
+                Object.keys(dias).forEach(function(dk) {
+                    var slots = dias[dk];
+                    if (!slots || !slots.length) return;
+                    var validos = slots.filter(function(s){ return s.inicio; });
+                    if (!validos.length) return;
+                    hasSlots = true;
+                    validos.forEach(function(s) {
+                        var linha = '  ' + (DAY_LABELS[dk]||dk) + ': ' + s.inicio;
+                        if (s.fim) linha += ' – ' + s.fim;
+                        if (s.limite) linha += ' (máx ' + s.limite + ' alunos)';
+                        if (s.listaPresenca) linha += ' 📋';
+                        modLinhas.push(linha);
+                    });
+                });
+                if (hasSlots) linhas = linhas.concat(modLinhas).concat(['']);
+            });
+            if (linhas.length <= 2) linhas = ['✅ Horários salvos!'];
+            var msgEl = document.getElementById('ctSaveMsg2');
+            if (msgEl) {
+                msgEl.style.color = '#4ade80';
+                msgEl.style.whiteSpace = 'pre-line';
+                msgEl.style.fontSize = '11px';
+                msgEl.textContent = linhas.join('\n');
+                setTimeout(function(){ if(msgEl) msgEl.textContent = ''; }, 6000);
+            }
+        }
+
         async function saveCTFull2(ctName, modId) {
             // modId é opcional (passado pelo botão v3 para identificação)
             var saveBtn = document.getElementById('ctSaveBtn2');
@@ -28751,6 +28891,8 @@
 
                 if (data.success) {
                     ctScheduleCache[ctName] = schedule;
+                    // Build and show schedule summary
+                    _mostrarResumoHorarios(ctName);
                     var badge = document.getElementById('ctStatusBadge');
                     if (badge) { badge.textContent='salvo'; badge.className='ct-schedule-status saved'; }
                 } else { alert(data.message || 'Erro ao salvar'); }
