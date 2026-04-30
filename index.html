@@ -9202,62 +9202,112 @@
                             <div class="admin-section-title">🎯 Contrato de Modalidades</div>
                             <button class="admin-refresh-btn" onclick="saModInit()">↻</button>
                         </div>
-                        <div style="font-size:10px;color:var(--adm-text-3);margin-bottom:12px;line-height:1.6;">
-                            Defina quais modalidades cada CT pode usar. O que for marcado aqui aparece exatamente no cadastro de novos alunos.
-                        </div>
 
-                        <!-- Lista / seletor de contrato -->
+                        <!-- Lista de contratos existentes -->
                         <div id="saModListaContratos">
                             <div style="text-align:center;padding:20px;color:var(--adm-text-3);font-size:12px;">⏳ Carregando contratos...</div>
                         </div>
 
-                        <!-- Editor de contrato (aparece ao clicar em um CT) -->
-                        <div id="saModEditor" style="display:none;margin-top:14px;border-top:1px solid var(--adm-border);padding-top:14px;">
-                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-                                <div style="font-size:12px;font-weight:800;color:var(--adm-primary);text-transform:uppercase;letter-spacing:0.5px;">✏️ Editar Contrato</div>
-                                <button onclick="saModFecharEditor()" style="padding:5px 10px;background:transparent;color:var(--adm-text-3);border:1px solid var(--adm-border);border-radius:6px;font-size:11px;cursor:pointer;">✕ Fechar</button>
+                        <!-- Botão novo contrato -->
+                        <button onclick="saFormAbrir()" id="saFormAbrirBtn"
+                            style="width:100%;margin-top:12px;padding:11px;background:rgba(201,162,58,0.08);color:var(--adm-primary);border:1.5px dashed rgba(201,162,58,0.35);border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;">
+                            ＋ Novo Contrato
+                        </button>
+
+                        <!-- ── FORMULÁRIO DE CONTRATO (novo ou edição) ── -->
+                        <div id="saModForm" style="display:none;margin-top:14px;background:var(--adm-bg-elevated);border:1px solid rgba(201,162,58,0.25);border-radius:12px;padding:16px;">
+
+                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+                                <div style="font-size:13px;font-weight:800;color:var(--adm-primary);" id="saFormTitulo">➕ Novo Contrato</div>
+                                <button onclick="saFormFechar()" style="padding:4px 10px;background:transparent;color:var(--adm-text-3);border:1px solid var(--adm-border);border-radius:6px;font-size:11px;cursor:pointer;">✕</button>
                             </div>
 
-                            <!-- Dropdown: selecionar email do contrato (1:1) -->
-                            <div style="margin-bottom:12px;">
+                            <!-- E-mail do responsável -->
+                            <div style="margin-bottom:10px;">
                                 <label style="font-size:10px;color:var(--adm-primary);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px;">
-                                    📧 E-mail do contrato <span style="color:#f87171;font-size:9px;font-weight:400;">(1 e-mail = 1 contrato)</span>
+                                    📧 E-mail do responsável <span style="color:#f87171;font-size:9px;">(1 e-mail = 1 contrato)</span>
                                 </label>
-                                <select id="saModEmailSelect" onchange="saModOnEmailSelect()"
-                                    style="width:100%;padding:9px 12px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid rgba(201,162,58,0.4);border-radius:8px;font-size:13px;">
-                                    <option value="">— Selecione o e-mail —</option>
-                                </select>
-                                <div id="saModEmailInfo" style="font-size:10px;color:var(--adm-text-3);margin-top:4px;min-height:16px;"></div>
+                                <input type="email" id="saFormEmail" placeholder="admin@academia.com.br"
+                                    oninput="this.style.borderColor=''"
+                                    style="width:100%;box-sizing:border-box;padding:9px 12px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:13px;">
                             </div>
 
-                            <!-- Sheet ID do CT -->
-                            <div style="margin-bottom:12px;">
+                            <!-- Plano -->
+                            <div style="margin-bottom:10px;">
+                                <label style="font-size:10px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px;">
+                                    📦 Plano
+                                </label>
+                                <select id="saFormPlano"
+                                    style="width:100%;padding:9px 12px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:13px;">
+                                    <option value="profissional">Profissional</option>
+                                    <option value="basico">Básico</option>
+                                    <option value="premium">Premium</option>
+                                    <option value="trial">Trial</option>
+                                </select>
+                            </div>
+
+                            <!-- Status -->
+                            <div style="margin-bottom:10px;">
+                                <label style="font-size:10px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px;">
+                                    🔖 Status
+                                </label>
+                                <select id="saFormStatus"
+                                    style="width:100%;padding:9px 12px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:13px;">
+                                    <option value="TRIAL">TRIAL</option>
+                                    <option value="ATIVO">ATIVO</option>
+                                    <option value="INATIVO">INATIVO</option>
+                                    <option value="CANCELADO">CANCELADO</option>
+                                </select>
+                            </div>
+
+                            <!-- Vencimento -->
+                            <div style="margin-bottom:10px;">
+                                <label style="font-size:10px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px;">
+                                    📅 Próximo vencimento
+                                </label>
+                                <input type="date" id="saFormVencimento"
+                                    style="width:100%;box-sizing:border-box;padding:9px 12px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:13px;">
+                            </div>
+
+                            <!-- Sheet ID -->
+                            <div style="margin-bottom:10px;">
                                 <label style="font-size:10px;color:#60a5fa;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px;">
                                     📊 Sheet ID da Planilha do CT
                                 </label>
-                                <div style="display:flex;gap:6px;align-items:center;">
-                                    <input type="text" id="saModSheetIdInput" placeholder="1rJMmWR2YuStG4OFwgR-_aX8psk8..."
-                                        style="flex:1;padding:9px 12px;background:var(--adm-bg-card);color:#60a5fa;border:1px solid rgba(96,165,250,0.3);border-radius:8px;font-size:12px;font-family:monospace;">
-                                    <button onclick="saModAbrirSheet()" title="Abrir planilha"
-                                        style="padding:9px 12px;background:rgba(96,165,250,0.1);color:#60a5fa;border:1px solid rgba(96,165,250,0.3);border-radius:8px;font-size:13px;cursor:pointer;flex-shrink:0;">↗</button>
+                                <div style="display:flex;gap:6px;">
+                                    <input type="text" id="saFormSheetId" placeholder="1rJMmWR2YuStG4OFwgR-_aX8psk8..."
+                                        style="flex:1;padding:9px 12px;background:var(--adm-bg-card);color:#60a5fa;border:1px solid rgba(96,165,250,0.25);border-radius:8px;font-size:12px;font-family:monospace;">
+                                    <button onclick="saFormAbrirSheet()" title="Abrir"
+                                        style="padding:9px 12px;background:rgba(96,165,250,0.08);color:#60a5fa;border:1px solid rgba(96,165,250,0.25);border-radius:8px;font-size:13px;cursor:pointer;flex-shrink:0;">↗</button>
                                 </div>
-                                <div style="font-size:9px;color:var(--adm-text-3);margin-top:4px;">ID encontrado na URL do Google Sheets: docs.google.com/spreadsheets/d/<strong style="color:#60a5fa;">ID</strong>/edit</div>
+                                <div style="font-size:9px;color:var(--adm-text-3);margin-top:3px;">URL do Sheets: …/spreadsheets/d/<strong style="color:#60a5fa;">ID</strong>/edit</div>
                             </div>
 
-                            <div style="font-size:10px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">
-                                Modalidades do contrato <span style="color:var(--adm-primary);font-size:9px;">(o que for marcado aparece no cadastro)</span>
+                            <!-- Modalidades -->
+                            <div style="margin-bottom:12px;">
+                                <label style="font-size:10px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:6px;">
+                                    🥋 Modalidades contratadas
+                                </label>
+                                <div id="saFormModGrid" style="display:flex;flex-direction:column;gap:5px;"></div>
+                                <div id="saFormContador" style="font-size:10px;color:var(--adm-text-3);margin-top:6px;"></div>
                             </div>
 
-                            <!-- Limites do plano -->
-                            <div id="saModLimitesInfo" style="display:none;flex-wrap:wrap;gap:6px;margin-bottom:10px;padding:10px 12px;background:rgba(201,162,58,0.06);border:1px solid rgba(201,162,58,0.18);border-radius:9px;font-size:11px;color:var(--adm-text-2);font-weight:600;"></div>
-
-                            <!-- Contador de seleção -->
-                            <div id="saModContador" style="font-size:10px;color:var(--adm-text-3);margin-bottom:8px;font-weight:600;"></div>
-
-                            <div id="saModCheckboxes" style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;"></div>
-                            <button onclick="saModSalvar()" style="width:100%;padding:12px;background:linear-gradient(135deg,var(--adm-primary),var(--adm-primary-bright));color:#000;border:none;border-radius:9px;font-size:13px;font-weight:800;cursor:pointer;margin-bottom:6px;">
+                            <!-- Botão salvar -->
+                            <button onclick="saFormSalvar()"
+                                style="width:100%;padding:13px;background:linear-gradient(135deg,var(--adm-primary),var(--adm-primary-bright));color:#000;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;">
                                 💾 Salvar Contrato
                             </button>
+                            <div id="saFormMsg" style="font-size:11px;text-align:center;margin-top:8px;min-height:16px;"></div>
+                        </div>
+
+                        <!-- Editor antigo mantido oculto para compatibilidade -->
+                        <div id="saModEditor" style="display:none;">
+                            <select id="saModEmailSelect" style="display:none;"></select>
+                            <div id="saModEmailInfo" style="display:none;"></div>
+                            <input id="saModSheetIdInput" type="text" style="display:none;">
+                            <div id="saModLimitesInfo" style="display:none;"></div>
+                            <div id="saModContador" style="display:none;"></div>
+                            <div id="saModCheckboxes" style="display:none;"></div>
                         </div>
 
                         <div id="saModMsg" style="font-size:11px;text-align:center;margin-top:8px;min-height:18px;"></div>
@@ -10302,15 +10352,19 @@
     </div>
     <!-- end app -->
 
-    <!-- TRIAL BLOQUEADO OVERLAY -->
-    <div id="trialBlockedOverlay" style="display:none;position:fixed;inset:0;background:#0F172A;z-index:9999;display:none;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center;">
-        <div style="font-size:56px;margin-bottom:16px;">🔒</div>
-        <div style="font-size:20px;font-weight:800;color:#D4A529;margin-bottom:8px;">Sistema Indisponível</div>
-        <div id="trialBlockedMsg" style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.6;max-width:300px;margin-bottom:24px;">Entre em contato com o administrador para continuar.</div>
-        <div id="trialBlockedSub" style="font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:32px;"></div>
-        <a id="trialWALink" href="https://wa.me/5511999999999?text=Ol%C3%A1%2C%20gostaria%20de%20contratar%20o%20IDESystems" target="_blank"
-           style="padding:14px 28px;background:#D4A529;color:#000;border-radius:10px;font-weight:800;font-size:13px;text-decoration:none;display:inline-block;">
-            💬 Falar com Suporte
+    <!-- TRIAL EXPIRADO OVERLAY — redireciona para assinatura -->
+    <div id="trialBlockedOverlay" style="display:none;position:fixed;inset:0;background:#0F172A;z-index:9999;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center;">
+        <div style="font-size:52px;margin-bottom:14px;">💳</div>
+        <div style="font-size:20px;font-weight:800;color:#C9A23A;margin-bottom:6px;">Período de teste encerrado</div>
+        <div id="trialBlockedMsg" style="font-size:13px;color:rgba(255,255,255,0.55);line-height:1.6;max-width:300px;margin-bottom:6px;">Para continuar usando o CTM Manager, escolha um plano.</div>
+        <div id="trialBlockedSub" style="font-size:11px;color:rgba(255,255,255,0.25);margin-bottom:28px;"></div>
+        <button onclick="trialIrParaAssinatura()"
+            style="width:100%;max-width:300px;padding:14px 28px;background:linear-gradient(135deg,#C9A23A,#f5c542);color:#000;border:none;border-radius:12px;font-weight:800;font-size:15px;cursor:pointer;margin-bottom:12px;">
+            🚀 Ver planos e assinar
+        </button>
+        <a id="trialWALink" href="https://wa.me/5511984760689?text=Ol%C3%A1%2C%20gostaria%20de%20contratar%20o%20CTM%20Manager" target="_blank"
+           style="font-size:12px;color:rgba(255,255,255,0.35);text-decoration:none;">
+            💬 Falar com suporte
         </a>
     </div>
 
@@ -11058,7 +11112,7 @@
         var _ctmId = (function() {
             try { return localStorage.getItem('ctm_id') || 'matrix'; } catch(e) { return 'matrix'; }
         })();
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw2MzvnrfZ9RI4xQ6ZDblRM9W-a-CFnQOfdcXuqUBpCU5qLk38Hx_3Xj6Yg_xNv5Axn9w/exec'
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw3QMcqc4IJtR-XSNL5VgGOAB0beShO6hUM3FjpyiSNC1vxWUbmNuO4SSFEHR7kZzVG/exec'
                          + '?ctm=' + _ctmId;
 
         // ── Verifica se o cliente existe no registry ──────────────
@@ -24577,29 +24631,64 @@
         }
 
         function showTrialBlocked(data) {
+            // Se for admin, redireciona direto para a tela de assinatura
+            var isAdm = typeof currentUser !== 'undefined' && currentUser &&
+                        (currentUser.admin === true || currentUser.admin === 'TRUE' || currentUser.role === 'admin');
+            if (isAdm) {
+                // Esconde telas e vai para assinatura
+                ['appScreen','bottomNav'].forEach(function(id){
+                    var el = document.getElementById(id); if(el) el.style.display='none';
+                });
+                var adminScreen = document.getElementById('adminScreen');
+                if (adminScreen) adminScreen.style.display = 'flex';
+                // Abre aba de assinatura
+                if (typeof switchAdminTab === 'function') switchAdminTab('adm-assinatura');
+                if (typeof asnIniciarSeNecessario === 'function') setTimeout(asnIniciarSeNecessario, 200);
+                // Mostra banner explicativo
+                _showTrialBanner(data);
+                return;
+            }
+            // Aluno/professor: mostra overlay com botão "Ver planos"
             var overlay = document.getElementById('trialBlockedOverlay');
             if (!overlay) return;
             var msg = document.getElementById('trialBlockedMsg');
             var sub = document.getElementById('trialBlockedSub');
             var waLink = document.getElementById('trialWALink');
-            if (msg) msg.textContent = data.motivoBloqueio || 'Sistema temporariamente bloqueado. Entre em contato com o administrador.';
+            if (msg) msg.textContent = 'Para continuar usando o CTM Manager, escolha um plano.';
             if (sub) {
-                if (data.expirado && data.dataExpiracao) {
-                    var d = new Date(data.dataExpiracao);
-                    sub.textContent = 'Período de teste encerrado em ' + d.toLocaleDateString('pt-BR');
-                } else {
-                    sub.textContent = '';
-                }
+                sub.textContent = data.expirado && data.dataExpiracao
+                    ? 'Período de teste encerrado em ' + new Date(data.dataExpiracao).toLocaleDateString('pt-BR')
+                    : '';
             }
-            // Atualiza link WhatsApp com número do backend
             if (waLink && data.suporteWhatsApp) {
-                waLink.href = 'https://wa.me/' + data.suporteWhatsApp + '?text=Ol%C3%A1%2C%20gostaria%20de%20contratar%20o%20IDESystems';
+                waLink.href = 'https://wa.me/' + data.suporteWhatsApp + '?text=Ol%C3%A1%2C%20gostaria%20de%20contratar%20o%20CTM%20Manager';
             }
             overlay.style.display = 'flex';
             ['appScreen','adminScreen','loginScreen','bottomNav','adminNav'].forEach(function(id) {
-                var el = document.getElementById(id);
-                if (el) el.style.display = 'none';
+                var el = document.getElementById(id); if (el) el.style.display = 'none';
             });
+        }
+
+        function _showTrialBanner(data) {
+            var existing = document.getElementById('trialExpiredBanner');
+            if (existing) existing.remove();
+            var banner = document.createElement('div');
+            banner.id = 'trialExpiredBanner';
+            banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9998;background:#C9A23A;color:#000;text-align:center;padding:8px 16px;font-size:12px;font-weight:800;';
+            banner.textContent = '⏰ Período de teste encerrado — escolha um plano para continuar';
+            document.body.prepend(banner);
+        }
+
+        function trialIrParaAssinatura() {
+            // Para alunos: fecha overlay e abre tela de assinatura
+            var overlay = document.getElementById('trialBlockedOverlay');
+            if (overlay) overlay.style.display = 'none';
+            var appScreen = document.getElementById('appScreen');
+            if (appScreen) appScreen.style.display = 'flex';
+            var bottomNav = document.getElementById('bottomNav');
+            if (bottomNav) bottomNav.style.display = 'flex';
+            if (typeof switchTab === 'function') switchTab('assinatura-tab');
+            if (typeof asnIniciarSeNecessario === 'function') setTimeout(asnIniciarSeNecessario, 200);
         }
 
         function showTrialBanner(diasRestantes) {
@@ -24742,7 +24831,164 @@
 
         // ═══════════════════════════════════════════════════════
         // CONTRATO DE MODALIDADES — SuperAdmin
+        // ══════════════════════════════════════════════
+        // FORMULÁRIO DE CONTRATO — criar / editar via form
+        // ══════════════════════════════════════════════
+
+        var _saFormModo = 'novo'; // 'novo' ou 'editar'
+        var _saFormEmailOriginal = '';
+
+        function saFormAbrir(emailPresel) {
+            _saFormModo = emailPresel ? 'editar' : 'novo';
+            _saFormEmailOriginal = emailPresel || '';
+
+            document.getElementById('saFormTitulo').textContent = emailPresel ? '✏️ Editar Contrato' : '➕ Novo Contrato';
+            document.getElementById('saModForm').style.display = 'block';
+            document.getElementById('saFormAbrirBtn').style.display = 'none';
+            document.getElementById('saFormMsg').textContent = '';
+
+            // Preenche campos se for edição
+            var contrato = null;
+            if (emailPresel) {
+                for (var i = 0; i < _saModContratos.length; i++) {
+                    if (_saModContratos[i].email === emailPresel) { contrato = _saModContratos[i]; break; }
+                }
+            }
+            document.getElementById('saFormEmail').value    = emailPresel || '';
+            document.getElementById('saFormEmail').readOnly = !!emailPresel;
+            document.getElementById('saFormEmail').style.color = emailPresel ? 'var(--adm-text-3)' : '';
+            document.getElementById('saFormPlano').value    = (contrato && contrato.plano)   || 'profissional';
+            document.getElementById('saFormStatus').value   = (contrato && contrato.status)  || 'TRIAL';
+            document.getElementById('saFormSheetId').value  = (contrato && contrato.sheetId) || '';
+
+            // Vencimento: pré-preenche com 30 dias se novo
+            var vc = document.getElementById('saFormVencimento');
+            if (contrato && contrato.proximoVencimento) {
+                // converte dd/MM/yyyy → yyyy-MM-dd
+                var parts = contrato.proximoVencimento.split('/');
+                if (parts.length === 3) vc.value = parts[2] + '-' + parts[1] + '-' + parts[0];
+                else vc.value = '';
+            } else {
+                var d30 = new Date(); d30.setDate(d30.getDate() + 30);
+                vc.value = d30.toISOString().substring(0, 10);
+            }
+
+            // Renderiza checkboxes de modalidades
+            _saFormRenderMods(contrato ? (contrato.lista || []) : []);
+            document.getElementById('saModForm').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function saFormFechar() {
+            document.getElementById('saModForm').style.display = 'none';
+            document.getElementById('saFormAbrirBtn').style.display = 'block';
+            _saFormModo = 'novo';
+            _saFormEmailOriginal = '';
+        }
+
+        function saFormAbrirSheet() {
+            var id = (document.getElementById('saFormSheetId') || {}).value || '';
+            if (!id.trim()) { saFormMsg('Cole o Sheet ID primeiro', '#f87171'); return; }
+            window.open('https://docs.google.com/spreadsheets/d/' + id.trim() + '/edit', '_blank');
+        }
+
+        function _saFormRenderMods(selecionadas) {
+            var el = document.getElementById('saFormModGrid');
+            if (!el) return;
+            if (!_saModCatalogo.length) {
+                el.innerHTML = '<div style="font-size:11px;color:var(--adm-text-3);">Carregue os contratos primeiro (↻)</div>';
+                return;
+            }
+            var selSet = {};
+            (selecionadas || []).forEach(function(id) { selSet[id.toLowerCase()] = true; });
+
+            el.innerHTML = _saModCatalogo.map(function(m) {
+                var checked = selSet[m.id] || false;
+                var cor     = m.cor    || '#C9A23A';
+                var corRGB  = m.corRGB || '201,162,58';
+                var bg      = checked ? 'rgba(' + corRGB + ',0.07)' : 'var(--adm-bg-card)';
+                var border  = checked ? cor : 'var(--adm-border)';
+                return '<label style="display:flex;align-items:center;gap:10px;padding:9px 12px;' +
+                    'background:' + bg + ';border:1px solid ' + border + ';border-radius:8px;cursor:pointer;' +
+                    'transition:all .15s;" onclick="_saFormOnCheck(this,'' + cor + '','' + corRGB + '')">' +
+                    '<input type="checkbox" value="' + m.id + '"' + (checked ? ' checked' : '') +
+                    ' style="accent-color:' + cor + ';width:16px;height:16px;flex-shrink:0;" onclick="event.stopPropagation()">' +
+                    '<span style="font-size:16px;">' + (m.icon || '🥋') + '</span>' +
+                    '<span style="flex:1;font-size:12px;font-weight:600;color:var(--adm-text-1);">' + escapeHtml(m.nome) + '</span>' +
+                    '<div style="width:10px;height:10px;border-radius:50%;background:' + cor + ';flex-shrink:0;"></div>' +
+                    '</label>';
+            }).join('');
+            _saFormAtualizarContador();
+        }
+
+        function _saFormOnCheck(label, cor, corRGB) {
+            var cb = label.querySelector('input[type=checkbox]');
+            if (!cb) return;
+            cb.checked = !cb.checked;
+            label.style.background   = cb.checked ? 'rgba(' + corRGB + ',0.07)' : 'var(--adm-bg-card)';
+            label.style.borderColor  = cb.checked ? cor : 'var(--adm-border)';
+            _saFormAtualizarContador();
+        }
+
+        function _saFormAtualizarContador() {
+            var marcadas = document.querySelectorAll('#saFormModGrid input[type=checkbox]:checked').length;
+            var ctr = document.getElementById('saFormContador');
+            if (ctr) ctr.textContent = marcadas + ' modalidade(s) selecionada(s)' + (marcadas === 0 ? ' — todas ativas' : '');
+        }
+
+        function saFormMsg(txt, cor) {
+            var el = document.getElementById('saFormMsg');
+            if (!el) return;
+            el.textContent = txt;
+            el.style.color = cor || 'var(--adm-text-3)';
+        }
+
+        async function saFormSalvar() {
+            var email   = (document.getElementById('saFormEmail').value || '').trim().toLowerCase();
+            var plano   = document.getElementById('saFormPlano').value || 'profissional';
+            var status  = document.getElementById('saFormStatus').value || 'TRIAL';
+            var vencISO = document.getElementById('saFormVencimento').value || '';
+            var sheetId = (document.getElementById('saFormSheetId').value || '').trim();
+
+            if (!email) { document.getElementById('saFormEmail').style.borderColor='#f87171'; saFormMsg('⚠️ E-mail obrigatório', '#f87171'); return; }
+            if (!sheetId) { document.getElementById('saFormSheetId').style.borderColor='#f87171'; saFormMsg('⚠️ Sheet ID obrigatório', '#f87171'); return; }
+
+            // Converte data yyyy-MM-dd → dd/MM/yyyy
+            var vencBR = '';
+            if (vencISO) {
+                var dp = vencISO.split('-');
+                if (dp.length === 3) vencBR = dp[2] + '/' + dp[1] + '/' + dp[0];
+            }
+
+            // Pega modalidades marcadas
+            var cbs = document.querySelectorAll('#saFormModGrid input[type=checkbox]:checked');
+            var mods = [].map.call(cbs, function(cb) { return cb.value; });
+            var todasMarcadas = mods.length === _saModCatalogo.length;
+            var modalidadesPayload = todasMarcadas ? [] : mods;
+
+            saFormMsg('Salvando...', 'var(--adm-text-3)');
+
+            try {
+                var res = await secureFetch('setModalidadesContrato', {
+                    targetEmail: email,
+                    modalidades: modalidadesPayload,
+                    sheetId:     sheetId,
+                    plano:       plano,
+                    status:      status,
+                    vencimento:  vencBR
+                });
+                if (res && res.success) {
+                    saFormMsg('✅ Contrato salvo com sucesso!', '#4ade80');
+                    setTimeout(function() { saFormFechar(); saModInit(); }, 1200);
+                } else {
+                    saFormMsg('❌ ' + (res && res.message ? res.message : 'Erro ao salvar'), '#f87171');
+                }
+            } catch(e) {
+                saFormMsg('❌ Erro: ' + e.message, '#f87171');
+            }
+        }
+
         // Lista contratos ativos + editor com checkboxes por CT
+
         // O que for marcado = exatamente o que aparece no cadastro
         // ═══════════════════════════════════════════════════════
         var _saModCatalogo   = [];  // todas as modalidades da planilha
@@ -24883,19 +25129,8 @@
 
         function saModOnListaSelect(email) {
             _saModEmailAtual = email;
-            // Sincroniza o dropdown do editor
-            saModPopularDropdown(email);
-            saModOnEmailSelect();
-            // Re-renderiza preview
             _saModRenderLista();
-            // Abre editor se selecionou algo
-            if (email) {
-                var editor = document.getElementById('saModEditor');
-                if (editor) {
-                    editor.style.display = 'block';
-                    editor.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                }
-            }
+            if (email) saFormAbrir(email);
         }
 
         // ── Abre editor para um CT específico ───────────────────
@@ -24968,6 +25203,10 @@
         }
 
         async function saModAbrirEditor(email) {
+            // Redireciona para o novo formulário
+            saFormAbrir(email);
+            return;
+            // (código legado abaixo mantido para referência)
             _saModEmailAtual = email;
             var contrato = null;
             for (var i = 0; i < _saModContratos.length; i++) {
