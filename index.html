@@ -11640,16 +11640,18 @@
                 return {
                     id:             _id,
                     label:          _lbl,
-                    // aliases para capoeira (cordão) e outros sistemas
                     cordao:         f.cordao     || _lbl,
                     nivel:          f.nivel      || _lbl,
                     nivelLabel:     f.nivelLabel || _lbl,
                     emoji:          f.emoji     || '🥋',
                     cor:            f.cor       || '#C9A23A',
+                    corRGB:         f.corRGB    || '201,162,58',
                     cssClass:       _id.toLowerCase().replace(/[^a-z0-9]/g,'-'),
                     next:           f.next      || null,
                     minMeses:       f.minMeses  !== undefined ? f.minMeses  : (f.min_meses || 0),
                     maxGrau:        f.maxGrau   !== undefined ? f.maxGrau   : (f.max_grau  !== undefined ? f.max_grau : 4),
+                    idadeMin:       f.idadeMin  !== undefined ? parseInt(f.idadeMin)  || 0 : 0,
+                    idadeMax:       f.idadeMax  !== undefined ? parseInt(f.idadeMax)  || 0 : 0,
                     ordemProgresso: f.ordem     || (idx + 1)
                 };
             });
@@ -12968,9 +12970,9 @@
                 return;
             }
 
-            // CORREÇÃO v5.0: preserva kids mode detectado por idade/flag.
-            // Antes isso era sempre false, apagando o kids mode ao trocar modalidade.
-            var isKidsMod = (_isKidsMode) || (currentUser && currentUser.isKids) || (mod && mod.id === 'bjj');
+            // CORREÇÃO v5.1: isKids determinado EXCLUSIVAMENTE por idade e flag do aluno.
+            // NÃO usar mod.id === 'bjj' como critério — BJJ tem adultos E kids.
+            var isKidsMod = (_isKidsMode) || (currentUser && currentUser.isKids);
             if (isKidsMod) {
                 document.body.classList.add('kids-mode');
                 _isKidsMode = true;
@@ -13191,7 +13193,8 @@
                 var showGrau  = hasFaixa && !hasPrajied; // grau numérico só em faixa_cintura
 
                 // ── Preta/top faixa: graus especiais (somente adultos com faixa_cintura) ──
-                // Não aplica para kids (showGrau = false já cobre)
+                // _isKids calculado abaixo no bloco BJJ; aqui ainda é false (adulto por padrão)
+                var _isKids = false; // ← declarado antes de ser usado
                 if (hasFaixa && !hasPrajied && !hasCorda && !_isKids) {
                     var faixasList  = ModalidadeGuard.getFaixas(mod.id) || [];
                     var ultimaFaixa = faixasList.length > 0 ? faixasList[faixasList.length - 1] : null;
@@ -13199,40 +13202,30 @@
                         maxGraus = 6; // Faixa Preta: graus 1°–6°
                     }
                 }
-
-                // ── BJJ: faixas por idade (IBJJF) ────────────────────────────────
-                // Lê data de nascimento do formulário e decide adulto vs kids.
-                // ── BJJ/Adulto detection ─────────────────────────────
-                var _isKids = false;
-                if (mod.id === 'bjj' && hasFaixa) {
+                // ── Filtro de idade: aplica para QUALQUER modalidade com idadeMin/idadeMax ──
+                // Funciona com BJJ, Karatê Kids, Krav Maga, ou qualquer modalidade na planilha
+                // Fonte única: aba Faixas (colunas idade_min e idade_max)
+                if (hasGrad && faixasArr.length > 0) {
                     var _nascInput = document.getElementById('stuNascimento');
                     var _nascVal   = _nascInput ? _nascInput.value : '';
                     var _idade     = _nascVal ? calcIdade(_nascVal) : null;
-                    if (_idade !== null && _idade < 16) {
-                        _isKids = true;
-                        // Kids IBJJF: Cinza → Verde-Preta (sem faixa Branca de adulto)
-                        faixasArr = [
-                            { id:'Branca',        label:'Branca',        emoji:'⚪', cor:'#e8e8e8', maxGrau:4, ordemProgresso:0 },
-                            { id:'Cinza-Branca',  label:'Cinza/Branca',  emoji:'⛹️', cor:'#bdbdbd', maxGrau:4, ordemProgresso:1 },
-                            { id:'Cinza',         label:'Cinza',         emoji:'🦥', cor:'#9e9e9e', maxGrau:0, ordemProgresso:2 },
-                            { id:'Cinza-Preta',   label:'Cinza/Preta',   emoji:'🖤', cor:'#757575', maxGrau:0, ordemProgresso:3 },
-                            { id:'Amarela-Branca',label:'Amarela/Branca',emoji:'🟡', cor:'#fff176', maxGrau:4, ordemProgresso:4 },
-                            { id:'Amarela',       label:'Amarela',       emoji:'🟡', cor:'#fdd835', maxGrau:0, ordemProgresso:5 },
-                            { id:'Amarela-Preta', label:'Amarela/Preta', emoji:'🥯', cor:'#f9a825', maxGrau:0, ordemProgresso:6 },
-                            { id:'Laranja-Branca',label:'Laranja/Branca',emoji:'🟠', cor:'#ffb74d', maxGrau:4, ordemProgresso:7 },
-                            { id:'Laranja',       label:'Laranja',       emoji:'🟠', cor:'#fb8c00', maxGrau:0, ordemProgresso:8 },
-                            { id:'Laranja-Preta', label:'Laranja/Preta', emoji:'🥯', cor:'#e65100', maxGrau:0, ordemProgresso:9 },
-                            { id:'Verde-Branca',  label:'Verde/Branca',  emoji:'🟢', cor:'#81c784', maxGrau:4, ordemProgresso:10 },
-                            { id:'Verde',         label:'Verde',         emoji:'🟢', cor:'#43a047', maxGrau:0, ordemProgresso:11 },
-                            { id:'Verde-Preta',   label:'Verde/Preta',   emoji:'🥯', cor:'#2e7d32', maxGrau:0, ordemProgresso:12 },
-                        ];
-                        labelNivel = 'Faixa (Kids)';
-                        // Kids: Branca tem graus 0-4; demais faixas coloridas sem grau numérico
-                        // maxGraus e showGrau são controlados dinamicamente pelo onchange da faixa
-                        var _nivelSalvoKids = nivelSalvo || 'Branca';
-                        var _faixaKidsObj   = faixasArr.find(function(f){ return f.id === _nivelSalvoKids; }) || faixasArr[0];
-                        maxGraus = _faixaKidsObj ? (_faixaKidsObj.maxGrau || 0) : 0;
-                        showGrau = maxGraus > 0;
+                    var _temFiltro = faixasArr.some(function(f){ return (f.idadeMin > 0) || (f.idadeMax > 0); });
+                    if (_temFiltro && _idade !== null) {
+                        var _ff = faixasArr.filter(function(f) {
+                            var minOk = !f.idadeMin || _idade >= f.idadeMin;
+                            var maxOk = !f.idadeMax || _idade <= f.idadeMax;
+                            return minOk && maxOk;
+                        });
+                        if (_ff.length > 0) {
+                            faixasArr = _ff;
+                            _isKids = faixasArr.every(function(f){ return f.idadeMax > 0 && f.idadeMax <= 15; });
+                            if (_isKids) {
+                                labelNivel = 'Faixa (Kids)';
+                                var _fkObj = faixasArr.find(function(f){ return f.id === nivelSalvo; }) || faixasArr[0];
+                                maxGraus = _fkObj ? (_fkObj.maxGrau || 0) : 0;
+                                showGrau = maxGraus > 0;
+                            }
+                        }
                     }
                 }
                 // ──────────────────────────────────────────────────
@@ -17731,17 +17724,10 @@
                 h += '<span style="font-size:10px;font-weight:700;padding:3px 8px;background:rgba(74,222,128,0.12);color:#4ade80;border-radius:6px;">Ativo</span>';
                 h += '</div>';
                 h += '<button onclick="removerCartao()" style="width:100%;padding:10px;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);color:#f87171;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;">🗑 Remover cartão</button>';
-            } else if (temGateway) {
-                // Gateway configurado — pode adicionar cartão
-                h += '<div style="font-size:12px;color:var(--text-3);margin-bottom:12px;line-height:1.5;">Cadastre um cartão para ativar o débito automático da mensalidade.</div>';
-                h += '<button onclick="abrirModalCartao()" style="width:100%;padding:13px;background:linear-gradient(135deg,#009ee3,#0075bd);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;letter-spacing:.3px;">💳 Cadastrar cartão</button>';
             } else {
-                // Sem gateway — orienta sobre Pix
-                h += '<div style="font-size:12px;color:var(--text-3);line-height:1.5;text-align:center;padding:8px 0;">';
-                h += '<div style="font-size:28px;margin-bottom:8px;">🟢</div>';
-                h += 'O CT utiliza <strong style="color:var(--text-1);">PIX</strong> como forma de pagamento.<br>';
-                h += '<span style="font-size:11px;">Combine com seu professor para registrar.</span>';
-                h += '</div>';
+                // Sem cartão — sempre permite cadastrar (independe de gateway ou plano)
+                h += '<div style="font-size:12px;color:var(--text-3);margin-bottom:12px;line-height:1.5;">Cadastre seu cartão antecipadamente para ativar o débito automático quando seu plano for atribuído.</div>';
+                h += '<button onclick="abrirModalCartao()" style="width:100%;padding:13px;background:linear-gradient(135deg,#009ee3,#0075bd);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;letter-spacing:.3px;">💳 Cadastrar cartão</button>';
             }
             h += '</div>';
             return h;
@@ -17807,8 +17793,8 @@
             if (semPlano) {
                 h += '<div style="display:flex;align-items:center;gap:12px;padding:14px;background:rgba(255,255,255,0.02);border-radius:12px;border:1px dashed var(--border);margin-bottom:12px;">';
                 h += '<div style="font-size:28px;">📋</div>';
-                h += '<div><div style="font-size:13px;font-weight:700;color:var(--text-2);">Nenhum plano selecionado</div>';
-                h += '<div style="font-size:11px;color:var(--text-3);margin-top:2px;">Escolha um plano para começar</div></div>';
+                h += '<div><div style="font-size:13px;font-weight:700;color:var(--text-2);">Nenhum plano atribuído</div>';
+                h += '<div style="font-size:11px;color:var(--text-3);margin-top:2px;">Seu professor irá atribuir seu plano em breve.</div></div>';
                 h += '</div>';
             } else {
                 h += '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px;">';
@@ -17825,9 +17811,6 @@
                 h += '</div></div>';
             }
 
-            h += '<button onclick="abrirModalPlano()" style="width:100%;padding:11px;background:rgba(201,162,58,0.08);border:1.5px solid rgba(201,162,58,0.25);border-radius:12px;color:#C9A23A;font-size:13px;font-weight:700;cursor:pointer;">';
-            h += semPlano ? '📋 Escolher Plano' : '🔄 Trocar Plano';
-            h += '</button>';
             h += '</div>';
 
             // ── Alerta: cartão recusado + PIX como fallback ────────────────
@@ -17885,11 +17868,9 @@
             }
 
             // ── Card: Forma de Pagamento (cartão) ──────────────────
-            // Sempre visível quando gateway suporta cartão (Mercado Pago)
-            if (temGateway) {
-                h += _renderCartaoSection(data);
-                h += '<div style="height:14px;"></div>';
-            }
+            // Sempre visível — o aluno cadastra cartão independente de plano ou gateway
+            h += _renderCartaoSection(data);
+            h += '<div style="height:14px;"></div>';
 
             // ── Card: Histórico completo ───────────────────────────
             h += '<div style="background:var(--bg-card);border-radius:16px;border:1px solid var(--border);padding:16px;">';
@@ -18048,12 +18029,10 @@
                 var data = await secureFetch('getPagamentoStatus', { email: currentUser.email });
                 if (!data.success) return; // erro real → ignora
 
-                // Exibe banner se não há cartão cadastrado
-                // Independe de data.configurado — aluno pode sempre cadastrar forma de pagamento
+                // Exibe banner sempre que não há cartão cadastrado
+                // Não depende de plano, gateway ou status — aluno pode cadastrar a qualquer momento
                 var semCartao = !data.temCartaoSalvo;
-                var temPlano  = !!(data.plano && data.plano.nome);
-                // Mostra se: tem plano (mesmo sem módulo configurado) OU se módulo ativo sem cartão
-                if (semCartao && (temPlano || data.configurado)) {
+                if (semCartao) {
                     showPaymentBanner();
                 }
             } catch(e) { /* silencioso — banner é opcional */ }
@@ -18142,7 +18121,7 @@
                 h += '<div class="pag-badge ' + (statusClass[status]||'inativo') + '">' + (statusLabel[status]||status) + '</div>';
             }
             h += '</div>';
-            h += '<button onclick="abrirModalPlano()" class="pag-btn secondary" style="margin-top:10px;">';
+            h += '<button onclick="abrirModalPlano()" class="pag-btn secondary" style="margin-top:10px;display:none;">';
             h += semPlano ? '📋 Escolher Plano' : '🔄 Trocar plano';
             h += '</button>';
             h += '</div>';
@@ -18189,10 +18168,8 @@
                 h += '</div>';
             }
 
-            // ── Forma de pagamento (cartão) — visível quando MP está ativo
-            if (temGateway) {
-                h += _renderCartaoSection(data);
-            }
+            // ── Forma de pagamento (cartão) — sempre visível
+            h += _renderCartaoSection(data);
 
             // Histórico
             if (historico.length > 0) {
