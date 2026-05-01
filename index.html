@@ -7362,7 +7362,7 @@
         // ── Fingerprint da instância ──────────────────────────────
         var _CTM_OWNER    = 'IDE Systems Tecnologia';
         var _CTM_DOMAIN   = 'ctapp.online';
-        var _CTM_BUILD    = '2025-04-30-v1';
+        var _CTM_BUILD    = '2025-05-01-v2';
         var _CTM_CONTACT  = 'idesystemstecnologia@gmail.com';
         var _CTM_WA       = '5511984760689';
 
@@ -9640,6 +9640,22 @@
                     <!-- ════ SUB-TAB: SISTEMA (conteúdo original) ════ -->
                     <div class="sis-subtab-panel active" id="sis-panel-sistema">
 
+                    <!-- ABOUT / VERSÃO -->
+                    <!-- ABOUT -->
+                    <div style="text-align:center;padding:16px 0 14px;border-bottom:1px solid var(--adm-border);margin-bottom:20px;">
+                        <div style="font-size:13px;font-weight:800;color:var(--adm-text-1);letter-spacing:.4px;">CTM Manager</div>
+                        <div style="font-size:11px;color:var(--adm-text-3);margin-top:5px;">Versão <strong id="ctm-about-version" style="color:var(--adm-text-2);">—</strong></div>
+                        <div style="font-size:10px;color:var(--adm-text-3);margin-top:4px;">© <span id="ctm-about-year">2025</span> IDESystems Tecnologia. Todos os direitos reservados.</div>
+                    </div>
+                    <script>(function(){
+                        var b=typeof _CTM_BUILD!=='undefined'?_CTM_BUILD:'—';
+                        var v=document.getElementById('ctm-about-version');
+                        var y=document.getElementById('ctm-about-year');
+                        if(v) v.textContent=b;
+                        if(y) y.textContent=new Date().getFullYear();
+                    })();</script>
+
+
                     <!-- QR CODE CHECK-IN -->
                     <div class="admin-section">
                         <div class="admin-section-header">
@@ -10398,6 +10414,27 @@
         <button id="asnBtnAssinar" onclick="asnAssinar()" class="asn-btn-cta" style="margin-top:16px;">
           &#128274;&nbsp; Ativar Assinatura
         </button>
+
+        <!-- PIX como alternativa ao cartão -->
+        <div style="display:flex;align-items:center;gap:8px;margin:12px 0 4px;">
+          <div style="flex:1;height:1px;background:var(--border);"></div>
+          <span style="font-size:10px;color:var(--text-3);white-space:nowrap;">ou prefere pagar com</span>
+          <div style="flex:1;height:1px;background:var(--border);"></div>
+        </div>
+        <button id="asnBtnPix" onclick="asnPagarPix()" style="width:100%;padding:13px;background:rgba(34,197,94,0.1);border:1.5px solid rgba(34,197,94,0.3);color:#22c55e;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+          <span style="font-size:20px;">🟢</span> Pagar com PIX
+        </button>
+
+        <!-- Área do QR Code PIX -->
+        <div id="asnPixArea" style="display:none;margin-top:16px;background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.2);border-radius:14px;padding:16px;text-align:center;">
+          <div style="font-size:12px;font-weight:700;color:var(--text-1);margin-bottom:10px;">📲 Escaneie o QR Code ou copie o código PIX</div>
+          <img id="asnPixQr" src="" alt="QR Code PIX" style="width:180px;height:180px;border-radius:10px;margin-bottom:10px;display:none;">
+          <div style="background:rgba(0,0,0,0.15);border-radius:8px;padding:10px;word-break:break-all;font-size:10px;font-family:monospace;color:var(--text-2);text-align:left;max-height:80px;overflow-y:auto;" id="asnPixCode"></div>
+          <button onclick="asnCopiarPix()" style="width:100%;margin-top:10px;padding:10px;background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.3);color:#22c55e;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;">📋 Copiar código PIX</button>
+          <div style="font-size:10px;color:var(--text-3);margin-top:8px;" id="asnPixInstrucoes">Abra seu banco → Pix → Copiar e Colar. O acesso é liberado automaticamente após a confirmação.</div>
+          <div id="asnPixStatus" style="font-size:11px;font-weight:700;margin-top:8px;min-height:16px;"></div>
+        </div>
+
         <button onclick="asnFecharFormCartao()" class="asn-btn-back">
           &#8592; Voltar
         </button>
@@ -11234,7 +11271,7 @@
         var _ctmId = (function() {
             try { return localStorage.getItem('ctm_id') || 'matrix'; } catch(e) { return 'matrix'; }
         })();
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxDgYB4hJHTEHxlUMiD9fsPen2yySlIrjlpgET1zMJZm5OjXye65z6tIJvq5n3W-WA3/exec'
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxBjtFc8GFMmfvwKhB4udKmXyyvlPT5iTmIJF5tnQnh_HEl7ptwR0TWz3v8A23iCIF7/exec'
                          + '?ctm=' + _ctmId;
 
         // ── Verifica se o cliente existe no registry ──────────────
@@ -31744,6 +31781,42 @@
             var mes = parseInt(pts[0], 10);
             var ano = pts[1] ? parseInt(pts[1].length === 2 ? '20'+pts[1] : pts[1], 10) : 0;
 
+            // ── Validação Luhn antes de chamar a API ──────────────────
+            var luhn = function(n) {
+                var s = 0, alt = false;
+                for (var i = n.length - 1; i >= 0; i--) {
+                    var d = parseInt(n[i], 10);
+                    if (alt) { d *= 2; if (d > 9) d -= 9; }
+                    s += d; alt = !alt;
+                }
+                return s % 10 === 0;
+            };
+            if (!luhn(numero)) {
+                _fmsg('Número do cartão inválido. Verifique os dígitos e tente novamente.', 'danger');
+                return;
+            }
+            if (numero.length < 13 || numero.length > 19) {
+                _fmsg('Número do cartão deve ter entre 13 e 19 dígitos.', 'danger');
+                return;
+            }
+            if (!mes || mes < 1 || mes > 12) {
+                _fmsg('Mês de validade inválido (use MM/AA).', 'danger');
+                return;
+            }
+            var anoAtual = new Date().getFullYear();
+            if (ano < anoAtual || (ano === anoAtual && mes < new Date().getMonth() + 1)) {
+                _fmsg('Cartão vencido. Verifique a validade.', 'danger');
+                return;
+            }
+            if (!cvv || cvv.length < 3) {
+                _fmsg('CVV inválido.', 'danger');
+                return;
+            }
+            if (!nome || nome.length < 3) {
+                _fmsg('Informe o nome como impresso no cartão.', 'danger');
+                return;
+            }
+
             var btn = _el('asnBtnAssinar');
             btn.disabled = true; btn.textContent = 'Tokenizando cartão...';
             _fmsg('Verificando cartão com Mercado Pago...', 'info');
@@ -31752,7 +31825,7 @@
                 // ── STEP 1: Tokenizar cartão no frontend ──
                 // Public Key vai como query param (não como Bearer token)
                 // PRODUÇÃO — Chave Pública da conta de assinatura IDESystems
-                var _mpPK = 'APP_USR-5fa8f1a2-119c-4c7f-bf26-08501f358b87';
+                var _mpPK = 'APP_USR-5fa8f1a2-119c-4c7f-bf26-08501f358b87'; // Produção CT_Manager
                 var _mpUrl = 'https://api.mercadopago.com/v1/card_tokens?public_key=' + _mpPK;
 
                 var tokenResp = await fetch(_mpUrl, {
@@ -31779,6 +31852,8 @@
                         var cause = tokenData.cause[0];
                         var mpCodes = {
                             '205': 'Número do cartão obrigatório',
+                            '110': 'Número do cartão inválido (verifique os dígitos)',
+                            'E301': 'Número do cartão inválido',
                             '208': 'Mês de validade inválido',
                             '209': 'Ano de validade inválido',
                             '212': 'CPF inválido',
@@ -31832,6 +31907,82 @@
                 btn.disabled = false; btn.textContent = 'Ativar Assinatura';
             }
         };
+
+
+        // ── PIX como método de assinatura ─────────────────────────────
+        window._asnPixId    = null;
+        window._asnPixPlanId = null;
+
+        window.asnPagarPix = async function() {
+            var planSel = document.querySelector('.asn-plan-card.selected, [data-plan-id].selected');
+            var planId  = planSel ? planSel.getAttribute('data-plan-id') : null;
+            if (!planId) { showToast('Selecione um plano antes de continuar', 'error'); return; }
+
+            var btn = document.getElementById('asnBtnPix');
+            if (btn) { btn.disabled = true; btn.textContent = 'Gerando PIX...'; }
+
+            try {
+                var resp = await secureFetch('gerarPixAssinatura', {
+                    email:     currentUser.email,
+                    nomeAluno: currentUser.nome || currentUser.email,
+                    planoId:   planId
+                });
+                if (!resp.success) throw new Error(resp.message || 'Erro ao gerar PIX');
+
+                window._asnPixId     = resp.pixId;
+                window._asnPixPlanId = planId;
+
+                // Exibe QR Code
+                var area = document.getElementById('asnPixArea');
+                var qrImg = document.getElementById('asnPixQr');
+                var codeEl = document.getElementById('asnPixCode');
+                if (area)  area.style.display  = 'block';
+                if (codeEl) codeEl.textContent  = resp.pixCode || '';
+                if (qrImg && resp.qrBase64) {
+                    qrImg.src     = 'data:image/png;base64,' + resp.qrBase64;
+                    qrImg.style.display = 'block';
+                }
+
+                // Inicia polling de confirmação a cada 8 segundos
+                window._asnPixPoll = setInterval(asnVerificarPix, 8000);
+                var statusEl = document.getElementById('asnPixStatus');
+                if (statusEl) statusEl.textContent = '⏳ Aguardando pagamento...';
+
+            } catch(e) {
+                showToast(e.message, 'error');
+            } finally {
+                if (btn) { btn.disabled = false; btn.innerHTML = '<span style="font-size:20px;">🟢</span> Pagar com PIX'; }
+            }
+        };
+
+        window.asnVerificarPix = async function() {
+            if (!window._asnPixId) return;
+            try {
+                var resp = await secureFetch('confirmarPixAssinatura', {
+                    email:   currentUser.email,
+                    pixId:   window._asnPixId,
+                    planoId: window._asnPixPlanId || ''
+                });
+                var statusEl = document.getElementById('asnPixStatus');
+                if (resp.success) {
+                    clearInterval(window._asnPixPoll);
+                    if (statusEl) statusEl.textContent = '✅ Pagamento confirmado! Ativando acesso...';
+                    showToast('PIX confirmado! Acesso ativado.', 'success');
+                    setTimeout(function(){ location.reload(); }, 2000);
+                } else if (resp.data && resp.data.status) {
+                    if (statusEl) statusEl.textContent = '⏳ Status: ' + resp.data.status + ' — aguardando...';
+                }
+            } catch(e) { /* silencioso */ }
+        };
+
+        window.asnCopiarPix = function() {
+            var code = (document.getElementById('asnPixCode') || {}).textContent || '';
+            if (code && navigator.clipboard) {
+                navigator.clipboard.writeText(code);
+                showToast('Código PIX copiado!', 'success');
+            }
+        };
+        // ── fim PIX assinatura ─────────────────────────────────────────
 
         window.asnConfirmarCancelar = function () {
             if (!confirm('Cancelar assinatura?')) return; _cancelar();
