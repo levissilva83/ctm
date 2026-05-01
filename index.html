@@ -10370,72 +10370,109 @@
           </div>
         </div>
 
-        <!-- Header -->
-        <div class="asn-card-form-header">
-          <div class="asn-card-icon">&#128179;</div>
-          <div>
-            <div class="asn-card-form-title">Dados do Cartão</div>
-            <div class="asn-card-form-sub">Seguro · Criptografado pelo Mercado Pago</div>
-          </div>
-        </div>
-
         <!-- Plano resumo -->
         <div id="asnPlanoResumido" class="asn-plan-resumo">
           <span id="asnPlanoResumidoNome" class="asn-plan-resumo-name"></span>
           <span id="asnPlanoResumidoValor" class="asn-plan-resumo-val"></span>
         </div>
 
-        <!-- Campos -->
-        <div class="asn-field">
-          <label class="asn-field-label">Número do Cartão</label>
-          <input type="tel" id="asnCartaoNumero" placeholder="0000 0000 0000 0000" maxlength="19" inputmode="numeric" oninput="asnFormatarCartao(this)">
-        </div>
-        <div class="asn-field">
-          <label class="asn-field-label">Nome no Cartão</label>
-          <input type="text" id="asnCartaoNome" placeholder="Como impresso no cartão" style="text-transform:uppercase;">
-        </div>
-        <div class="asn-field-row">
-          <div>
-            <label class="asn-field-label">Validade</label>
-            <input type="tel" id="asnCartaoValidade" placeholder="MM/AA" maxlength="5" inputmode="numeric" oninput="asnFormatarValidade(this)">
+        <!-- Seleção de método de pagamento -->
+        <div style="margin-bottom:20px;">
+          <div style="font-size:11px;font-weight:700;color:var(--text-3);letter-spacing:.5px;margin-bottom:10px;">FORMA DE PAGAMENTO</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <button id="asnMetodoCartaoBtn" onclick="asnSelecionarMetodo('cartao')"
+              style="padding:14px 10px;border-radius:14px;border:2px solid var(--gold);background:rgba(201,162,58,0.1);color:var(--gold);font-size:13px;font-weight:800;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;transition:all .2s;">
+              <span style="font-size:24px;">💳</span>
+              <span>Cartão</span>
+              <span style="font-size:9px;font-weight:500;opacity:.8;">Recorrente automático</span>
+            </button>
+            <button id="asnMetodoPixBtn" onclick="asnSelecionarMetodo('pix')"
+              style="padding:14px 10px;border-radius:14px;border:2px solid var(--border);background:transparent;color:var(--text-3);font-size:13px;font-weight:800;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;transition:all .2s;">
+              <span style="font-size:24px;">🟢</span>
+              <span>PIX</span>
+              <span style="font-size:9px;font-weight:500;opacity:.8;">Pagamento único</span>
+            </button>
           </div>
-          <div>
-            <label class="asn-field-label">CVV</label>
-            <input type="tel" id="asnCartaoCVV" placeholder="123" maxlength="4" inputmode="numeric">
+        </div>
+
+        <!-- Painel Cartão -->
+        <div id="asnPainelCartao">
+          <div class="asn-card-form-header" style="margin-bottom:14px;">
+            <div class="asn-card-icon">&#128179;</div>
+            <div>
+              <div class="asn-card-form-title">Dados do Cartão</div>
+              <div class="asn-card-form-sub">Seguro · Criptografado pelo Mercado Pago</div>
+            </div>
+          </div>
+          <div class="asn-field">
+            <label class="asn-field-label">Número do Cartão</label>
+            <input type="tel" id="asnCartaoNumero" placeholder="0000 0000 0000 0000" maxlength="19" inputmode="numeric" oninput="asnFormatarCartao(this)">
+          </div>
+          <div class="asn-field">
+            <label class="asn-field-label">Nome no Cartão</label>
+            <input type="text" id="asnCartaoNome" placeholder="Como impresso no cartão" style="text-transform:uppercase;">
+          </div>
+          <div class="asn-field-row">
+            <div>
+              <label class="asn-field-label">Validade</label>
+              <input type="tel" id="asnCartaoValidade" placeholder="MM/AA" maxlength="5" inputmode="numeric" oninput="asnFormatarValidade(this)">
+            </div>
+            <div>
+              <label class="asn-field-label">CVV</label>
+              <input type="tel" id="asnCartaoCVV" placeholder="123" maxlength="4" inputmode="numeric">
+            </div>
+          </div>
+          <div class="asn-field">
+            <label class="asn-field-label">CPF do Titular</label>
+            <input type="tel" id="asnCartaoCPF" placeholder="000.000.000-00" maxlength="14" inputmode="numeric" oninput="asnFormatarCPF(this)">
+          </div>
+          <div id="asnFormMsg" class="asn-form-msg"></div>
+          <button id="asnBtnAssinar" onclick="asnAssinar()" class="asn-btn-cta" style="margin-top:16px;">
+            &#128274;&nbsp; Ativar Assinatura com Cartão
+          </button>
+        </div>
+
+        <!-- Painel PIX -->
+        <div id="asnPainelPix" style="display:none;">
+          <div class="asn-card-form-header" style="margin-bottom:14px;">
+            <div class="asn-card-icon" style="background:rgba(34,197,94,0.15);">🟢</div>
+            <div>
+              <div class="asn-card-form-title">Pagar com PIX</div>
+              <div class="asn-card-form-sub">Gera QR Code · Confirmação automática</div>
+            </div>
+          </div>
+
+          <!-- Estado: antes de gerar -->
+          <div id="asnPixPreGerado">
+            <div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.15);border-radius:12px;padding:14px;margin-bottom:16px;">
+              <div style="font-size:11px;color:var(--text-2);line-height:1.6;">
+                ✅ Um QR Code será gerado no valor do plano selecionado.<br>
+                ✅ Após o pagamento, o acesso é ativado automaticamente.<br>
+                ⚠️ PIX é pagamento único — renovação manual a cada período.
+              </div>
+            </div>
+            <div id="asnFormMsgPix" class="asn-form-msg"></div>
+            <button id="asnBtnPix" onclick="asnPagarPix()" class="asn-btn-cta" style="background:linear-gradient(135deg,#16a34a,#15803d);">
+              🟢&nbsp; Gerar QR Code PIX
+            </button>
+          </div>
+
+          <!-- Estado: QR Code exibido -->
+          <div id="asnPixArea" style="display:none;text-align:center;">
+            <div style="font-size:12px;font-weight:700;color:var(--text-1);margin-bottom:12px;">📲 Escaneie ou copie o código PIX</div>
+            <img id="asnPixQr" src="" alt="QR Code PIX" style="width:190px;height:190px;border-radius:12px;margin-bottom:12px;display:none;border:3px solid rgba(34,197,94,0.3);">
+            <div style="background:rgba(0,0,0,0.2);border-radius:10px;padding:12px;word-break:break-all;font-size:10px;font-family:monospace;color:var(--text-2);text-align:left;max-height:72px;overflow-y:auto;margin-bottom:10px;" id="asnPixCode"></div>
+            <button onclick="asnCopiarPix()" style="width:100%;padding:11px;background:rgba(34,197,94,0.15);border:1.5px solid rgba(34,197,94,0.3);color:#22c55e;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:10px;">
+              📋 Copiar código PIX
+            </button>
+            <div style="font-size:10px;color:var(--text-3);line-height:1.5;" id="asnPixInstrucoes">
+              Abra seu banco → PIX → Copiar e Colar o código acima.<br>O acesso é liberado automaticamente após a confirmação.
+            </div>
+            <div id="asnPixStatus" style="font-size:12px;font-weight:700;margin-top:10px;min-height:18px;color:#22c55e;"></div>
           </div>
         </div>
-        <div class="asn-field">
-          <label class="asn-field-label">CPF do Titular</label>
-          <input type="tel" id="asnCartaoCPF" placeholder="000.000.000-00" maxlength="14" inputmode="numeric" oninput="asnFormatarCPF(this)">
-        </div>
 
-        <div id="asnFormMsg" class="asn-form-msg"></div>
-
-        <button id="asnBtnAssinar" onclick="asnAssinar()" class="asn-btn-cta" style="margin-top:16px;">
-          &#128274;&nbsp; Ativar Assinatura
-        </button>
-
-        <!-- PIX como alternativa ao cartão -->
-        <div style="display:flex;align-items:center;gap:8px;margin:12px 0 4px;">
-          <div style="flex:1;height:1px;background:var(--border);"></div>
-          <span style="font-size:10px;color:var(--text-3);white-space:nowrap;">ou prefere pagar com</span>
-          <div style="flex:1;height:1px;background:var(--border);"></div>
-        </div>
-        <button id="asnBtnPix" onclick="asnPagarPix()" style="width:100%;padding:13px;background:rgba(34,197,94,0.1);border:1.5px solid rgba(34,197,94,0.3);color:#22c55e;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
-          <span style="font-size:20px;">🟢</span> Pagar com PIX
-        </button>
-
-        <!-- Área do QR Code PIX -->
-        <div id="asnPixArea" style="display:none;margin-top:16px;background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.2);border-radius:14px;padding:16px;text-align:center;">
-          <div style="font-size:12px;font-weight:700;color:var(--text-1);margin-bottom:10px;">📲 Escaneie o QR Code ou copie o código PIX</div>
-          <img id="asnPixQr" src="" alt="QR Code PIX" style="width:180px;height:180px;border-radius:10px;margin-bottom:10px;display:none;">
-          <div style="background:rgba(0,0,0,0.15);border-radius:8px;padding:10px;word-break:break-all;font-size:10px;font-family:monospace;color:var(--text-2);text-align:left;max-height:80px;overflow-y:auto;" id="asnPixCode"></div>
-          <button onclick="asnCopiarPix()" style="width:100%;margin-top:10px;padding:10px;background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.3);color:#22c55e;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;">📋 Copiar código PIX</button>
-          <div style="font-size:10px;color:var(--text-3);margin-top:8px;" id="asnPixInstrucoes">Abra seu banco → Pix → Copiar e Colar. O acesso é liberado automaticamente após a confirmação.</div>
-          <div id="asnPixStatus" style="font-size:11px;font-weight:700;margin-top:8px;min-height:16px;"></div>
-        </div>
-
-        <button onclick="asnFecharFormCartao()" class="asn-btn-back">
+        <button onclick="asnFecharFormCartao()" class="asn-btn-back" style="margin-top:16px;">
           &#8592; Voltar
         </button>
 
@@ -11271,7 +11308,7 @@
         var _ctmId = (function() {
             try { return localStorage.getItem('ctm_id') || 'matrix'; } catch(e) { return 'matrix'; }
         })();
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxBjtFc8GFMmfvwKhB4udKmXyyvlPT5iTmIJF5tnQnh_HEl7ptwR0TWz3v8A23iCIF7/exec'
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz5sNc8y-PnWHin2hrGYTiamgbqpspQpyxA6D-WVouGtqBgdvU5vmwlUfw9_JuHTLs/exec'
                          + '?ctm=' + _ctmId;
 
         // ── Verifica se o cliente existe no registry ──────────────
@@ -31603,6 +31640,37 @@
         var _assinatura = null;
         var _iniciado   = false;
 
+        // ── Seleção de método de pagamento ────────────────────────────
+        window._asnMetodo = 'cartao'; // padrão
+
+        window.asnSelecionarMetodo = function(metodo) {
+            window._asnMetodo = metodo;
+            var btnCartao = document.getElementById('asnMetodoCartaoBtn');
+            var btnPix    = document.getElementById('asnMetodoPixBtn');
+            var pCartao   = document.getElementById('asnPainelCartao');
+            var pPix      = document.getElementById('asnPainelPix');
+
+            if (metodo === 'cartao') {
+                if (btnCartao) { btnCartao.style.borderColor='var(--gold)'; btnCartao.style.background='rgba(201,162,58,0.1)'; btnCartao.style.color='var(--gold)'; }
+                if (btnPix)    { btnPix.style.borderColor='var(--border)';  btnPix.style.background='transparent'; btnPix.style.color='var(--text-3)'; }
+                if (pCartao)   pCartao.style.display = 'block';
+                if (pPix)      pPix.style.display    = 'none';
+            } else {
+                if (btnPix)    { btnPix.style.borderColor='#22c55e';    btnPix.style.background='rgba(34,197,94,0.1)';  btnPix.style.color='#22c55e'; }
+                if (btnCartao) { btnCartao.style.borderColor='var(--border)'; btnCartao.style.background='transparent'; btnCartao.style.color='var(--text-3)'; }
+                if (pPix)      pPix.style.display    = 'block';
+                if (pCartao)   pCartao.style.display = 'none';
+                // Reseta área PIX ao trocar para este método
+                var pre = document.getElementById('asnPixPreGerado');
+                var area = document.getElementById('asnPixArea');
+                if (pre)  pre.style.display  = 'block';
+                if (area) area.style.display = 'none';
+                window._asnPixId = null;
+                clearInterval(window._asnPixPoll);
+            }
+        };
+        // ── fim seleção método ──────────────────────────────────────
+
         window.asnFormatarCartao = function (el) {
             var v = el.value.replace(/[^0-9]/g, '').substring(0, 16);
             el.value = v.replace(/(.{4})/g, '$1 ').trim();
@@ -31914,17 +31982,18 @@
         window._asnPixPlanId = null;
 
         window.asnPagarPix = async function() {
-            var planSel = document.querySelector('.asn-plan-card.selected, [data-plan-id].selected');
-            var planId  = planSel ? planSel.getAttribute('data-plan-id') : null;
+            var planId = _planoSel ? _planoSel.id_plano : null;
             if (!planId) { showToast('Selecione um plano antes de continuar', 'error'); return; }
 
             var btn = document.getElementById('asnBtnPix');
-            if (btn) { btn.disabled = true; btn.textContent = 'Gerando PIX...'; }
+            var msgEl = document.getElementById('asnFormMsgPix');
+            if (btn) { btn.disabled = true; btn.textContent = 'Gerando QR Code...'; }
+            if (msgEl) { msgEl.textContent = ''; msgEl.className = 'asn-form-msg'; }
 
             try {
                 var resp = await secureFetch('gerarPixAssinatura', {
                     email:     currentUser.email,
-                    nomeAluno: currentUser.nome || currentUser.email,
+                    nomeAluno: currentUser.nome || currentUser.name || currentUser.email,
                     planoId:   planId
                 });
                 if (!resp.success) throw new Error(resp.message || 'Erro ao gerar PIX');
@@ -31932,26 +32001,31 @@
                 window._asnPixId     = resp.pixId;
                 window._asnPixPlanId = planId;
 
-                // Exibe QR Code
-                var area = document.getElementById('asnPixArea');
-                var qrImg = document.getElementById('asnPixQr');
-                var codeEl = document.getElementById('asnPixCode');
-                if (area)  area.style.display  = 'block';
-                if (codeEl) codeEl.textContent  = resp.pixCode || '';
+                // Esconde form de geração, mostra QR Code
+                var preGerado = document.getElementById('asnPixPreGerado');
+                var area      = document.getElementById('asnPixArea');
+                var qrImg     = document.getElementById('asnPixQr');
+                var codeEl    = document.getElementById('asnPixCode');
+                var statusEl  = document.getElementById('asnPixStatus');
+
+                if (preGerado) preGerado.style.display = 'none';
+                if (area)      area.style.display      = 'block';
+                if (codeEl)    codeEl.textContent       = resp.pixCode || '';
                 if (qrImg && resp.qrBase64) {
-                    qrImg.src     = 'data:image/png;base64,' + resp.qrBase64;
+                    qrImg.src = 'data:image/png;base64,' + resp.qrBase64;
                     qrImg.style.display = 'block';
                 }
-
-                // Inicia polling de confirmação a cada 8 segundos
-                window._asnPixPoll = setInterval(asnVerificarPix, 8000);
-                var statusEl = document.getElementById('asnPixStatus');
                 if (statusEl) statusEl.textContent = '⏳ Aguardando pagamento...';
 
+                // Polling a cada 8 segundos
+                clearInterval(window._asnPixPoll);
+                window._asnPixPoll = setInterval(asnVerificarPix, 8000);
+
             } catch(e) {
-                showToast(e.message, 'error');
+                if (msgEl) { msgEl.textContent = e.message; msgEl.className = 'asn-form-msg danger'; }
+                else showToast(e.message, 'error');
             } finally {
-                if (btn) { btn.disabled = false; btn.innerHTML = '<span style="font-size:20px;">🟢</span> Pagar com PIX'; }
+                if (btn) { btn.disabled = false; btn.innerHTML = '🟢&nbsp; Gerar QR Code PIX'; }
             }
         };
 
