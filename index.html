@@ -12970,9 +12970,9 @@
                 return;
             }
 
-            // CORREÇÃO v5.1: isKids determinado EXCLUSIVAMENTE por idade e flag do aluno.
-            // NÃO usar mod.id === 'bjj' como critério — BJJ tem adultos E kids.
-            var isKidsMod = (_isKidsMode) || (currentUser && currentUser.isKids);
+            // CORREÇÃO v5.0: preserva kids mode detectado por idade/flag.
+            // Antes isso era sempre false, apagando o kids mode ao trocar modalidade.
+            var isKidsMod = (_isKidsMode) || (currentUser && currentUser.isKids) || (mod && mod.id === 'bjj');
             if (isKidsMod) {
                 document.body.classList.add('kids-mode');
                 _isKidsMode = true;
@@ -17724,10 +17724,17 @@
                 h += '<span style="font-size:10px;font-weight:700;padding:3px 8px;background:rgba(74,222,128,0.12);color:#4ade80;border-radius:6px;">Ativo</span>';
                 h += '</div>';
                 h += '<button onclick="removerCartao()" style="width:100%;padding:10px;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);color:#f87171;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;">🗑 Remover cartão</button>';
-            } else {
-                // Sem cartão — sempre permite cadastrar (independe de gateway ou plano)
-                h += '<div style="font-size:12px;color:var(--text-3);margin-bottom:12px;line-height:1.5;">Cadastre seu cartão antecipadamente para ativar o débito automático quando seu plano for atribuído.</div>';
+            } else if (temGateway) {
+                // Gateway configurado — pode adicionar cartão
+                h += '<div style="font-size:12px;color:var(--text-3);margin-bottom:12px;line-height:1.5;">Cadastre um cartão para ativar o débito automático da mensalidade.</div>';
                 h += '<button onclick="abrirModalCartao()" style="width:100%;padding:13px;background:linear-gradient(135deg,#009ee3,#0075bd);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;letter-spacing:.3px;">💳 Cadastrar cartão</button>';
+            } else {
+                // Sem gateway — orienta sobre Pix
+                h += '<div style="font-size:12px;color:var(--text-3);line-height:1.5;text-align:center;padding:8px 0;">';
+                h += '<div style="font-size:28px;margin-bottom:8px;">🟢</div>';
+                h += 'O CT utiliza <strong style="color:var(--text-1);">PIX</strong> como forma de pagamento.<br>';
+                h += '<span style="font-size:11px;">Combine com seu professor para registrar.</span>';
+                h += '</div>';
             }
             h += '</div>';
             return h;
@@ -17793,8 +17800,8 @@
             if (semPlano) {
                 h += '<div style="display:flex;align-items:center;gap:12px;padding:14px;background:rgba(255,255,255,0.02);border-radius:12px;border:1px dashed var(--border);margin-bottom:12px;">';
                 h += '<div style="font-size:28px;">📋</div>';
-                h += '<div><div style="font-size:13px;font-weight:700;color:var(--text-2);">Nenhum plano atribuído</div>';
-                h += '<div style="font-size:11px;color:var(--text-3);margin-top:2px;">Seu professor irá atribuir seu plano em breve.</div></div>';
+                h += '<div><div style="font-size:13px;font-weight:700;color:var(--text-2);">Nenhum plano selecionado</div>';
+                h += '<div style="font-size:11px;color:var(--text-3);margin-top:2px;">Escolha um plano para começar</div></div>';
                 h += '</div>';
             } else {
                 h += '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px;">';
@@ -17811,6 +17818,9 @@
                 h += '</div></div>';
             }
 
+            h += '<button onclick="abrirModalPlano()" style="width:100%;padding:11px;background:rgba(201,162,58,0.08);border:1.5px solid rgba(201,162,58,0.25);border-radius:12px;color:#C9A23A;font-size:13px;font-weight:700;cursor:pointer;">';
+            h += semPlano ? '📋 Escolher Plano' : '🔄 Trocar Plano';
+            h += '</button>';
             h += '</div>';
 
             // ── Alerta: cartão recusado + PIX como fallback ────────────────
@@ -17868,9 +17878,11 @@
             }
 
             // ── Card: Forma de Pagamento (cartão) ──────────────────
-            // Sempre visível — o aluno cadastra cartão independente de plano ou gateway
-            h += _renderCartaoSection(data);
-            h += '<div style="height:14px;"></div>';
+            // Sempre visível quando gateway suporta cartão (Mercado Pago)
+            if (temGateway) {
+                h += _renderCartaoSection(data);
+                h += '<div style="height:14px;"></div>';
+            }
 
             // ── Card: Histórico completo ───────────────────────────
             h += '<div style="background:var(--bg-card);border-radius:16px;border:1px solid var(--border);padding:16px;">';
@@ -18029,10 +18041,12 @@
                 var data = await secureFetch('getPagamentoStatus', { email: currentUser.email });
                 if (!data.success) return; // erro real → ignora
 
-                // Exibe banner sempre que não há cartão cadastrado
-                // Não depende de plano, gateway ou status — aluno pode cadastrar a qualquer momento
+                // Exibe banner se não há cartão cadastrado
+                // Independe de data.configurado — aluno pode sempre cadastrar forma de pagamento
                 var semCartao = !data.temCartaoSalvo;
-                if (semCartao) {
+                var temPlano  = !!(data.plano && data.plano.nome);
+                // Mostra se: tem plano (mesmo sem módulo configurado) OU se módulo ativo sem cartão
+                if (semCartao && (temPlano || data.configurado)) {
                     showPaymentBanner();
                 }
             } catch(e) { /* silencioso — banner é opcional */ }
@@ -18121,7 +18135,7 @@
                 h += '<div class="pag-badge ' + (statusClass[status]||'inativo') + '">' + (statusLabel[status]||status) + '</div>';
             }
             h += '</div>';
-            h += '<button onclick="abrirModalPlano()" class="pag-btn secondary" style="margin-top:10px;display:none;">';
+            h += '<button onclick="abrirModalPlano()" class="pag-btn secondary" style="margin-top:10px;">';
             h += semPlano ? '📋 Escolher Plano' : '🔄 Trocar plano';
             h += '</button>';
             h += '</div>';
@@ -18168,8 +18182,10 @@
                 h += '</div>';
             }
 
-            // ── Forma de pagamento (cartão) — sempre visível
-            h += _renderCartaoSection(data);
+            // ── Forma de pagamento (cartão) — visível quando MP está ativo
+            if (temGateway) {
+                h += _renderCartaoSection(data);
+            }
 
             // Histórico
             if (historico.length > 0) {
@@ -31736,7 +31752,7 @@
                 // ── STEP 1: Tokenizar cartão no frontend ──
                 // Public Key vai como query param (não como Bearer token)
                 // PRODUÇÃO — Chave Pública da conta de assinatura IDESystems
-                var _mpPK = 'APP_USR-3eb41fef-c887-4cdf-a728-90f6937b25ab';
+                var _mpPK = 'APP_USR-5fa8f1a2-119c-4c7f-bf26-08501f358b87';
                 var _mpUrl = 'https://api.mercadopago.com/v1/card_tokens?public_key=' + _mpPK;
 
                 var tokenResp = await fetch(_mpUrl, {
