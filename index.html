@@ -25987,9 +25987,9 @@
                 var cardBorder = isSelected ? 'rgba(201,162,58,0.5)' : 'var(--adm-border)';
                 var cardBg     = isSelected ? 'rgba(201,162,58,0.05)' : 'var(--adm-bg-elevated)';
 
+                // usa data-email no card — evita conflito de aspas no onclick inline
                 cardsHtml +=
-                    '<div style="background:' + cardBg + ';border:1.5px solid ' + cardBorder + ';border-radius:14px;padding:14px;margin-bottom:8px;cursor:pointer;transition:all .15s;" ' +
-                    'onclick="_saCliCardClick('' + escapeHtml(c.email) + '')">' +
+                    '<div data-cardEmail="' + escapeHtml(c.email) + '" style="background:' + cardBg + ';border:1.5px solid ' + cardBorder + ';border-radius:14px;padding:14px;margin-bottom:8px;cursor:pointer;transition:all .15s;">' +
 
                     // Linha 1: nome + badges
                     '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">' +
@@ -26007,13 +26007,12 @@
                     // Linha 4: trial info
                     (trialInfo ? '<div style="margin-top:4px;">' + trialInfo + '</div>' : '') +
 
-                    // Linha 5: botão editar (visível ao selecionar)
+                    // Linha 5: botão editar — data-editEmail para evitar aspas inline
                     '<div style="margin-top:10px;display:flex;gap:6px;">' +
-                        '<button onclick="event.stopPropagation();saCliEditarContrato('' + escapeHtml(c.email) + '')" ' +
+                        '<button data-editEmail="' + escapeHtml(c.email) + '" ' +
                         'style="flex:1;padding:8px;background:rgba(201,162,58,0.08);color:var(--adm-primary);border:1px solid rgba(201,162,58,0.25);border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;">' +
                         '✏️ Editar contrato</button>' +
                         (c.sheetId ? '<a href="https://docs.google.com/spreadsheets/d/' + escapeHtml(c.sheetId) + '/edit" target="_blank" ' +
-                        'onclick="event.stopPropagation()" ' +
                         'style="padding:8px 12px;background:rgba(96,165,250,0.08);color:#60a5fa;border:1px solid rgba(96,165,250,0.2);border-radius:8px;font-size:11px;font-weight:700;text-decoration:none;">📊</a>' : '') +
                     '</div>' +
 
@@ -26021,6 +26020,23 @@
             });
 
             el.innerHTML = masterHtml + statsHtml + cardsHtml;
+
+            // Event delegation: card click → select, edit button → open form
+            el.onclick = function(e) {
+                // Edit button click
+                var editBtn = e.target.closest('[data-editEmail]');
+                if (editBtn) {
+                    e.stopPropagation();
+                    saCliEditarContrato(editBtn.getAttribute('data-editEmail'));
+                    return;
+                }
+                // Card click → select
+                var card = e.target.closest('[data-cardEmail]');
+                if (card) {
+                    _saModEmailAtual = card.getAttribute('data-cardEmail');
+                    _saModRenderLista();
+                }
+            };
         }
 
         function _saCliCardClick(email) {
