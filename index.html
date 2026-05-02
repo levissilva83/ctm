@@ -9503,6 +9503,43 @@
                                     </div>
                                 </div>
 
+                                <!-- ── PERÍODO DE TESTE ─────────────────────────────── -->
+                                <div style="margin-bottom:12px;padding:12px;background:rgba(251,191,36,0.05);border:1px solid rgba(251,191,36,0.2);border-radius:10px;">
+                                    <div style="font-size:9px;font-weight:800;color:#fbbf24;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">⏳ Período de teste / Ativação</div>
+
+                                    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px;">
+                                        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+                                            <input type="radio" name="saTrialModo" id="saTrialModoTrial" value="trial" onchange="_saTrialOnModoChange()" style="accent-color:#fbbf24;width:16px;height:16px;">
+                                            <span style="font-size:12px;color:var(--adm-text-1);">⏳ <strong>Com período de teste</strong> — cliente acessa grátis por X dias</span>
+                                        </label>
+                                        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+                                            <input type="radio" name="saTrialModo" id="saTrialModoImediato" value="imediato" onchange="_saTrialOnModoChange()" style="accent-color:#f87171;width:16px;height:16px;">
+                                            <span style="font-size:12px;color:var(--adm-text-1);">💳 <strong>Sem trial — pagar agora</strong> — ao acessar, exige assinatura imediata</span>
+                                        </label>
+                                        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+                                            <input type="radio" name="saTrialModo" id="saTrialModoAtivo" value="ativo" onchange="_saTrialOnModoChange()" style="accent-color:#4ade80;width:16px;height:16px;">
+                                            <span style="font-size:12px;color:var(--adm-text-1);">✅ <strong>Ativar direto</strong> — cliente já pagou, ativar sem cobrar agora</span>
+                                        </label>
+                                    </div>
+
+                                    <!-- Campos visíveis só no modo trial -->
+                                    <div id="saTrialDiasWrap" style="display:none;background:rgba(251,191,36,0.05);border-radius:8px;padding:10px;border:1px solid rgba(251,191,36,0.15);">
+                                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                                            <div>
+                                                <label style="font-size:9px;color:var(--adm-text-3);font-weight:700;display:block;margin-bottom:3px;">Dias de trial</label>
+                                                <input type="number" id="saTrialDiasEdit" value="30" min="1" max="365"
+                                                    oninput="_saTrialRecalcData()"
+                                                    style="width:100%;box-sizing:border-box;padding:8px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid rgba(251,191,36,0.3);border-radius:8px;font-size:13px;text-align:center;">
+                                            </div>
+                                            <div>
+                                                <label style="font-size:9px;color:var(--adm-text-3);font-weight:700;display:block;margin-bottom:3px;">Cobrança a partir de</label>
+                                                <input type="text" id="saTrialDataEdit" placeholder="dd/MM/yyyy" readonly
+                                                    style="width:100%;box-sizing:border-box;padding:8px;background:rgba(0,0,0,0.2);color:#fbbf24;border:1px solid rgba(251,191,36,0.2);border-radius:8px;font-size:12px;font-weight:700;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div style="margin-bottom:12px;">
                                     <label style="font-size:9px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;display:block;margin-bottom:6px;">🥋 Modalidades contratadas</label>
                                     <div id="saFormModGrid2" style="display:flex;flex-direction:column;gap:5px;"></div>
@@ -25291,14 +25328,23 @@
         var _saFormModo = 'novo'; // 'novo' ou 'editar'
         var _saFormEmailOriginal = '';
 
+        // Abre o formulário de EDIÇÃO de contrato já preenchido
+        function saCliEditarContrato(email) {
+            _saModEmailAtual = email;
+            saCliAbaSelecionar('contrato');
+            var form = document.getElementById('saModForm');
+            if (form) form.style.display = 'block';
+            document.getElementById('saFormAbrirBtn').style.display = 'none';
+            saFormAbrir(email);
+            setTimeout(function(){ if(form) form.scrollIntoView({ behavior:'smooth', block:'nearest' }); }, 100);
+        }
+
         function saFormAbrir(emailPresel) {
             _saFormModo = emailPresel ? 'editar' : 'novo';
             _saFormEmailOriginal = emailPresel || '';
 
-            document.getElementById('saFormTitulo').textContent = emailPresel ? '✏️ Editar Contrato' : '➕ Novo Contrato';
-            document.getElementById('saModForm').style.display = 'block';
-            document.getElementById('saFormAbrirBtn').style.display = 'none';
-            document.getElementById('saFormMsg').textContent = '';
+            var msg = document.getElementById('saFormMsg');
+            if (msg) msg.textContent = '';
 
             // Preenche campos se for edição
             var contrato = null;
@@ -25307,31 +25353,112 @@
                     if (_saModContratos[i].email === emailPresel) { contrato = _saModContratos[i]; break; }
                 }
             }
-            document.getElementById('saFormEmail').value    = emailPresel || '';
-            document.getElementById('saFormEmail').readOnly = !!emailPresel;
-            // Mostra botão excluir apenas para contratos existentes
+
+            // Campos básicos
+            var emailEl = document.getElementById('saFormEmail');
+            if (emailEl) { emailEl.value = emailPresel || ''; emailEl.readOnly = !!emailPresel; emailEl.style.color = emailPresel ? 'var(--adm-text-3)' : ''; }
             var exclBtn = document.getElementById('saFormExcluirBtn');
             if (exclBtn) exclBtn.style.display = emailPresel ? 'block' : 'none';
-            document.getElementById('saFormEmail').style.color = emailPresel ? 'var(--adm-text-3)' : '';
-            document.getElementById('saFormPlano').value    = (contrato && contrato.plano)   || 'profissional';
-            document.getElementById('saFormStatus').value   = (contrato && contrato.status)  || 'TRIAL';
-            document.getElementById('saFormSheetId').value  = (contrato && contrato.sheetId) || '';
+            var planoEl = document.getElementById('saFormPlano');
+            if (planoEl) planoEl.value = (contrato && contrato.plano) || 'profissional';
+            var statusEl = document.getElementById('saFormStatus');
+            if (statusEl) statusEl.value = (contrato && contrato.status) || 'TRIAL';
+            var sheetEl = document.getElementById('saFormSheetId');
+            if (sheetEl) sheetEl.value = (contrato && contrato.sheetId) || '';
 
-            // Vencimento: pré-preenche com 30 dias se novo
+            // ── Vencimento ───────────────────────────────────────────
             var vc = document.getElementById('saFormVencimento');
-            if (contrato && contrato.proximoVencimento) {
-                // converte dd/MM/yyyy → yyyy-MM-dd
-                var parts = contrato.proximoVencimento.split('/');
-                if (parts.length === 3) vc.value = parts[2] + '-' + parts[1] + '-' + parts[0];
-                else vc.value = '';
-            } else {
-                var d30 = new Date(); d30.setDate(d30.getDate() + 30);
-                vc.value = d30.toISOString().substring(0, 10);
+            if (vc) {
+                if (contrato && contrato.proximoVencimento) {
+                    var pts = contrato.proximoVencimento.split('/');
+                    vc.value = pts.length === 3 ? pts[2] + '-' + pts[1] + '-' + pts[0] : '';
+                } else {
+                    var d30 = new Date(); d30.setDate(d30.getDate() + 30);
+                    vc.value = d30.toISOString().substring(0, 10);
+                }
             }
 
-            // Renderiza checkboxes de modalidades
+            // ── Trial config ─────────────────────────────────────────
+            // Popula os campos de trial na aba Editar Contrato
+            _saTrialPopular(contrato);
+
+            // Renderiza modalidades no painel contrato
             _saFormRenderMods(contrato ? (contrato.lista || []) : []);
-            document.getElementById('saModForm').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+            // Atualiza preview do select
+            var selLista = document.getElementById('saModEmailSelectLista');
+            if (selLista) {
+                // Reconstrói options se necessário
+                if (!selLista.options.length || selLista.options.length === 1) {
+                    var optsHtml = '<option value="">— Selecione o admin —</option>';
+                    _saModContratos.forEach(function(c) {
+                        var lbl = (c.ctNome ? c.ctNome + ' — ' : '') + c.email + ' [' + (c.status||'SEM CONTRATO') + ']';
+                        optsHtml += '<option value="' + escapeHtml(c.email) + '">' + escapeHtml(lbl) + '</option>';
+                    });
+                    selLista.innerHTML = optsHtml;
+                }
+                selLista.value = emailPresel || '';
+            }
+
+            var preview = document.getElementById('saModListaContratoPreview');
+            if (preview && contrato) {
+                var s = contrato.status || 'SEM CONTRATO';
+                var cfg2 = _saStatusCfg[s] || _saStatusCfg['SEM CONTRATO'];
+                var mods2 = contrato.modalidades && contrato.modalidades.length
+                    ? contrato.modalidades.map(function(m){ return '<span style="font-size:9px;font-weight:700;padding:1px 7px;border-radius:8px;background:rgba(' + (m.corRGB||'201,162,58') + ',0.12);color:' + (m.cor||'#C9A23A') + ';">' + escapeHtml(m.icon||'🥋') + ' ' + escapeHtml(m.nome) + '</span>'; }).join('')
+                    : '<span style="font-size:9px;color:var(--adm-text-3);">todas ativas</span>';
+                preview.innerHTML = '<div style="padding:10px 12px;background:rgba(201,162,58,0.04);border:1px solid rgba(201,162,58,0.15);border-radius:10px;">' +
+                    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">' +
+                        '<span style="font-size:13px;font-weight:800;color:var(--adm-text-1);">' + escapeHtml(contrato.ctNome||contrato.email) + '</span>' +
+                        _saStatusBadge(s) +
+                    '</div><div style="display:flex;flex-wrap:wrap;gap:4px;">' + mods2 + '</div></div>';
+            } else if (preview) { preview.innerHTML = ''; }
+        }
+
+        // Popula campos de trial no painel de edição
+        function _saTrialPopular(contrato) {
+            var radioTrial  = document.getElementById('saTrialModoTrial');
+            var radioImmed  = document.getElementById('saTrialModoImediato');
+            var radioAtivo  = document.getElementById('saTrialModoAtivo');
+            var diasEl      = document.getElementById('saTrialDiasEdit');
+            var dataEl      = document.getElementById('saTrialDataEdit');
+            var diasWrap    = document.getElementById('saTrialDiasWrap');
+
+            if (!radioTrial) return;
+
+            var status = contrato ? (contrato.status || 'TRIAL') : 'TRIAL';
+            var dataInicio = contrato ? (contrato.dataInicioCobranca || '') : '';
+
+            if (status === 'ATIVO') {
+                if (radioAtivo) radioAtivo.checked = true;
+                if (diasWrap) diasWrap.style.display = 'none';
+            } else if (!dataInicio || status === 'INATIVO' || status === 'CANCELADO') {
+                // Sem trial definido ou status indica cobrança imediata
+                if (radioImmed) radioImmed.checked = true;
+                if (diasWrap) diasWrap.style.display = 'none';
+            } else {
+                if (radioTrial) radioTrial.checked = true;
+                if (diasWrap) diasWrap.style.display = 'block';
+                // Calcula dias restantes
+                if (dataEl) dataEl.value = dataInicio;
+                if (diasEl) {
+                    var pts2 = dataInicio.split('/');
+                    if (pts2.length === 3) {
+                        var dtFim = new Date(parseInt(pts2[2]), parseInt(pts2[1])-1, parseInt(pts2[0]));
+                        var diasR = Math.max(0, Math.ceil((dtFim - new Date()) / 86400000));
+                        diasEl.value = diasR;
+                    }
+                }
+            }
+            _saTrialOnModoChange();
+        }
+
+        // Mostra/esconde campo de dias quando muda o modo de trial
+        function _saTrialOnModoChange() {
+            var radioTrial = document.getElementById('saTrialModoTrial');
+            var diasWrap   = document.getElementById('saTrialDiasWrap');
+            var isTrial    = radioTrial && radioTrial.checked;
+            if (diasWrap) diasWrap.style.display = isTrial ? 'block' : 'none';
         }
 
         async function saFormExcluir() {
@@ -25414,6 +25541,43 @@
             el.style.color = cor || 'var(--adm-text-3)';
         }
 
+        // Recalcula a data de cobrança quando o usuário muda os dias de trial
+        function _saTrialRecalcData() {
+            var diasEl = document.getElementById('saTrialDiasEdit');
+            var dataEl = document.getElementById('saTrialDataEdit');
+            if (!diasEl || !dataEl) return;
+            var dias = parseInt(diasEl.value) || 30;
+            var dtFim = new Date();
+            dtFim.setDate(dtFim.getDate() + dias);
+            dataEl.value = ('0'+dtFim.getDate()).slice(-2) + '/' + ('0'+(dtFim.getMonth()+1)).slice(-2) + '/' + dtFim.getFullYear();
+        }
+
+        // Lê o modo de trial e retorna { status, dataInicioCobranca, proximoVencimento }
+        function _saTrialLerModo() {
+            var radioTrial  = document.getElementById('saTrialModoTrial');
+            var radioImmed  = document.getElementById('saTrialModoImediato');
+            var radioAtivo  = document.getElementById('saTrialModoAtivo');
+            var diasEl      = document.getElementById('saTrialDiasEdit');
+
+            if (radioAtivo && radioAtivo.checked) {
+                // Ativar direto — status ATIVO, cobrança em 30 dias
+                var dtCobr = new Date(); dtCobr.setDate(dtCobr.getDate() + 30);
+                var dtCobrStr = ('0'+dtCobr.getDate()).slice(-2) + '/' + ('0'+(dtCobr.getMonth()+1)).slice(-2) + '/' + dtCobr.getFullYear();
+                return { status: 'ATIVO', dataInicioCobranca: dtCobrStr, proximoVencimento: dtCobrStr };
+            }
+            if (radioImmed && radioImmed.checked) {
+                // Sem trial — status TRIAL mas data de cobrança = hoje → tela de pagamento imediata
+                var hoje = new Date();
+                var hojeStr = ('0'+hoje.getDate()).slice(-2) + '/' + ('0'+(hoje.getMonth()+1)).slice(-2) + '/' + hoje.getFullYear();
+                return { status: 'TRIAL', dataInicioCobranca: hojeStr, proximoVencimento: hojeStr };
+            }
+            // Com trial
+            var dias = parseInt((diasEl && diasEl.value) || 30);
+            var dtFim2 = new Date(); dtFim2.setDate(dtFim2.getDate() + dias);
+            var dtFimStr = ('0'+dtFim2.getDate()).slice(-2) + '/' + ('0'+(dtFim2.getMonth()+1)).slice(-2) + '/' + dtFim2.getFullYear();
+            return { status: 'TRIAL', dataInicioCobranca: dtFimStr, proximoVencimento: dtFimStr };
+        }
+
         async function saFormSalvar() {
             var email   = (document.getElementById('saFormEmail').value || '').trim().toLowerCase();
             var plano   = document.getElementById('saFormPlano').value || 'profissional';
@@ -25437,16 +25601,44 @@
             var todasMarcadas = mods.length === _saModCatalogo.length;
             var modalidadesPayload = todasMarcadas ? [] : mods;
 
+            // Processa modo de trial (radio buttons)
+            var trialModo = _saTrialLerModo();
+            var radioAtivo = document.getElementById('saTrialModoAtivo');
+            var radioImmed = document.getElementById('saTrialModoImediato');
+
+            // Se radio selecionado, sobrescreve status e datas
+            if (radioAtivo && radioAtivo.checked) {
+                status = 'ATIVO';
+            } else if (radioImmed && radioImmed.checked) {
+                status = 'TRIAL'; // sem trial = exige pagamento na primeira entrada
+            }
+
+            // Aplica data de início de cobrança do trial
+            if (trialModo.dataInicioCobranca) vencBR = trialModo.proximoVencimento;
+
+            // Atualiza PropertiesService de trial do cliente via ctmId
+            var ctmIdParaTrial = '';
+            try {
+                var contrAux = _saModContratos.filter(function(c){ return c.email === email; })[0];
+                if (contrAux && contrAux.sheetId) {
+                    // será resolvido pelo backend via sheetId
+                    ctmIdParaTrial = contrAux.ctmId || sheetId;
+                }
+            } catch(eTrial) {}
+
             saFormMsg('Salvando...', 'var(--adm-text-3)');
 
             try {
                 var res = await secureFetch('salvarContrato', {
-                    targetEmail: email,
-                    modalidades: modalidadesPayload,
-                    sheetId:     sheetId,
-                    plano:       plano,
-                    status:      status,
-                    vencimento:  vencBR
+                    targetEmail:        email,
+                    modalidades:        modalidadesPayload,
+                    sheetId:            sheetId,
+                    plano:              plano,
+                    status:             status,
+                    vencimento:         vencBR,
+                    dataInicioCobranca: trialModo.dataInicioCobranca || '',
+                    semTrial:           !!(radioImmed && radioImmed.checked),
+                    ativarDireto:       !!(radioAtivo && radioAtivo.checked)
                 });
                 if (res && res.success) {
                     saFormMsg('✅ Contrato salvo com sucesso!', '#4ade80');
@@ -25717,100 +25909,129 @@
         async function saModCarregar() { await saModInit(); }
 
         // ── Renderiza lista de contratos ────────────────────────
+        // ── STATUS colors map ────────────────────────────────────────
+        var _saStatusCfg = {
+            ATIVO:         { clr: '#4ade80', bg: 'rgba(74,222,128,0.12)',  icon: '✅' },
+            TRIAL:         { clr: '#fbbf24', bg: 'rgba(251,191,36,0.12)',  icon: '⏳' },
+            CANCELADO:     { clr: '#f87171', bg: 'rgba(248,113,113,0.12)', icon: '❌' },
+            INATIVO:       { clr: '#94a3b8', bg: 'rgba(148,163,184,0.12)', icon: '⏸' },
+            PENDENTE:      { clr: '#fbbf24', bg: 'rgba(251,191,36,0.12)',  icon: '⏳' },
+            INADIMPLENTE:  { clr: '#f87171', bg: 'rgba(248,113,113,0.12)', icon: '🔴' },
+            'SEM CONTRATO':{ clr: '#94a3b8', bg: 'rgba(148,163,184,0.08)', icon: '📋' }
+        };
+
+        function _saStatusBadge(status) {
+            var s = status || 'SEM CONTRATO';
+            var cfg = _saStatusCfg[s] || _saStatusCfg['SEM CONTRATO'];
+            return '<span style="font-size:9px;font-weight:800;padding:2px 9px;border-radius:20px;color:' + cfg.clr + ';background:' + cfg.bg + ';border:1px solid ' + cfg.clr + '44;">' + cfg.icon + ' ' + s + '</span>';
+        }
+
         function _saModRenderLista() {
             var el = document.getElementById('saModListaContratos');
             if (!el) return;
 
-            // ── Planilha master ──────────────────────────────────
+            // ── Planilha master ──────────────────────────────────────────
             var masterHtml = '';
             if (_saModSystemSheetId) {
                 var sheetUrl = 'https://docs.google.com/spreadsheets/d/' + _saModSystemSheetId + '/edit';
                 masterHtml =
-                    '<div style="background:rgba(13,26,42,0.8);border:1px solid rgba(96,165,250,0.25);border-radius:10px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;">' +
+                    '<div style="background:rgba(13,26,42,0.8);border:1px solid rgba(96,165,250,0.2);border-radius:10px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;">' +
                     '<span style="font-size:16px;">📊</span>' +
-                    '<div style="flex:1;">' +
-                        '<div style="font-size:9px;color:#60a5fa;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">Planilha Master IDESystems</div>' +
-                        '<div style="font-size:10px;color:var(--adm-text-2);font-family:monospace;word-break:break-all;">' + escapeHtml(_saModSystemSheetId) + '</div>' +
-                    '</div>' +
-                    '<a href="' + escapeHtml(sheetUrl) + '" target="_blank" style="padding:5px 10px;background:rgba(96,165,250,0.1);color:#60a5fa;border:1px solid rgba(96,165,250,0.3);border-radius:6px;font-size:10px;font-weight:700;text-decoration:none;white-space:nowrap;">Abrir ↗</a>' +
-                    '</div>';
+                    '<div style="flex:1;min-width:0;"><div style="font-size:9px;color:#60a5fa;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;">Planilha Master IDESystems</div>' +
+                    '<div style="font-size:10px;color:var(--adm-text-2);font-family:monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(_saModSystemSheetId) + '</div></div>' +
+                    '<a href="' + escapeHtml(sheetUrl) + '" target="_blank" style="padding:5px 10px;background:rgba(96,165,250,0.1);color:#60a5fa;border:1px solid rgba(96,165,250,0.3);border-radius:6px;font-size:10px;font-weight:700;text-decoration:none;white-space:nowrap;">Abrir ↗</a></div>';
             }
 
             if (!_saModContratos.length) {
-                el.innerHTML = masterHtml + '<div style="text-align:center;padding:20px;color:var(--adm-text-3);font-size:12px;border:1px dashed rgba(255,255,255,0.08);border-radius:10px;">Nenhum admin encontrado.<br><small>Cadastre um admin na planilha Alunos.</small></div>';
+                el.innerHTML = masterHtml + '<div style="text-align:center;padding:24px;color:var(--adm-text-3);font-size:12px;border:1px dashed rgba(255,255,255,0.08);border-radius:12px;">Nenhum cliente encontrado</div>';
                 return;
             }
 
-            // ── Conta status ──────────────────────────────────────
-            var totalAtivos = _saModContratos.filter(function(c){ return c.status === 'ATIVO'; }).length;
-            var resumo = '<div style="font-size:10px;color:var(--adm-text-3);margin-bottom:12px;font-weight:600;">' +
-                _saModContratos.length + ' admin(s) cadastrado(s) · ' + totalAtivos + ' ativo(s)</div>';
+            // ── Stats rápidos ────────────────────────────────────────────
+            var counts = { ATIVO:0, TRIAL:0, CANCELADO:0, INATIVO:0, INADIMPLENTE:0, 'SEM CONTRATO':0 };
+            _saModContratos.forEach(function(c){ var s = c.status||'SEM CONTRATO'; if(counts[s]!==undefined) counts[s]++; else counts['SEM CONTRATO']++; });
+            var statsHtml = '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:14px;">';
+            [['ATIVO','✅'],['TRIAL','⏳'],['CANCELADO','❌']].forEach(function(pair){
+                var cfg = _saStatusCfg[pair[0]];
+                statsHtml += '<div style="padding:8px 10px;background:' + cfg.bg + ';border-radius:10px;border:1px solid ' + cfg.clr + '33;text-align:center;">' +
+                    '<div style="font-size:16px;font-weight:800;color:' + cfg.clr + ';">' + (counts[pair[0]]||0) + '</div>' +
+                    '<div style="font-size:9px;color:var(--adm-text-3);font-weight:700;">' + pair[1] + ' ' + pair[0] + '</div></div>';
+            });
+            statsHtml += '</div>';
 
-            // ── Único painel de contrato com seletor de email ─────
-            // Monta opções do select
-            var optsHtml = '<option value="">— Selecione o admin —</option>';
+            // ── Cards de clientes ────────────────────────────────────────
+            var cardsHtml = '';
             _saModContratos.forEach(function(c) {
-                var statusLabel = c.status && c.status !== 'SEM CONTRATO' ? ' [' + c.status + ']' : ' [SEM CONTRATO]';
-                var label = (c.ctNome ? c.ctNome + ' — ' : '') + c.email + statusLabel;
-                optsHtml += '<option value="' + escapeHtml(c.email) + '">' + escapeHtml(label) + '</option>';
+                var s   = c.status || 'SEM CONTRATO';
+                var cfg = _saStatusCfg[s] || _saStatusCfg['SEM CONTRATO'];
+                var mods = c.modalidades && c.modalidades.length
+                    ? c.modalidades.map(function(m){ return '<span style="font-size:9px;font-weight:700;padding:1px 7px;border-radius:8px;background:rgba(' + (m.corRGB||'201,162,58') + ',0.12);color:' + (m.cor||'#C9A23A') + ';border:1px solid rgba(' + (m.corRGB||'201,162,58') + ',0.2);">' + escapeHtml(m.icon||'🥋') + ' ' + escapeHtml(m.nome) + '</span>'; }).join('')
+                    : '<span style="font-size:9px;color:var(--adm-text-3);font-style:italic;">todas as modalidades</span>';
+
+                // Trial info
+                var trialInfo = '';
+                if (c.dataInicioCobranca) {
+                    var dtI = c.dataInicioCobranca;
+                    var partsI = dtI.split('/');
+                    var dtObj = partsI.length===3 ? new Date(parseInt(partsI[2]),parseInt(partsI[1])-1,parseInt(partsI[0])) : null;
+                    if (dtObj) {
+                        var diff = Math.ceil((dtObj - new Date()) / 86400000);
+                        if (diff > 0) trialInfo = '<span style="font-size:9px;color:#fbbf24;">⏳ ' + diff + ' dias de trial restantes (até ' + dtI + ')</span>';
+                        else if (s === 'TRIAL') trialInfo = '<span style="font-size:9px;color:#f87171;">⚠️ Trial expirado em ' + dtI + '</span>';
+                    }
+                } else if (s === 'TRIAL') {
+                    trialInfo = '<span style="font-size:9px;color:#f87171;">⚠️ Sem data de trial — cliente pode estar bloqueado</span>';
+                }
+
+                var isSelected = _saModEmailAtual === c.email;
+                var cardBorder = isSelected ? 'rgba(201,162,58,0.5)' : 'var(--adm-border)';
+                var cardBg     = isSelected ? 'rgba(201,162,58,0.05)' : 'var(--adm-bg-elevated)';
+
+                cardsHtml +=
+                    '<div style="background:' + cardBg + ';border:1.5px solid ' + cardBorder + ';border-radius:14px;padding:14px;margin-bottom:8px;cursor:pointer;transition:all .15s;" ' +
+                    'onclick="_saCliCardClick('' + escapeHtml(c.email) + '')">' +
+
+                    // Linha 1: nome + badges
+                    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">' +
+                        '<span style="font-size:13px;font-weight:800;color:var(--adm-text-1);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(c.ctNome||c.email) + '</span>' +
+                        _saStatusBadge(s) +
+                        (c.plano ? '<span style="font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(37,99,235,0.1);color:#60a5fa;border:1px solid rgba(37,99,235,0.2);">📦 ' + escapeHtml(c.plano) + '</span>' : '') +
+                    '</div>' +
+
+                    // Linha 2: email
+                    '<div style="font-size:10px;color:var(--adm-text-3);margin-bottom:6px;">' + escapeHtml(c.email) + '</div>' +
+
+                    // Linha 3: modalidades
+                    '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:' + (trialInfo ? '6px' : '0') + ';">' + mods + '</div>' +
+
+                    // Linha 4: trial info
+                    (trialInfo ? '<div style="margin-top:4px;">' + trialInfo + '</div>' : '') +
+
+                    // Linha 5: botão editar (visível ao selecionar)
+                    '<div style="margin-top:10px;display:flex;gap:6px;">' +
+                        '<button onclick="event.stopPropagation();saCliEditarContrato('' + escapeHtml(c.email) + '')" ' +
+                        'style="flex:1;padding:8px;background:rgba(201,162,58,0.08);color:var(--adm-primary);border:1px solid rgba(201,162,58,0.25);border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;">' +
+                        '✏️ Editar contrato</button>' +
+                        (c.sheetId ? '<a href="https://docs.google.com/spreadsheets/d/' + escapeHtml(c.sheetId) + '/edit" target="_blank" ' +
+                        'onclick="event.stopPropagation()" ' +
+                        'style="padding:8px 12px;background:rgba(96,165,250,0.08);color:#60a5fa;border:1px solid rgba(96,165,250,0.2);border-radius:8px;font-size:11px;font-weight:700;text-decoration:none;">📊</a>' : '') +
+                    '</div>' +
+
+                    '</div>';
             });
 
-            // Email selecionado atualmente
-            var emailAtual = _saModEmailAtual || '';
-            var contratoAtual = null;
-            if (emailAtual) {
-                for (var i = 0; i < _saModContratos.length; i++) {
-                    if (_saModContratos[i].email === emailAtual) { contratoAtual = _saModContratos[i]; break; }
-                }
-            }
+            el.innerHTML = masterHtml + statsHtml + cardsHtml;
+        }
 
-            var statusClr = { ATIVO:'#4ade80', TRIAL:'#fbbf24', CANCELADO:'#f87171', INATIVO:'#94a3b8', PENDENTE:'#fbbf24', 'SEM CONTRATO':'#94a3b8' };
+        function _saCliCardClick(email) {
+            _saModEmailAtual = email;
+            _saModRenderLista();
+        }
 
-            // Preview do contrato selecionado
-            var previewHtml = '';
-            if (contratoAtual) {
-                var c = contratoAtual;
-                var stClr = statusClr[c.status] || '#94a3b8';
-                var modTags = c.modalidades && c.modalidades.length
-                    ? c.modalidades.map(function(m) {
-                        return '<span style="padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;' +
-                            'background:rgba(' + (m.corRGB||'201,162,58') + ',0.12);color:' + (m.cor||'#C9A23A') + ';border:1px solid rgba(' + (m.corRGB||'201,162,58') + ',0.25);">' +
-                            escapeHtml(m.icon||'🥋') + ' ' + escapeHtml(m.nome) + '</span>';
-                    }).join('')
-                    : '<span style="font-size:10px;color:var(--adm-text-3);font-style:italic;">Todas as modalidades ativas</span>';
-
-                var sheetTag = c.sheetId
-                    ? '<a href="https://docs.google.com/spreadsheets/d/' + escapeHtml(c.sheetId) + '/edit" target="_blank" ' +
-                      'style="font-size:10px;color:#60a5fa;font-family:monospace;text-decoration:none;">📊 ' + escapeHtml(c.sheetId.substring(0,20)) + '... ↗</a>'
-                    : '<span style="font-size:10px;color:#f87171;">⚠️ Sheet ID não cadastrado</span>';
-
-                previewHtml =
-                    '<div style="margin-top:10px;padding:10px 12px;background:rgba(201,162,58,0.04);border:1px solid rgba(201,162,58,0.15);border-radius:9px;">' +
-                    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">' +
-                        '<span style="font-size:13px;font-weight:800;color:var(--adm-text-1);">' + escapeHtml(c.ctNome||'—') + '</span>' +
-                        '<span style="font-size:9px;font-weight:800;padding:2px 8px;border-radius:8px;color:' + stClr + ';background:' + stClr + '1a;border:1px solid ' + stClr + '44;">' + escapeHtml(c.status||'SEM CONTRATO') + '</span>' +
-                        (c.plano ? '<span style="font-size:9px;color:var(--adm-primary);">📦 ' + escapeHtml(c.plano) + '</span>' : '') +
-                    '</div>' +
-                    '<div style="margin-bottom:6px;">' + sheetTag + '</div>' +
-                    '<div style="display:flex;flex-wrap:wrap;gap:4px;">' + modTags + '</div>' +
-                    (!c.emLicenciados ? '<div style="font-size:10px;color:#fbbf24;margin-top:6px;">⚡ Ainda sem linha em LICENCIADOS — será criada ao salvar</div>' : '') +
-                    '</div>';
-            }
-
-            el.innerHTML = masterHtml + resumo +
-                // Seletor único de email
-                '<div style="background:var(--adm-bg-elevated);border:1px solid var(--adm-border);border-radius:12px;padding:14px;">' +
-                '<div style="font-size:10px;font-weight:800;color:var(--adm-text-3);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px;">📧 Admin vinculado ao contrato</div>' +
-                '<select id="saModEmailSelectLista" onchange="saModOnListaSelect(this.value)" ' +
-                    'style="width:100%;padding:9px 12px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid rgba(201,162,58,0.4);border-radius:8px;font-size:13px;margin-bottom:8px;">' +
-                    optsHtml +
-                '</select>' +
-                previewHtml +
-                '</div>';
-
-            // Restaura seleção
-            var selEl = document.getElementById('saModEmailSelectLista');
-            if (selEl && emailAtual) selEl.value = emailAtual;
+        function saModOnListaSelect(email) {
+            _saModEmailAtual = email;
+            _saModRenderLista();
+            if (email) saFormAbrir(email);
         }
 
         function saModOnListaSelect(email) {
