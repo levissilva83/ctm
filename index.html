@@ -9457,103 +9457,134 @@
 
                             <!-- ══ PAINEL: EDITAR CONTRATO ══ -->
                             <div id="saPainelContrato" style="display:none;background:var(--adm-bg-elevated);border:1px solid rgba(201,162,58,0.2);border-radius:12px;padding:16px;">
-                                <div style="font-size:10px;font-weight:800;color:var(--adm-primary);text-transform:uppercase;letter-spacing:.6px;margin-bottom:14px;">Ativar / editar contrato LICENCIADOS</div>
 
-                                <!-- Seletor de admin -->
-                                <div style="margin-bottom:10px;">
-                                    <label style="font-size:9px;color:var(--adm-primary);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px;">📧 Admin vinculado</label>
-                                    <select id="saModEmailSelectLista" onchange="saModOnListaSelect(this.value)"
-                                        style="width:100%;padding:9px 12px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid rgba(201,162,58,0.4);border-radius:8px;font-size:12px;">
-                                    </select>
-                                </div>
+                                <!-- ══ PASSO 1: Selecione o cliente ══ -->
+                                <div style="font-size:9px;font-weight:800;color:var(--adm-text-3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;">① Selecione o cliente</div>
+                                <select id="saModEmailSelectLista" onchange="saContratarSelecionarCliente(this.value)"
+                                    style="width:100%;padding:10px 12px;background:var(--adm-bg-card);color:var(--adm-text-1);border:2px solid rgba(201,162,58,0.4);border-radius:10px;font-size:13px;margin-bottom:4px;">
+                                    <option value="">— Selecione um cliente —</option>
+                                </select>
+                                <!-- Badge de status do cliente selecionado -->
+                                <div id="saContratoStatusBar" style="min-height:28px;margin-bottom:12px;"></div>
 
-                                <!-- Preview do contrato selecionado -->
-                                <div id="saModListaContratoPreview" style="margin-bottom:10px;"></div>
+                                <!-- Divider -->
+                                <div style="height:1px;background:var(--adm-border);margin-bottom:12px;"></div>
 
-                                <div style="margin-bottom:8px;">
-                                    <label style="font-size:9px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px;">📦 Plano</label>
-                                    <select id="saFormPlano" style="width:100%;padding:9px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:12px;">
-                                        <option value="">⏳ Carregando planos...</option>
-                                    </select>
-                                </div>
+                                <!-- ══ PASSO 2: Campos do contrato ══ -->
+                                <div id="saContratoFormCampos" style="display:none;">
 
-                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
-                                    <div>
-                                        <label style="font-size:9px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px;">🔖 Status</label>
-                                        <select id="saFormStatus" style="width:100%;padding:9px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:12px;">
-                                            <option value="TRIAL">TRIAL</option>
-                                            <option value="ATIVO">ATIVO</option>
-                                            <option value="INATIVO">INATIVO</option>
-                                            <option value="CANCELADO">CANCELADO</option>
+                                    <!-- Plano -->
+                                    <div style="margin-bottom:8px;">
+                                        <label style="font-size:9px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px;">📦 Plano contratado</label>
+                                        <select id="saFormPlano" style="width:100%;padding:10px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:13px;">
+                                            <option value="">⏳ Carregando planos...</option>
                                         </select>
                                     </div>
-                                    <div>
-                                        <label style="font-size:9px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px;">📅 Vencimento</label>
-                                        <input type="date" id="saFormVencimento"
-                                            style="width:100%;box-sizing:border-box;padding:9px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:12px;">
-                                    </div>
-                                </div>
 
-                                <div style="margin-bottom:8px;">
-                                    <label style="font-size:9px;color:#60a5fa;font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px;">📊 Sheet ID</label>
-                                    <div style="display:flex;gap:6px;">
-                                        <input type="text" id="saFormSheetId" placeholder="ID da planilha do cliente"
-                                            style="flex:1;padding:9px;background:var(--adm-bg-card);color:#60a5fa;border:1px solid rgba(96,165,250,0.25);border-radius:8px;font-size:11px;font-family:monospace;box-sizing:border-box;">
-                                        <button onclick="saFormAbrirSheet()" style="padding:9px 12px;background:rgba(96,165,250,0.08);color:#60a5fa;border:1px solid rgba(96,165,250,0.25);border-radius:8px;font-size:13px;cursor:pointer;">↗</button>
-                                    </div>
-                                </div>
-
-                                <!-- ── PERÍODO DE TESTE ─────────────────────────────── -->
-                                <div style="margin-bottom:12px;padding:12px;background:rgba(251,191,36,0.05);border:1px solid rgba(251,191,36,0.2);border-radius:10px;">
-                                    <div style="font-size:9px;font-weight:800;color:#fbbf24;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">⏳ Período de teste / Ativação</div>
-
-                                    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px;">
-                                        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
-                                            <input type="radio" name="saTrialModo" id="saTrialModoTrial" value="trial" onchange="_saTrialOnModoChange()" style="accent-color:#fbbf24;width:16px;height:16px;">
-                                            <span style="font-size:12px;color:var(--adm-text-1);">⏳ <strong>Com período de teste</strong> — cliente acessa grátis por X dias</span>
-                                        </label>
-                                        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
-                                            <input type="radio" name="saTrialModo" id="saTrialModoImediato" value="imediato" onchange="_saTrialOnModoChange()" style="accent-color:#f87171;width:16px;height:16px;">
-                                            <span style="font-size:12px;color:var(--adm-text-1);">💳 <strong>Sem trial — pagar agora</strong> — ao acessar, exige assinatura imediata</span>
-                                        </label>
-                                        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
-                                            <input type="radio" name="saTrialModo" id="saTrialModoAtivo" value="ativo" onchange="_saTrialOnModoChange()" style="accent-color:#4ade80;width:16px;height:16px;">
-                                            <span style="font-size:12px;color:var(--adm-text-1);">✅ <strong>Ativar direto</strong> — cliente já pagou, ativar sem cobrar agora</span>
-                                        </label>
+                                    <!-- Status + Vencimento -->
+                                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+                                        <div>
+                                            <label style="font-size:9px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px;">🔖 Status</label>
+                                            <select id="saFormStatus" style="width:100%;padding:9px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:12px;">
+                                                <option value="TRIAL">TRIAL</option>
+                                                <option value="ATIVO">ATIVO</option>
+                                                <option value="INATIVO">INATIVO</option>
+                                                <option value="CANCELADO">CANCELADO</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label style="font-size:9px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px;">📅 Vencimento</label>
+                                            <input type="date" id="saFormVencimento"
+                                                style="width:100%;box-sizing:border-box;padding:9px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:12px;">
+                                        </div>
                                     </div>
 
-                                    <!-- Campos visíveis só no modo trial -->
-                                    <div id="saTrialDiasWrap" style="display:none;background:rgba(251,191,36,0.05);border-radius:8px;padding:10px;border:1px solid rgba(251,191,36,0.15);">
-                                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-                                            <div>
-                                                <label style="font-size:9px;color:var(--adm-text-3);font-weight:700;display:block;margin-bottom:3px;">Dias de trial</label>
-                                                <input type="number" id="saTrialDiasEdit" value="30" min="1" max="365"
-                                                    oninput="_saTrialRecalcData()"
-                                                    style="width:100%;box-sizing:border-box;padding:8px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid rgba(251,191,36,0.3);border-radius:8px;font-size:13px;text-align:center;">
-                                            </div>
-                                            <div>
-                                                <label style="font-size:9px;color:var(--adm-text-3);font-weight:700;display:block;margin-bottom:3px;">Cobrança a partir de</label>
-                                                <input type="text" id="saTrialDataEdit" placeholder="dd/MM/yyyy" readonly
-                                                    style="width:100%;box-sizing:border-box;padding:8px;background:rgba(0,0,0,0.2);color:#fbbf24;border:1px solid rgba(251,191,36,0.2);border-radius:8px;font-size:12px;font-weight:700;">
+                                    <!-- Sheet ID -->
+                                    <div style="margin-bottom:8px;">
+                                        <label style="font-size:9px;color:#60a5fa;font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px;">📊 Sheet ID da planilha</label>
+                                        <div style="display:flex;gap:6px;">
+                                            <input type="text" id="saFormSheetId" placeholder="ID da planilha do cliente"
+                                                style="flex:1;padding:9px;background:var(--adm-bg-card);color:#60a5fa;border:1px solid rgba(96,165,250,0.25);border-radius:8px;font-size:11px;font-family:monospace;box-sizing:border-box;">
+                                            <button onclick="saFormAbrirSheet()" style="padding:9px 12px;background:rgba(96,165,250,0.08);color:#60a5fa;border:1px solid rgba(96,165,250,0.25);border-radius:8px;font-size:13px;cursor:pointer;">↗</button>
+                                        </div>
+                                    </div>
+
+                                    <!-- ── PERÍODO DE TESTE ───────── -->
+                                    <div style="margin-bottom:12px;padding:12px;background:rgba(251,191,36,0.05);border:1px solid rgba(251,191,36,0.2);border-radius:10px;">
+                                        <div style="font-size:9px;font-weight:800;color:#fbbf24;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">⏳ Período de teste / Ativação</div>
+                                        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px;">
+                                            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+                                                <input type="radio" name="saTrialModo" id="saTrialModoTrial" value="trial" onchange="_saTrialOnModoChange()" style="accent-color:#fbbf24;width:16px;height:16px;">
+                                                <span style="font-size:12px;color:var(--adm-text-1);">⏳ <strong>Com trial</strong> — acessa grátis por X dias</span>
+                                            </label>
+                                            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+                                                <input type="radio" name="saTrialModo" id="saTrialModoImediato" value="imediato" onchange="_saTrialOnModoChange()" style="accent-color:#f87171;width:16px;height:16px;">
+                                                <span style="font-size:12px;color:var(--adm-text-1);">💳 <strong>Sem trial — pagar agora</strong></span>
+                                            </label>
+                                            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+                                                <input type="radio" name="saTrialModo" id="saTrialModoAtivo" value="ativo" onchange="_saTrialOnModoChange()" style="accent-color:#4ade80;width:16px;height:16px;">
+                                                <span style="font-size:12px;color:var(--adm-text-1);">✅ <strong>Ativar direto</strong> — já pagou</span>
+                                            </label>
+                                        </div>
+                                        <div id="saTrialDiasWrap" style="display:none;background:rgba(251,191,36,0.05);border-radius:8px;padding:10px;border:1px solid rgba(251,191,36,0.15);">
+                                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                                                <div>
+                                                    <label style="font-size:9px;color:var(--adm-text-3);font-weight:700;display:block;margin-bottom:3px;">Dias de trial</label>
+                                                    <input type="number" id="saTrialDiasEdit" value="30" min="1" max="365" oninput="_saTrialRecalcData()"
+                                                        style="width:100%;box-sizing:border-box;padding:8px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid rgba(251,191,36,0.3);border-radius:8px;font-size:13px;text-align:center;">
+                                                </div>
+                                                <div>
+                                                    <label style="font-size:9px;color:var(--adm-text-3);font-weight:700;display:block;margin-bottom:3px;">Cobrança a partir de</label>
+                                                    <input type="text" id="saTrialDataEdit" placeholder="dd/MM/yyyy" readonly
+                                                        style="width:100%;box-sizing:border-box;padding:8px;background:rgba(0,0,0,0.2);color:#fbbf24;border:1px solid rgba(251,191,36,0.2);border-radius:8px;font-size:12px;font-weight:700;">
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
+
+                                    <!-- ── MODALIDADES CONTRATADAS (OBRIGATÓRIO) ── -->
+                                    <div style="margin-bottom:14px;padding:12px;background:rgba(201,162,58,0.04);border:1.5px solid rgba(201,162,58,0.25);border-radius:10px;">
+                                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                                            <div style="font-size:9px;font-weight:800;color:var(--adm-primary);text-transform:uppercase;letter-spacing:.5px;">🥋 Modalidades contratadas</div>
+                                            <div style="display:flex;gap:6px;">
+                                                <button onclick="saModSelectAll(true)" style="padding:3px 8px;background:rgba(201,162,58,0.12);color:var(--adm-primary);border:1px solid rgba(201,162,58,0.3);border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;">Todas</button>
+                                                <button onclick="saModSelectAll(false)" style="padding:3px 8px;background:transparent;color:var(--adm-text-3);border:1px solid var(--adm-border);border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;">Nenhuma</button>
+                                            </div>
+                                        </div>
+                                        <div id="saFormModGrid2" style="display:flex;flex-direction:column;gap:6px;"></div>
+                                        <div id="saFormContador2" style="font-size:10px;color:var(--adm-text-3);margin-top:8px;padding-top:8px;border-top:1px solid var(--adm-border);font-weight:600;"></div>
+                                    </div>
+
+                                    <!-- ── AÇÕES ── -->
+                                    <button onclick="saFormSalvar()"
+                                        style="width:100%;padding:13px;background:linear-gradient(135deg,var(--adm-primary),var(--adm-primary-bright));color:#000;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:8px;">
+                                        💾 Salvar Contrato
+                                    </button>
+
+                                    <!-- Ações de controle do cliente -->
+                                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;">
+                                        <button id="saBtnBloquear" onclick="saContratoBloquear()"
+                                            style="padding:10px;background:rgba(251,191,36,0.08);color:#fbbf24;border:1.5px solid rgba(251,191,36,0.3);border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;">
+                                            🔒 Bloquear acesso
+                                        </button>
+                                        <button id="saBtnDesbloquear" onclick="saContratoDesbloquear()"
+                                            style="padding:10px;background:rgba(74,222,128,0.08);color:#4ade80;border:1.5px solid rgba(74,222,128,0.3);border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;">
+                                            🔓 Desbloquear
+                                        </button>
+                                    </div>
+
+                                    <button id="saFormExcluirBtn" onclick="saFormExcluir()"
+                                        style="width:100%;padding:10px;background:rgba(248,113,113,0.08);color:#f87171;border:1.5px solid rgba(248,113,113,0.3);border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;">
+                                        🗑️ Excluir contrato do LICENCIADOS
+                                    </button>
+
+                                    <div id="saFormMsg" style="font-size:11px;text-align:center;margin-top:10px;min-height:16px;white-space:pre-wrap;"></div>
+                                </div><!-- /saContratoFormCampos -->
+
+                                <div id="saContratoVazio" style="text-align:center;padding:20px;color:var(--adm-text-3);font-size:12px;">
+                                    ← Selecione um cliente acima para editar o contrato
                                 </div>
 
-                                <div style="margin-bottom:12px;">
-                                    <label style="font-size:9px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;display:block;margin-bottom:6px;">🥋 Modalidades contratadas</label>
-                                    <div id="saFormModGrid2" style="display:flex;flex-direction:column;gap:5px;"></div>
-                                    <div id="saFormContador2" style="font-size:10px;color:var(--adm-text-3);margin-top:6px;"></div>
-                                </div>
-
-                                <button onclick="saFormSalvar()"
-                                    style="width:100%;padding:13px;background:linear-gradient(135deg,var(--adm-primary),var(--adm-primary-bright));color:#000;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:8px;">
-                                    💾 Salvar Contrato
-                                </button>
-                                <button id="saFormExcluirBtn" onclick="saFormExcluir()" style="display:none;width:100%;padding:10px;background:rgba(248,113,113,0.08);color:#f87171;border:1.5px solid rgba(248,113,113,0.3);border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;">
-                                    🗑️ Excluir contrato
-                                </button>
-                                <div id="saFormMsg" style="font-size:11px;text-align:center;margin-top:8px;min-height:16px;white-space:pre-wrap;"></div>
                             </div>
 
                         </div><!-- /saModForm -->
@@ -25330,13 +25361,20 @@
 
         // Abre o formulário de EDIÇÃO de contrato já preenchido
         function saCliEditarContrato(email) {
-            _saModEmailAtual = email;
-            saCliAbaSelecionar('contrato');
+            _saModEmailAtual     = email;
+            _saFormEmailOriginal = email;
             var form = document.getElementById('saModForm');
             if (form) form.style.display = 'block';
-            document.getElementById('saFormAbrirBtn').style.display = 'none';
-            saFormAbrir(email);
-            setTimeout(function(){ if(form) form.scrollIntoView({ behavior:'smooth', block:'nearest' }); }, 100);
+            var abrirBtn = document.getElementById('saFormAbrirBtn');
+            if (abrirBtn) abrirBtn.style.display = 'none';
+            saCliAbaSelecionar('contrato');
+            // seleciona o cliente no dropdown após poplar
+            setTimeout(function() {
+                var sel = document.getElementById('saModEmailSelectLista');
+                if (sel) sel.value = email;
+                saContratarSelecionarCliente(email);
+                if (form) form.scrollIntoView({ behavior:'smooth', block:'nearest' });
+            }, 200);
         }
 
         function saFormAbrir(emailPresel) {
@@ -25359,8 +25397,9 @@
             if (emailEl) { emailEl.value = emailPresel || ''; emailEl.readOnly = !!emailPresel; emailEl.style.color = emailPresel ? 'var(--adm-text-3)' : ''; }
             var exclBtn = document.getElementById('saFormExcluirBtn');
             if (exclBtn) exclBtn.style.display = emailPresel ? 'block' : 'none';
-            var planoEl = document.getElementById('saFormPlano');
-            if (planoEl) planoEl.value = (contrato && contrato.plano) || 'profissional';
+            // Carrega planos da planilha Matrix e pré-seleciona o plano atual
+            var _planoAtual = (contrato && contrato.plano) || 'profissional';
+            _carregarPlanosSelect(_planoAtual);
             var statusEl = document.getElementById('saFormStatus');
             if (statusEl) statusEl.value = (contrato && contrato.status) || 'TRIAL';
             var sheetEl = document.getElementById('saFormSheetId');
@@ -25579,13 +25618,23 @@
         }
 
         async function saFormSalvar() {
-            var email   = (document.getElementById('saFormEmail').value || '').trim().toLowerCase();
-            var plano   = document.getElementById('saFormPlano').value || 'profissional';
-            var status  = document.getElementById('saFormStatus').value || 'TRIAL';
-            var vencISO = document.getElementById('saFormVencimento').value || '';
-            var sheetId = (document.getElementById('saFormSheetId').value || '').trim();
+            // Email: usa _saFormEmailOriginal (edição) ou select (aba contrato) ou campo email (novo)
+            var email = (_saFormEmailOriginal || '').trim().toLowerCase();
+            if (!email) {
+                var selLista = document.getElementById('saModEmailSelectLista');
+                email = selLista ? (selLista.value || '').trim().toLowerCase() : '';
+            }
+            if (!email) {
+                var emailEl2 = document.getElementById('saFormEmail');
+                email = emailEl2 ? (emailEl2.value || '').trim().toLowerCase() : '';
+            }
 
-            if (!email) { document.getElementById('saFormEmail').style.borderColor='#f87171'; saFormMsg('⚠️ E-mail obrigatório', '#f87171'); return; }
+            var plano   = (document.getElementById('saFormPlano') || {}).value || 'profissional';
+            var status  = (document.getElementById('saFormStatus') || {}).value || 'TRIAL';
+            var vencISO = (document.getElementById('saFormVencimento') || {}).value || '';
+            var sheetId = ((document.getElementById('saFormSheetId') || {}).value || '').trim();
+
+            if (!email) { saFormMsg('⚠️ Selecione um cliente antes de salvar', '#f87171'); return; }
             if (!sheetId) { document.getElementById('saFormSheetId').style.borderColor='#f87171'; saFormMsg('⚠️ Sheet ID obrigatório', '#f87171'); return; }
 
             // Converte data yyyy-MM-dd → dd/MM/yyyy
@@ -25595,8 +25644,8 @@
                 if (dp.length === 3) vencBR = dp[2] + '/' + dp[1] + '/' + dp[0];
             }
 
-            // Pega modalidades marcadas
-            var cbs = document.querySelectorAll('#saFormModGrid input[type=checkbox]:checked');
+            // Pega modalidades marcadas — tenta os dois grids (novo cliente e editar contrato)
+            var cbs = document.querySelectorAll('#saFormModGrid input[type=checkbox]:checked, #saFormModGrid2 input[type=checkbox]:checked');
             var mods = [].map.call(cbs, function(cb) { return cb.value; });
             var todasMarcadas = mods.length === _saModCatalogo.length;
             var modalidadesPayload = todasMarcadas ? [] : mods;
@@ -25761,12 +25810,13 @@
                 tabContrato.style.color        = !isNovo ? 'var(--adm-primary)' : INAC_C;
             }
 
-            // Se trocou para contrato, popula o select com os clientes existentes
+            // Se trocou para contrato, popula lista de clientes + planos
             if (!isNovo) {
-                var sel = document.getElementById('saModEmailSelectLista');
-                if (sel && !sel.options.length) saModInit();
-                // Carrega modalidades no grid do painel contrato
-                _saFormRenderModalidades(document.getElementById('saFormModGrid2'), [], 'saFormContador2');
+                if (_saModContratos.length) {
+                    _saPopularSelectClientes();
+                } else {
+                    saModInit().then(function(){ _saPopularSelectClientes(); });
+                }
             }
         }
 
@@ -26037,6 +26087,171 @@
                     _saModRenderLista();
                 }
             };
+        }
+
+        // Preenche o select de clientes na aba Editar Contrato
+        function _saPopularSelectClientes() {
+            var sel = document.getElementById('saModEmailSelectLista');
+            if (!sel || !_saModContratos.length) return;
+            var atual = _saFormEmailOriginal || sel.value || '';
+            sel.innerHTML = '<option value="">— Selecione um cliente —</option>';
+            _saModContratos.forEach(function(c) {
+                var opt = document.createElement('option');
+                opt.value = c.email;
+                var s = c.status || 'SEM CONTRATO';
+                var icon = { ATIVO:'✅', TRIAL:'⏳', CANCELADO:'❌', INATIVO:'⏸', INADIMPLENTE:'🔴', 'SEM CONTRATO':'📋' }[s] || '📋';
+                opt.textContent = icon + ' ' + (c.ctNome || c.email) + ' — ' + c.email;
+                if (c.email === atual) opt.selected = true;
+                sel.appendChild(opt);
+            });
+            if (atual) saContratarSelecionarCliente(atual);
+        }
+
+        // Chamada ao selecionar um cliente no select do painel Editar Contrato
+        function saContratarSelecionarCliente(email) {
+            _saFormEmailOriginal = email;
+            _saModEmailAtual     = email;
+
+            var campos  = document.getElementById('saContratoFormCampos');
+            var vazio   = document.getElementById('saContratoVazio');
+            var statusBar = document.getElementById('saContratoStatusBar');
+
+            if (!email) {
+                if (campos)   campos.style.display  = 'none';
+                if (vazio)    vazio.style.display    = 'block';
+                if (statusBar) statusBar.innerHTML   = '';
+                return;
+            }
+
+            if (campos)  campos.style.display = 'block';
+            if (vazio)   vazio.style.display  = 'none';
+
+            // Busca contrato
+            var contrato = null;
+            for (var i = 0; i < _saModContratos.length; i++) {
+                if (_saModContratos[i].email === email) { contrato = _saModContratos[i]; break; }
+            }
+
+            // Status bar
+            if (statusBar && contrato) {
+                var s   = contrato.status || 'SEM CONTRATO';
+                var cfg = _saStatusCfg[s] || _saStatusCfg['SEM CONTRATO'];
+                var mods2 = contrato.modalidades && contrato.modalidades.length
+                    ? contrato.modalidades.map(function(m){
+                        return '<span style="font-size:9px;padding:1px 6px;border-radius:6px;background:rgba(' + (m.corRGB||'201,162,58') + ',0.12);color:' + (m.cor||'#C9A23A') + ';">' + (m.icon||'🥋') + ' ' + escapeHtml(m.nome) + '</span>';
+                    }).join(' ')
+                    : '<span style="font-size:9px;color:var(--adm-text-3);">todas</span>';
+                statusBar.innerHTML =
+                    '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 10px;background:' + cfg.bg + ';border-radius:8px;border:1px solid ' + cfg.clr + '33;">' +
+                    '<span style="font-size:11px;font-weight:800;color:' + cfg.clr + ';">' + cfg.icon + ' ' + s + '</span>' +
+                    (contrato.plano ? '<span style="font-size:10px;color:var(--adm-text-2);">· ' + escapeHtml(contrato.plano) + '</span>' : '') +
+                    '<div style="display:flex;flex-wrap:wrap;gap:4px;">' + mods2 + '</div>' +
+                    '</div>';
+            } else if (statusBar) {
+                statusBar.innerHTML = '';
+            }
+
+            // Preenche campos do formulário
+            var statusEl = document.getElementById('saFormStatus');
+            if (statusEl) statusEl.value = (contrato && contrato.status) || 'TRIAL';
+
+            var vcEl = document.getElementById('saFormVencimento');
+            if (vcEl && contrato && contrato.proximoVencimento) {
+                var pts = contrato.proximoVencimento.split('/');
+                vcEl.value = pts.length === 3 ? pts[2] + '-' + pts[1] + '-' + pts[0] : '';
+            } else if (vcEl) {
+                var d30 = new Date(); d30.setDate(d30.getDate() + 30);
+                vcEl.value = d30.toISOString().substring(0, 10);
+            }
+
+            var sheetEl = document.getElementById('saFormSheetId');
+            if (sheetEl) sheetEl.value = (contrato && contrato.sheetId) || '';
+
+            // Carrega planos e pré-seleciona
+            _carregarPlanosSelect((contrato && contrato.plano) || 'profissional');
+
+            // Preenche modalidades com checkboxes da aba Editar Contrato
+            var grid2 = document.getElementById('saFormModGrid2');
+            var ctr2  = document.getElementById('saFormContador2');
+            if (grid2) {
+                var selMods = [];
+                if (contrato && contrato.modalidades) {
+                    selMods = contrato.modalidades.map(function(m){ return m.id || m; });
+                } else if (contrato && contrato.lista) {
+                    selMods = contrato.lista.map(function(m){ return m.id || m; });
+                }
+                _saFormRenderModalidades(grid2, selMods, 'saFormContador2');
+            }
+
+            // Trial
+            _saTrialPopular(contrato);
+
+            // Botão excluir sempre visível em edição
+            var exclBtn = document.getElementById('saFormExcluirBtn');
+            if (exclBtn) exclBtn.style.display = 'block';
+        }
+
+        // Seleciona / deseleciona todas as modalidades no grid da aba Editar Contrato
+        function saModSelectAll(selectAll) {
+            var grid = document.getElementById('saFormModGrid2');
+            if (!grid) return;
+            var cbs = grid.querySelectorAll('input[type=checkbox]');
+            cbs.forEach(function(cb) {
+                cb.checked = selectAll;
+                var lbl = cb.closest('label');
+                if (lbl) {
+                    var cor    = lbl.getAttribute('data-cor')  || '#C9A23A';
+                    var corRGB = lbl.getAttribute('data-corgb') || '201,162,58';
+                    lbl.style.background  = selectAll ? 'rgba(' + corRGB + ',0.07)' : 'var(--adm-bg-card)';
+                    lbl.style.borderColor = selectAll ? cor : 'var(--adm-border)';
+                }
+            });
+            _saModAtualizarContadorGenerico(grid, 'saFormContador2');
+        }
+
+        // Bloqueia acesso do cliente (trial bloqueado via PropertiesService)
+        async function saContratoBloquear() {
+            var email = _saFormEmailOriginal;
+            if (!email) { saFormMsg('Selecione um cliente primeiro', '#f87171'); return; }
+            if (!confirm('Bloquear acesso de ' + email + '?\nO cliente verá a tela de pagamento ao tentar entrar.')) return;
+            saFormMsg('Bloqueando...', 'var(--adm-text-3)');
+            try {
+                var res = await secureFetch('salvarContrato', {
+                    targetEmail: email,
+                    plano:       (document.getElementById('saFormPlano')||{}).value || '',
+                    status:      'INATIVO',
+                    vencimento:  '',
+                    dataInicioCobranca: (function(){ var d = new Date(); return ('0'+d.getDate()).slice(-2)+'/'+('0'+(d.getMonth()+1)).slice(-2)+'/'+d.getFullYear(); })(),
+                    sheetId:     ((document.getElementById('saFormSheetId')||{}).value||'').trim(),
+                    modalidades: [],
+                    semTrial:    true,
+                    ativarDireto: false
+                });
+                saFormMsg(res.success ? '🔒 Cliente bloqueado!' : '❌ ' + (res.message||'Erro'), res.success ? '#fbbf24' : '#f87171');
+                if (res.success) { setTimeout(function(){ saModInit(); }, 1200); }
+            } catch(e) { saFormMsg('❌ ' + e.message, '#f87171'); }
+        }
+
+        // Desbloqueia acesso do cliente
+        async function saContratoDesbloquear() {
+            var email = _saFormEmailOriginal;
+            if (!email) { saFormMsg('Selecione um cliente primeiro', '#f87171'); return; }
+            saFormMsg('Desbloqueando...', 'var(--adm-text-3)');
+            try {
+                var res = await secureFetch('salvarContrato', {
+                    targetEmail:  email,
+                    plano:        (document.getElementById('saFormPlano')||{}).value || '',
+                    status:       'ATIVO',
+                    vencimento:   '',
+                    dataInicioCobranca: '',
+                    sheetId:      ((document.getElementById('saFormSheetId')||{}).value||'').trim(),
+                    modalidades:  [],
+                    semTrial:     false,
+                    ativarDireto: true
+                });
+                saFormMsg(res.success ? '🔓 Cliente desbloqueado!' : '❌ ' + (res.message||'Erro'), res.success ? '#4ade80' : '#f87171');
+                if (res.success) { setTimeout(function(){ saModInit(); }, 1200); }
+            } catch(e) { saFormMsg('❌ ' + e.message, '#f87171'); }
         }
 
         function _saCliCardClick(email) {
