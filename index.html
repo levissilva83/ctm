@@ -9318,111 +9318,210 @@
                     </div>
 
 
-                    <!-- ═══ CONTRATO DE MODALIDADES POR CT ═══ -->
+                    <!-- ═══ CLIENTES & CONTRATOS ═══ -->
                     <div class="admin-section">
                         <div class="admin-section-header">
-                            <div class="admin-section-title">🎯 Contrato de Modalidades</div>
+                            <div class="admin-section-title">📋 Clientes & Contratos</div>
                             <button class="admin-refresh-btn" onclick="saModInit()">↻</button>
                         </div>
 
-                        <!-- Lista de contratos existentes -->
+                        <!-- Lista de clientes / LICENCIADOS -->
                         <div id="saModListaContratos">
-                            <div style="text-align:center;padding:20px;color:var(--adm-text-3);font-size:12px;">⏳ Carregando contratos...</div>
+                            <div style="text-align:center;padding:20px;color:var(--adm-text-3);font-size:12px;">⏳ Carregando...</div>
                         </div>
 
-                        <!-- Botão novo contrato -->
-                        <button onclick="saFormAbrir()" id="saFormAbrirBtn"
-                            style="width:100%;margin-top:12px;padding:11px;background:rgba(201,162,58,0.08);color:var(--adm-primary);border:1.5px dashed rgba(201,162,58,0.35);border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;">
-                            ＋ Novo Contrato
+                        <!-- Botão novo cliente -->
+                        <button onclick="saCliNovo()" id="saFormAbrirBtn"
+                            style="width:100%;margin-top:12px;padding:13px;background:linear-gradient(135deg,rgba(201,162,58,0.15),rgba(201,162,58,0.08));color:var(--adm-primary);border:1.5px dashed rgba(201,162,58,0.4);border-radius:12px;font-size:13px;font-weight:800;cursor:pointer;letter-spacing:.3px;">
+                            ＋ Cadastrar Novo Cliente
                         </button>
 
-                        <!-- ── FORMULÁRIO DE CONTRATO (novo ou edição) ── -->
-                        <div id="saModForm" style="display:none;margin-top:14px;background:var(--adm-bg-elevated);border:1px solid rgba(201,162,58,0.25);border-radius:12px;padding:16px;">
+                        <!-- ── FORMULÁRIO UNIFICADO ── -->
+                        <div id="saModForm" style="display:none;margin-top:14px;">
 
-                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-                                <div style="font-size:13px;font-weight:800;color:var(--adm-primary);" id="saFormTitulo">➕ Novo Contrato</div>
-                                <button onclick="saFormFechar()" style="padding:4px 10px;background:transparent;color:var(--adm-text-3);border:1px solid var(--adm-border);border-radius:6px;font-size:11px;cursor:pointer;">✕</button>
+                            <!-- Tabs: Novo Cliente | Editar Contrato -->
+                            <div style="display:flex;gap:6px;margin-bottom:14px;">
+                                <button id="saTabNovo" onclick="saCliAbaSelecionar('novo')"
+                                    style="flex:1;padding:9px;border-radius:10px;border:2px solid var(--adm-primary);background:rgba(201,162,58,0.1);color:var(--adm-primary);font-size:12px;font-weight:800;cursor:pointer;">
+                                    ➕ Novo Cliente
+                                </button>
+                                <button id="saTabContrato" onclick="saCliAbaSelecionar('contrato')"
+                                    style="flex:1;padding:9px;border-radius:10px;border:2px solid var(--adm-border);background:transparent;color:var(--adm-text-3);font-size:12px;font-weight:800;cursor:pointer;">
+                                    📝 Editar Contrato
+                                </button>
+                                <button onclick="saFormFechar()" style="padding:9px 12px;background:transparent;color:var(--adm-text-3);border:1px solid var(--adm-border);border-radius:10px;font-size:12px;cursor:pointer;">✕</button>
                             </div>
 
-                            <!-- E-mail do responsável -->
-                            <div style="margin-bottom:10px;">
-                                <label style="font-size:10px;color:var(--adm-primary);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px;">
-                                    📧 E-mail do responsável <span style="color:#f87171;font-size:9px;">(1 e-mail = 1 contrato)</span>
-                                </label>
-                                <input type="email" id="saFormEmail" placeholder="admin@academia.com.br"
-                                    oninput="this.style.borderColor=''"
-                                    style="width:100%;box-sizing:border-box;padding:9px 12px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:13px;">
-                            </div>
+                            <!-- ══ PAINEL: NOVO CLIENTE ══ -->
+                            <div id="saPainelNovo" style="background:var(--adm-bg-elevated);border:1px solid rgba(201,162,58,0.2);border-radius:12px;padding:16px;">
+                                <div style="font-size:10px;font-weight:800;color:var(--adm-primary);text-transform:uppercase;letter-spacing:.6px;margin-bottom:14px;">Dados do novo cliente</div>
 
-                            <!-- Plano -->
-                            <div style="margin-bottom:10px;">
-                                <label style="font-size:10px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px;">
-                                    📦 Plano
-                                </label>
-                                <select id="saFormPlano"
-                                    style="width:100%;padding:9px 12px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:13px;">
-                                    <option value="">⏳ Carregando planos...</option>
-                                </select>
-                            </div>
-
-                            <!-- Status -->
-                            <div style="margin-bottom:10px;">
-                                <label style="font-size:10px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px;">
-                                    🔖 Status
-                                </label>
-                                <select id="saFormStatus"
-                                    style="width:100%;padding:9px 12px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:13px;">
-                                    <option value="TRIAL">TRIAL</option>
-                                    <option value="ATIVO">ATIVO</option>
-                                    <option value="INATIVO">INATIVO</option>
-                                    <option value="CANCELADO">CANCELADO</option>
-                                </select>
-                            </div>
-
-                            <!-- Vencimento -->
-                            <div style="margin-bottom:10px;">
-                                <label style="font-size:10px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px;">
-                                    📅 Próximo vencimento
-                                </label>
-                                <input type="date" id="saFormVencimento"
-                                    style="width:100%;box-sizing:border-box;padding:9px 12px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:13px;">
-                            </div>
-
-                            <!-- Sheet ID -->
-                            <div style="margin-bottom:10px;">
-                                <label style="font-size:10px;color:#60a5fa;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px;">
-                                    📊 Sheet ID da Planilha do CT
-                                </label>
-                                <div style="display:flex;gap:6px;">
-                                    <input type="text" id="saFormSheetId" placeholder="1rJMmWR2YuStG4OFwgR-_aX8psk8..."
-                                        style="flex:1;padding:9px 12px;background:var(--adm-bg-card);color:#60a5fa;border:1px solid rgba(96,165,250,0.25);border-radius:8px;font-size:12px;font-family:monospace;">
-                                    <button onclick="saFormAbrirSheet()" title="Abrir"
-                                        style="padding:9px 12px;background:rgba(96,165,250,0.08);color:#60a5fa;border:1px solid rgba(96,165,250,0.25);border-radius:8px;font-size:13px;cursor:pointer;flex-shrink:0;">↗</button>
+                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+                                    <div>
+                                        <label style="font-size:9px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px;">ctmId <span style="color:#f87171;">*</span></label>
+                                        <input type="text" id="saNovCtmId" placeholder="ex: dojo_silva" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9_]/g,'')"
+                                            style="width:100%;box-sizing:border-box;padding:9px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:12px;font-family:monospace;">
+                                    </div>
+                                    <div>
+                                        <label style="font-size:9px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px;">Dias trial</label>
+                                        <input type="number" id="saNovDias" value="30" min="1" max="365"
+                                            style="width:100%;box-sizing:border-box;padding:9px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:12px;text-align:center;">
+                                    </div>
                                 </div>
-                                <div style="font-size:9px;color:var(--adm-text-3);margin-top:3px;">URL do Sheets: …/spreadsheets/d/<strong style="color:#60a5fa;">ID</strong>/edit</div>
+
+                                <div style="margin-bottom:8px;">
+                                    <label style="font-size:9px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px;">Nome completo <span style="color:#f87171;">*</span></label>
+                                    <input type="text" id="saNovNome" placeholder="Nome do responsável"
+                                        style="width:100%;box-sizing:border-box;padding:9px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:12px;">
+                                </div>
+
+                                <div style="margin-bottom:8px;">
+                                    <label style="font-size:9px;color:var(--adm-primary);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px;">E-mail <span style="color:#f87171;">*</span></label>
+                                    <input type="email" id="saNovEmail" placeholder="admin@academia.com"
+                                        style="width:100%;box-sizing:border-box;padding:9px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid rgba(201,162,58,0.3);border-radius:8px;font-size:12px;">
+                                </div>
+
+                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+                                    <div>
+                                        <label style="font-size:9px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px;">Telefone</label>
+                                        <input type="tel" id="saNovTelefone" placeholder="11987654321"
+                                            style="width:100%;box-sizing:border-box;padding:9px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:12px;">
+                                    </div>
+                                    <div>
+                                        <label style="font-size:9px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px;">Nascimento</label>
+                                        <input type="date" id="saNovNasc"
+                                            style="width:100%;box-sizing:border-box;padding:9px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:12px;">
+                                    </div>
+                                </div>
+
+                                <div style="margin-bottom:8px;">
+                                    <label style="font-size:9px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px;">Nome do Dojo / CT <span style="color:#f87171;">*</span></label>
+                                    <input type="text" id="saNovDojo" placeholder="Ex: Academia Silva Jiu-Jitsu"
+                                        style="width:100%;box-sizing:border-box;padding:9px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:12px;">
+                                </div>
+
+                                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px;">
+                                    <div>
+                                        <label style="font-size:9px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px;">Faixa</label>
+                                        <select id="saNovFaixa" style="width:100%;padding:9px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:12px;">
+                                            <option value="Branca">Branca</option>
+                                            <option value="Cinza">Cinza</option>
+                                            <option value="Amarela">Amarela</option>
+                                            <option value="Laranja">Laranja</option>
+                                            <option value="Verde">Verde</option>
+                                            <option value="Azul">Azul</option>
+                                            <option value="Roxa">Roxa</option>
+                                            <option value="Marrom">Marrom</option>
+                                            <option value="Preta" selected>Preta</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label style="font-size:9px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px;">Grau</label>
+                                        <select id="saNovGrau" style="width:100%;padding:9px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:12px;">
+                                            <option value="0">0</option><option value="1">1</option><option value="2">2</option>
+                                            <option value="3">3</option><option value="4" selected>4</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label style="font-size:9px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px;">Plano</label>
+                                        <select id="saNovPlano" style="width:100%;padding:9px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:12px;">
+                                            <option value="profissional" selected>Profissional</option>
+                                            <option value="basico">Básico</option>
+                                            <option value="premium">Premium</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div style="margin-bottom:12px;">
+                                    <label style="font-size:9px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;display:block;margin-bottom:6px;">🥋 Modalidades contratadas</label>
+                                    <div id="saFormModGrid" style="display:flex;flex-direction:column;gap:5px;"></div>
+                                    <div id="saFormContador" style="font-size:10px;color:var(--adm-text-3);margin-top:6px;"></div>
+                                </div>
+
+                                <div id="saNovResultado" style="display:none;margin-bottom:12px;padding:14px;background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2);border-radius:10px;">
+                                    <div style="font-size:11px;font-weight:700;color:#4ade80;margin-bottom:8px;">✅ Cliente criado com sucesso!</div>
+                                    <div style="font-size:10px;color:var(--adm-text-2);line-height:1.8;">
+                                        <div>🔗 Link: <span id="saNovLink" style="color:#60a5fa;font-family:monospace;"></span></div>
+                                        <div>🔑 Senha: <span id="saNovSenha" style="color:var(--adm-primary);font-family:monospace;font-weight:700;font-size:13px;"></span></div>
+                                        <div>📊 Planilha: <a id="saNovSheetUrl" href="#" target="_blank" style="color:#60a5fa;">Abrir ↗</a></div>
+                                    </div>
+                                </div>
+
+                                <div id="saNovMsg" style="font-size:11px;min-height:14px;margin-bottom:8px;text-align:center;white-space:pre-wrap;"></div>
+
+                                <button id="saBtnCriar" onclick="saCliCriar()"
+                                    style="width:100%;padding:13px;background:linear-gradient(135deg,var(--adm-primary),var(--adm-primary-bright));color:#000;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;">
+                                    🚀 Criar Cliente
+                                </button>
                             </div>
 
-                            <!-- Modalidades -->
-                            <div style="margin-bottom:12px;">
-                                <label style="font-size:10px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:6px;">
-                                    🥋 Modalidades contratadas
-                                </label>
-                                <div id="saFormModGrid" style="display:flex;flex-direction:column;gap:5px;"></div>
-                                <div id="saFormContador" style="font-size:10px;color:var(--adm-text-3);margin-top:6px;"></div>
+                            <!-- ══ PAINEL: EDITAR CONTRATO ══ -->
+                            <div id="saPainelContrato" style="display:none;background:var(--adm-bg-elevated);border:1px solid rgba(201,162,58,0.2);border-radius:12px;padding:16px;">
+                                <div style="font-size:10px;font-weight:800;color:var(--adm-primary);text-transform:uppercase;letter-spacing:.6px;margin-bottom:14px;">Ativar / editar contrato LICENCIADOS</div>
+
+                                <!-- Seletor de admin -->
+                                <div style="margin-bottom:10px;">
+                                    <label style="font-size:9px;color:var(--adm-primary);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px;">📧 Admin vinculado</label>
+                                    <select id="saModEmailSelectLista" onchange="saModOnListaSelect(this.value)"
+                                        style="width:100%;padding:9px 12px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid rgba(201,162,58,0.4);border-radius:8px;font-size:12px;">
+                                    </select>
+                                </div>
+
+                                <!-- Preview do contrato selecionado -->
+                                <div id="saModListaContratoPreview" style="margin-bottom:10px;"></div>
+
+                                <div style="margin-bottom:8px;">
+                                    <label style="font-size:9px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px;">📦 Plano</label>
+                                    <select id="saFormPlano" style="width:100%;padding:9px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:12px;">
+                                        <option value="">⏳ Carregando planos...</option>
+                                    </select>
+                                </div>
+
+                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+                                    <div>
+                                        <label style="font-size:9px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px;">🔖 Status</label>
+                                        <select id="saFormStatus" style="width:100%;padding:9px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:12px;">
+                                            <option value="TRIAL">TRIAL</option>
+                                            <option value="ATIVO">ATIVO</option>
+                                            <option value="INATIVO">INATIVO</option>
+                                            <option value="CANCELADO">CANCELADO</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label style="font-size:9px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px;">📅 Vencimento</label>
+                                        <input type="date" id="saFormVencimento"
+                                            style="width:100%;box-sizing:border-box;padding:9px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:12px;">
+                                    </div>
+                                </div>
+
+                                <div style="margin-bottom:8px;">
+                                    <label style="font-size:9px;color:#60a5fa;font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px;">📊 Sheet ID</label>
+                                    <div style="display:flex;gap:6px;">
+                                        <input type="text" id="saFormSheetId" placeholder="ID da planilha do cliente"
+                                            style="flex:1;padding:9px;background:var(--adm-bg-card);color:#60a5fa;border:1px solid rgba(96,165,250,0.25);border-radius:8px;font-size:11px;font-family:monospace;box-sizing:border-box;">
+                                        <button onclick="saFormAbrirSheet()" style="padding:9px 12px;background:rgba(96,165,250,0.08);color:#60a5fa;border:1px solid rgba(96,165,250,0.25);border-radius:8px;font-size:13px;cursor:pointer;">↗</button>
+                                    </div>
+                                </div>
+
+                                <div style="margin-bottom:12px;">
+                                    <label style="font-size:9px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;display:block;margin-bottom:6px;">🥋 Modalidades contratadas</label>
+                                    <div id="saFormModGrid2" style="display:flex;flex-direction:column;gap:5px;"></div>
+                                    <div id="saFormContador2" style="font-size:10px;color:var(--adm-text-3);margin-top:6px;"></div>
+                                </div>
+
+                                <button onclick="saFormSalvar()"
+                                    style="width:100%;padding:13px;background:linear-gradient(135deg,var(--adm-primary),var(--adm-primary-bright));color:#000;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:8px;">
+                                    💾 Salvar Contrato
+                                </button>
+                                <button id="saFormExcluirBtn" onclick="saFormExcluir()" style="display:none;width:100%;padding:10px;background:rgba(248,113,113,0.08);color:#f87171;border:1.5px solid rgba(248,113,113,0.3);border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;">
+                                    🗑️ Excluir contrato
+                                </button>
+                                <div id="saFormMsg" style="font-size:11px;text-align:center;margin-top:8px;min-height:16px;white-space:pre-wrap;"></div>
                             </div>
 
-                            <!-- Botões salvar / excluir -->
-                            <button onclick="saFormSalvar()"
-                                style="width:100%;padding:13px;background:linear-gradient(135deg,var(--adm-primary),var(--adm-primary-bright));color:#000;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:8px;">
-                                💾 Salvar Contrato
-                            </button>
-                            <button id="saFormExcluirBtn" onclick="saFormExcluir()" style="display:none;width:100%;padding:10px;background:rgba(248,113,113,0.08);color:#f87171;border:1.5px solid rgba(248,113,113,0.3);border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;">
-                                🗑️ Excluir contrato
-                            </button>
-                            <div id="saFormMsg" style="font-size:11px;text-align:center;margin-top:8px;min-height:16px;white-space:pre-wrap;"></div>
-                        </div>
+                        </div><!-- /saModForm -->
 
-                        <!-- Editor antigo mantido oculto para compatibilidade -->
+                        <!-- Compat: elementos ocultos usados por funções legadas -->
                         <div id="saModEditor" style="display:none;">
                             <select id="saModEmailSelect" style="display:none;"></select>
                             <div id="saModEmailInfo" style="display:none;"></div>
@@ -9431,9 +9530,9 @@
                             <div id="saModContador" style="display:none;"></div>
                             <div id="saModCheckboxes" style="display:none;"></div>
                         </div>
+                        <div id="saModMsg" style="display:none;"></div>
 
-                        <div id="saModMsg" style="font-size:11px;text-align:center;margin-top:8px;min-height:18px;"></div>
-                    </div>
+                    </div><!-- /Clientes & Contratos -->
 
                     <!-- ═══ NOVIDADES DO SISTEMA ═══ -->
                     <div class="admin-section">
@@ -10186,6 +10285,22 @@
             class="asn-btn-cta" style="opacity:0.4;cursor:not-allowed;">
             Confirmar Troca
           </button>
+        </div>
+
+        <!-- ── HISTÓRICO DE PAGAMENTOS ─────────────────────────── -->
+        <div style="margin:0 0 20px;padding:0 4px;">
+          <div style="font-size:11px;font-weight:700;color:var(--text-3);letter-spacing:.6px;margin-bottom:10px;">HISTÓRICO DE PAGAMENTOS</div>
+          <div id="asnHistoricoLista" style="display:flex;flex-direction:column;gap:8px;">
+            <div style="font-size:12px;color:var(--text-3);text-align:center;padding:16px;">Carregando...</div>
+          </div>
+        </div>
+
+        <!-- ── PRÓXIMOS PAGAMENTOS DO ANO ─────────────────────── -->
+        <div style="margin:0 0 20px;padding:0 4px;">
+          <div style="font-size:11px;font-weight:700;color:var(--text-3);letter-spacing:.6px;margin-bottom:10px;">PRÓXIMOS PAGAMENTOS</div>
+          <div id="asnProximasLista" style="display:flex;flex-direction:column;gap:4px;">
+            <div style="font-size:12px;color:var(--text-3);text-align:center;padding:8px;">Carregando...</div>
+          </div>
         </div>
 
       </div>
@@ -11308,7 +11423,7 @@
         var _ctmId = (function() {
             try { return localStorage.getItem('ctm_id') || 'matrix'; } catch(e) { return 'matrix'; }
         })();
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz5sNc8y-PnWHin2hrGYTiamgbqpspQpyxA6D-WVouGtqBgdvU5vmwlUfw9_JuHTLs/exec'
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzFSxu_OzFApgFKpg6ylSXDBrpBUiIBbzFxvWQHcDm_qvBLoMacL7EyAu-bowupeK45/exec'
                          + '?ctm=' + _ctmId;
 
         // ── Verifica se o cliente existe no registry ──────────────
@@ -25406,6 +25521,177 @@
             }
         }
 
+        // ══════════════════════════════════════════════════════════
+        // CLIENTES & CONTRATOS — funções unificadas
+        // ══════════════════════════════════════════════════════════
+
+        // Abre o formulário na aba "Novo Cliente"
+        function saCliNovo() {
+            var form = document.getElementById('saModForm');
+            if (form) form.style.display = 'block';
+            saCliAbaSelecionar('novo');
+            // Limpa campos
+            ['saNovCtmId','saNovNome','saNovEmail','saNovTelefone','saNovDojo']
+                .forEach(function(id){ var el = document.getElementById(id); if (el) el.value = ''; });
+            var res = document.getElementById('saNovResultado');
+            if (res) res.style.display = 'none';
+            var msg = document.getElementById('saNovMsg');
+            if (msg) { msg.textContent = ''; }
+            var btn = document.getElementById('saFormAbrirBtn');
+            if (btn) btn.style.display = 'none';
+            // Carrega modalidades no grid de novo cliente
+            _saFormRenderModalidades(document.getElementById('saFormModGrid'), [], 'saFormContador');
+        }
+
+        // Troca entre as abas do formulário unificado
+        function saCliAbaSelecionar(aba) {
+            var painelNovo      = document.getElementById('saPainelNovo');
+            var painelContrato  = document.getElementById('saPainelContrato');
+            var tabNovo         = document.getElementById('saTabNovo');
+            var tabContrato     = document.getElementById('saTabContrato');
+            var isNovo = (aba === 'novo');
+
+            if (painelNovo)    painelNovo.style.display    = isNovo ? 'block' : 'none';
+            if (painelContrato)painelContrato.style.display = isNovo ? 'none'  : 'block';
+
+            var GOLD = 'rgba(201,162,58,0.1)', GOLD_B = 'var(--adm-primary)';
+            var INAC = 'transparent',          INAC_B  = 'var(--adm-border)';
+            var INAC_C = 'var(--adm-text-3)';
+
+            if (tabNovo) {
+                tabNovo.style.background   = isNovo ? GOLD  : INAC;
+                tabNovo.style.borderColor  = isNovo ? GOLD_B: INAC_B;
+                tabNovo.style.color        = isNovo ? 'var(--adm-primary)' : INAC_C;
+            }
+            if (tabContrato) {
+                tabContrato.style.background  = !isNovo ? GOLD  : INAC;
+                tabContrato.style.borderColor  = !isNovo ? GOLD_B: INAC_B;
+                tabContrato.style.color        = !isNovo ? 'var(--adm-primary)' : INAC_C;
+            }
+
+            // Se trocou para contrato, popula o select com os clientes existentes
+            if (!isNovo) {
+                var sel = document.getElementById('saModEmailSelectLista');
+                if (sel && !sel.options.length) saModInit();
+                // Carrega modalidades no grid do painel contrato
+                _saFormRenderModalidades(document.getElementById('saFormModGrid2'), [], 'saFormContador2');
+            }
+        }
+
+        // Cria um novo cliente chamando painelCriarCliente
+        async function saCliCriar() {
+            var ctmId   = (document.getElementById('saNovCtmId')   || {}).value || '';
+            var nome    = (document.getElementById('saNovNome')    || {}).value || '';
+            var email   = (document.getElementById('saNovEmail')   || {}).value || '';
+            var tel     = (document.getElementById('saNovTelefone')|| {}).value || '';
+            var nasc    = (document.getElementById('saNovNasc')    || {}).value || '';
+            var dojo    = (document.getElementById('saNovDojo')    || {}).value || '';
+            var faixa   = (document.getElementById('saNovFaixa')   || {}).value || 'Preta';
+            var grau    = (document.getElementById('saNovGrau')    || {}).value || '0';
+            var plano   = (document.getElementById('saNovPlano')   || {}).value || 'profissional';
+            var dias    = (document.getElementById('saNovDias')    || {}).value || '30';
+
+            // Modalidades selecionadas no grid
+            var mods = [].slice.call(document.querySelectorAll('#saFormModGrid input[type=checkbox]:checked'))
+                         .map(function(cb){ return cb.value; }).join(',');
+
+            var msgEl = document.getElementById('saNovMsg');
+            var btn   = document.getElementById('saBtnCriar');
+
+            // Validação mínima client-side
+            if (!ctmId.trim()) { if (msgEl) { msgEl.textContent = '⚠️ ctmId obrigatório'; msgEl.style.color = '#f87171'; } return; }
+            if (!nome.trim())  { if (msgEl) { msgEl.textContent = '⚠️ Nome obrigatório';  msgEl.style.color = '#f87171'; } return; }
+            if (!email.trim()) { if (msgEl) { msgEl.textContent = '⚠️ E-mail obrigatório';msgEl.style.color = '#f87171'; } return; }
+            if (!dojo.trim())  { if (msgEl) { msgEl.textContent = '⚠️ Nome do Dojo obrigatório'; msgEl.style.color = '#f87171'; } return; }
+
+            if (btn)   { btn.disabled = true; btn.textContent = '⏳ Criando...'; }
+            if (msgEl) { msgEl.textContent = 'Criando planilha, configurando trial e LICENCIADOS...'; msgEl.style.color = 'var(--adm-text-3)'; }
+
+            try {
+                var res = await secureFetch('painelCriarCliente', {
+                    ctmId:      ctmId,
+                    nome:       nome,
+                    emailAdmin: email,
+                    telefone:   tel,
+                    nascimento: nasc,
+                    nomeDojo:   dojo,
+                    faixa:      faixa,
+                    grau:       grau,
+                    plano:      plano,
+                    diasTrial:  parseInt(dias) || 30,
+                    modalidades: mods
+                });
+
+                if (!res.success) throw new Error(res.message || 'Erro ao criar cliente');
+
+                // Exibe resultado
+                var resultEl = document.getElementById('saNovResultado');
+                var linkEl   = document.getElementById('saNovLink');
+                var senhaEl  = document.getElementById('saNovSenha');
+                var sheetEl  = document.getElementById('saNovSheetUrl');
+                if (resultEl) resultEl.style.display = 'block';
+                if (linkEl)   linkEl.textContent     = res.linkCliente || '';
+                if (senhaEl)  senhaEl.textContent    = res.senhaTemp   || '';
+                if (sheetEl)  { sheetEl.href = res.sheetUrl || '#'; sheetEl.textContent = 'Abrir planilha ↗'; }
+                if (msgEl)    { msgEl.textContent = ''; }
+
+                // Atualiza lista de contratos
+                setTimeout(function(){ saModInit(); }, 1500);
+
+            } catch(e) {
+                if (msgEl) { msgEl.textContent = '❌ ' + e.message; msgEl.style.color = '#f87171'; }
+            } finally {
+                if (btn) { btn.disabled = false; btn.textContent = '🚀 Criar Cliente'; }
+            }
+        }
+
+        // Renderiza grid de modalidades para um container específico
+        function _saFormRenderModalidades(el, selecionadas, contadorId) {
+            if (!el || !_saModCatalogo.length) return;
+            var selSet = {};
+            (selecionadas || []).forEach(function(id){ selSet[id.toLowerCase()] = true; });
+            var cor0 = 'var(--adm-border)', bg0 = 'var(--adm-bg-card)';
+            el.innerHTML = '';
+            _saModCatalogo.forEach(function(m) {
+                var checked = selSet[m.id] || false;
+                var cor = m.cor || '#C9A23A', corRGB = m.corRGB || '201,162,58';
+                var bg  = checked ? 'rgba(' + corRGB + ',0.07)' : bg0;
+                var bdr = checked ? cor : cor0;
+                var label = document.createElement('label');
+                label.style.cssText = 'display:flex;align-items:center;gap:10px;padding:8px 12px;background:' + bg + ';border:1px solid ' + bdr + ';border-radius:8px;cursor:pointer;transition:all .15s;margin-bottom:5px;';
+                label.setAttribute('data-cor', cor);
+                label.setAttribute('data-corgb', corRGB);
+                label.setAttribute('data-ctr', contadorId);
+                label.onclick = function(){ _saModToggleCheck(this, this.getAttribute('data-cor'), this.getAttribute('data-corgb'), this.getAttribute('data-ctr')); };
+                label.innerHTML =
+                    '<input type="checkbox" value="' + m.id + '"' + (checked ? ' checked' : '') + ' style="accent-color:' + cor + ';width:16px;height:16px;flex-shrink:0;">' +
+                    '<span style="font-size:15px;">' + (m.icon||'🥋') + '</span>' +
+                    '<span style="flex:1;font-size:12px;font-weight:600;color:var(--adm-text-1);">' + escapeHtml(m.nome) + '</span>' +
+                    '<div style="width:9px;height:9px;border-radius:50%;background:' + cor + ';"></div>';
+                label.querySelector('input').onclick = function(e){ e.stopPropagation(); };
+                el.appendChild(label);
+            });
+            _saModAtualizarContadorGenerico(el, contadorId);
+        }
+
+        function _saModToggleCheck(label, cor, corRGB, contadorId) {
+            var cb = label.querySelector('input[type=checkbox]');
+            if (!cb) return;
+            cb.checked = !cb.checked;
+            label.style.background  = cb.checked ? 'rgba(' + corRGB + ',0.07)' : 'var(--adm-bg-card)';
+            label.style.borderColor = cb.checked ? cor : 'var(--adm-border)';
+            _saModAtualizarContadorGenerico(label.closest('[id]') || label.parentElement, contadorId);
+        }
+
+        function _saModAtualizarContadorGenerico(container, contadorId) {
+            var marcadas = container ? container.querySelectorAll('input[type=checkbox]:checked').length : 0;
+            var el = document.getElementById(contadorId);
+            if (el) el.textContent = marcadas + ' modalidade(s) selecionada(s)' + (marcadas === 0 ? ' — todas as modalidades ativas' : '');
+        }
+        // ══════════════════════════════════════════════════════════
+        // fim Clientes & Contratos
+        // ══════════════════════════════════════════════════════════
+
         async function saModInit() {
             var el = document.getElementById('saModListaContratos');
             if (el) el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--adm-text-3);font-size:12px;">⏳ Carregando contratos...</div>';
@@ -25912,6 +26198,7 @@
                 'vincularGatewayCT','salvarPlano','deletarPlano',
                 'getPagamentosAdmin','atribuirPlanoAluno','marcarPago',
                 'salvarConfigMP','saveWellnessConfig','saveModalidade','deleteModalidade',
+                'painelCriarCliente','ativarClienteAdmin',
             ],
             professor: [
                 'approveAccount','rejectAccount','approveCheckin','rejectCheckin',
@@ -31704,6 +31991,9 @@
                 var res = await secureFetch('asnCarregarTudo', { email: email });
                 _planos     = (res && res.planos)     ? res.planos     : [];
                 _assinatura = (res && res.assinatura) ? res.assinatura : null;
+                window._asnHistorico         = (res && res.historicoPagamentos) ? res.historicoPagamentos : [];
+                window._asnProximasDatas     = (res && res.proximasDatas)       ? res.proximasDatas       : [];
+                window._asnJaPayouThisMonth  = !!(res && res.jaPayouThisMonth);
                 // Renderiza novidades inline (já vieram junto)
                 if (res && res.novidades && res.novidades.length) {
                     _renderNovidadesInline(res.novidades);
@@ -31717,6 +32007,9 @@
                     ]);
                     _planos     = (r1 && r1.planos)     ? r1.planos     : [];
                     _assinatura = (r2 && r2.assinatura) ? r2.assinatura : null;
+                    window._asnHistorico        = (r2 && r2.historicoPagamentos) ? r2.historicoPagamentos : [];
+                    window._asnProximasDatas    = (r2 && r2.proximasDatas)       ? r2.proximasDatas       : [];
+                    window._asnJaPayouThisMonth = !!(r2 && r2.jaPayouThisMonth);
                     if (r2 && r2.limites) { _planLimits = r2.limites; _planId = r2.plano || ''; }
                 } catch(e2) { _planos = []; _assinatura = null; }
             }
@@ -31747,6 +32040,65 @@
             _txt('asnValorPlano',      a.valor ? 'R$ ' + parseFloat(a.valor).toFixed(2).replace('.', ',') + '/mes' : '-');
             _txt('asnProximaCobranca', a.proximoVencimento || '-');
             _txt('asnSubId',           a.subscriptionId ? 'ID: ' + a.subscriptionId : '');
+            _renderHistorico();
+            _renderProximasDatas();
+        }
+
+        function _renderHistorico() {
+            var el = _el('asnHistoricoLista'); if (!el) return;
+            var hist = window._asnHistorico || [];
+            if (!hist.length) {
+                el.innerHTML = '<div style="font-size:12px;color:var(--text-3);text-align:center;padding:16px;background:rgba(255,255,255,0.02);border-radius:10px;border:1px dashed var(--border);">Nenhum pagamento registrado ainda.</div>';
+                return;
+            }
+            el.innerHTML = hist.map(function(p) {
+                var isOk  = p.status === 'approved';
+                var isErr = p.status === 'rejected';
+                var icon  = isOk ? '✅' : isErr ? '❌' : '⏳';
+                var cor   = isOk ? '#4ade80' : isErr ? '#f87171' : '#fbbf24';
+                var bg    = isOk ? 'rgba(74,222,128,0.06)' : isErr ? 'rgba(248,113,113,0.06)' : 'rgba(251,191,36,0.06)';
+                var bdr   = isOk ? 'rgba(74,222,128,0.18)' : isErr ? 'rgba(248,113,113,0.18)' : 'rgba(251,191,36,0.18)';
+                return '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:'+bg+';border:1px solid '+bdr+';border-radius:10px;">'
+                    + '<div style="display:flex;align-items:center;gap:10px;">'
+                    + '<span style="font-size:18px;">'+icon+'</span>'
+                    + '<div><div style="font-size:12px;font-weight:700;color:'+cor+';">'+p.descricao+'</div>'
+                    + '<div style="font-size:10px;color:var(--text-3);margin-top:1px;">'+p.data+'</div></div>'
+                    + '</div>'
+                    + '<div style="font-size:13px;font-weight:800;color:'+cor+';">R$ '+parseFloat(p.valor||0).toFixed(2).replace('.',',')+'</div>'
+                    + '</div>';
+            }).join('');
+        }
+
+        function _renderProximasDatas() {
+            var el = _el('asnProximasLista'); if (!el) return;
+            var datas = window._asnProximasDatas || [];
+            if (!datas.length) {
+                el.innerHTML = '<div style="font-size:12px;color:var(--text-3);text-align:center;padding:8px;">—</div>';
+                return;
+            }
+            var hoje    = new Date();
+            var mesH    = hoje.getMonth();
+            var anoH    = hoje.getFullYear();
+            var jaPagei = window._asnJaPayouThisMonth || false;
+
+            el.innerHTML = datas.map(function(dtStr, idx) {
+                var parts = dtStr.split('/');
+                var dt    = parts.length === 3 ? new Date(parseInt(parts[2]), parseInt(parts[1])-1, parseInt(parts[0])) : null;
+                var isProx = dt && dt.getMonth() === mesH && dt.getFullYear() === anoH;
+                var isPast = dt && dt < hoje && !isProx;
+                var mesNome = dt ? ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][dt.getMonth()] + ' ' + dt.getFullYear() : dtStr;
+                var badge   = isProx
+                    ? (jaPagei
+                        ? '<span style="font-size:9px;font-weight:700;padding:2px 7px;background:rgba(74,222,128,0.12);color:#4ade80;border-radius:8px;">✅ PAGO</span>'
+                        : '<span style="font-size:9px;font-weight:700;padding:2px 7px;background:rgba(201,162,58,0.15);color:var(--gold);border-radius:8px;">PRÓXIMO</span>')
+                    : '';
+                var cor = isProx && !jaPagei ? 'var(--text-1)' : isPast ? 'var(--text-3)' : 'var(--text-2)';
+                return '<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 12px;border-radius:8px;background:rgba(255,255,255,'+(isProx&&!jaPagei?'0.05':'0.02')+');">'
+                    + '<div style="display:flex;align-items:center;gap:8px;">'
+                    + '<span style="font-size:14px;">'+(isProx?'📅':'🔹')+'</span>'
+                    + '<span style="font-size:12px;font-weight:'+(isProx?'700':'500')+';color:'+cor+';">'+dtStr+' <span style="font-weight:400;font-size:10px;">'+mesNome+'</span></span>'
+                    + '</div>'+badge+'</div>';
+            }).join('');
         }
 
         function _renderPlanos(containerId, paraTroca) {
