@@ -10658,20 +10658,64 @@
     </div>
     <!-- end app -->
 
-    <!-- TRIAL EXPIRADO OVERLAY — redireciona para assinatura -->
-    <div id="trialBlockedOverlay" style="display:none;position:fixed;inset:0;background:#0F172A;z-index:9999;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center;">
-        <div style="font-size:52px;margin-bottom:14px;">💳</div>
-        <div style="font-size:20px;font-weight:800;color:#C9A23A;margin-bottom:6px;">Período de teste encerrado</div>
-        <div id="trialBlockedMsg" style="font-size:13px;color:rgba(255,255,255,0.55);line-height:1.6;max-width:300px;margin-bottom:6px;">Para continuar usando o CTM Manager, escolha um plano.</div>
-        <div id="trialBlockedSub" style="font-size:11px;color:rgba(255,255,255,0.25);margin-bottom:28px;"></div>
-        <button onclick="trialIrParaAssinatura()"
-            style="width:100%;max-width:300px;padding:14px 28px;background:linear-gradient(135deg,#C9A23A,#f5c542);color:#000;border:none;border-radius:12px;font-weight:800;font-size:15px;cursor:pointer;margin-bottom:12px;">
-            🚀 Ver planos e assinar
-        </button>
-        <a id="trialWALink" href="https://wa.me/5511984760689?text=Ol%C3%A1%2C%20gostaria%20de%20contratar%20o%20CTM%20Manager" target="_blank"
-           style="font-size:12px;color:rgba(255,255,255,0.35);text-decoration:none;">
-            💬 Falar com suporte
-        </a>
+    <!-- TRIAL EXPIRADO OVERLAY — login + assinatura inline -->
+    <div id="trialBlockedOverlay" style="display:none;position:fixed;inset:0;background:#0A1020;z-index:9999;overflow-y:auto;">
+        <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:40px 20px 60px;">
+
+            <!-- Logo / Cabeçalho -->
+            <div style="text-align:center;margin-bottom:32px;">
+                <div style="font-size:40px;margin-bottom:10px;">💳</div>
+                <div style="font-size:22px;font-weight:800;color:#C9A23A;letter-spacing:.3px;">Período de teste encerrado</div>
+                <div id="trialBlockedSub" style="font-size:12px;color:rgba(255,255,255,0.35);margin-top:6px;"></div>
+            </div>
+
+            <!-- FASE 1: Login ─────────────────────────────────────────── -->
+            <div id="trialLoginBox" style="width:100%;max-width:360px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:24px;margin-bottom:20px;">
+                <div style="font-size:11px;font-weight:800;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.6px;margin-bottom:16px;">Acesse sua conta para continuar</div>
+
+                <div style="margin-bottom:12px;">
+                    <label style="display:block;font-size:10px;color:rgba(255,255,255,0.4);margin-bottom:5px;font-weight:700;">E-MAIL</label>
+                    <input type="email" id="trialLoginEmail" placeholder="seu@email.com" autocomplete="email"
+                        style="width:100%;box-sizing:border-box;padding:12px 14px;background:rgba(255,255,255,0.06);color:#fff;border:1px solid rgba(255,255,255,0.12);border-radius:10px;font-size:14px;outline:none;"
+                        onkeydown="if(event.key==='Enter') document.getElementById('trialLoginSenha').focus()">
+                </div>
+                <div style="margin-bottom:16px;">
+                    <label style="display:block;font-size:10px;color:rgba(255,255,255,0.4);margin-bottom:5px;font-weight:700;">SENHA</label>
+                    <input type="password" id="trialLoginSenha" placeholder="••••••••" autocomplete="current-password"
+                        style="width:100%;box-sizing:border-box;padding:12px 14px;background:rgba(255,255,255,0.06);color:#fff;border:1px solid rgba(255,255,255,0.12);border-radius:10px;font-size:14px;outline:none;"
+                        onkeydown="if(event.key==='Enter') trialFazerLogin()">
+                </div>
+
+                <div id="trialLoginMsg" style="font-size:11px;text-align:center;min-height:16px;margin-bottom:10px;"></div>
+
+                <button id="trialLoginBtn" onclick="trialFazerLogin()"
+                    style="width:100%;padding:13px;background:linear-gradient(135deg,#C9A23A,#f5c542);color:#000;border:none;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;">
+                    Entrar e ver planos →
+                </button>
+            </div>
+
+            <!-- FASE 2: Assinatura (aparece após login) ────────────────── -->
+            <div id="trialAsnBox" style="display:none;width:100%;max-width:420px;">
+                <div style="font-size:11px;font-weight:800;color:#C9A23A;text-transform:uppercase;letter-spacing:.6px;text-align:center;margin-bottom:20px;">
+                    ✅ Logado — escolha um plano para continuar
+                </div>
+                <!-- Container onde a tela de assinatura é injetada -->
+                <div id="trialAsnContainer" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:20px;"></div>
+
+                <div style="margin-top:16px;text-align:center;">
+                    <button onclick="trialLogout()" style="font-size:11px;color:rgba(255,255,255,0.3);background:none;border:none;cursor:pointer;text-decoration:underline;">
+                        Entrar com outra conta
+                    </button>
+                </div>
+            </div>
+
+            <!-- Suporte sempre visível -->
+            <a id="trialWALink" href="https://wa.me/5511984760689?text=Ol%C3%A1%2C%20gostaria%20de%20contratar%20o%20CTM%20Manager" target="_blank"
+               style="margin-top:24px;font-size:12px;color:rgba(255,255,255,0.3);text-decoration:none;">
+                💬 Falar com suporte
+            </a>
+
+        </div>
     </div>
 
     <!-- EXAM CALENDAR MODAL (STUDENT) -->
@@ -11418,7 +11462,7 @@
         var _ctmId = (function() {
             try { return localStorage.getItem('ctm_id') || 'matrix'; } catch(e) { return 'matrix'; }
         })();
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzIqhPdUWvf85vSPntVB9KYsK4ulqxLqp3ICGd5358WXmgnyaa_PPKl6cfjbNz9URJx/exec'
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxr--f1VRWGm8_ld7nB2jqOBuxpn8MQ75Uq8bbgecQgD7sg2LavU9snqlKa1rjdQPJZ/exec'
                          + '?ctm=' + _ctmId;
 
         // ── Verifica se o cliente existe no registry ──────────────
@@ -13074,6 +13118,10 @@
                 if (typeof allCTs !== 'undefined' && allCTs && allCTs.length > 0) {
                     checkTreinoAlarm(allCTs);
                 }
+                // Re-renderiza o card "próximo treino" com os horários da nova modalidade
+                if (typeof renderCheckinTemaHoje === 'function') {
+                    setTimeout(renderCheckinTemaHoje, 50);
+                }
                 if (typeof renderCronoTreinoHoje === 'function') renderCronoTreinoHoje();
                 // ── TRAVA DE MODALIDADE: recarrega cronograma filtrado pela nova modalidade ──
                 // _cronoAulas foi invalidado acima; loadCronograma vai buscar do servidor
@@ -13156,7 +13204,8 @@
 
             // CORREÇÃO v5.0: preserva kids mode detectado por idade/flag.
             // Antes isso era sempre false, apagando o kids mode ao trocar modalidade.
-            var isKidsMod = (_isKidsMode) || (currentUser && currentUser.isKids) || (mod && mod.id === 'bjj');
+            // isKids determinado EXCLUSIVAMENTE por idade — BJJ tem adultos E kids
+            var isKidsMod = (_isKidsMode) || (currentUser && currentUser.isKids);
             if (isKidsMod) {
                 document.body.classList.add('kids-mode');
                 _isKidsMode = true;
@@ -16284,7 +16333,8 @@
                 var schemaFaixa = (schema.graduacao.faixas || []).find(function(f){ return f.id === faixa || f.label === faixa; });
                 var nextLabel = schemaFaixa ? schemaFaixa.next : (cfg ? cfg.next : null);
                 var maxGrau   = (faixa === 'Preta') ? 6 : (schema.graduacao.maxGrausPorFaixa || 4);
-                var isKidsMod = (modId === 'bjj');
+                // isKidsMod baseado em idade, não no id da modalidade
+                var isKidsMod = _isKidsMode || (currentUser && currentUser.isKids);
                 if (beltEl)  { beltEl.className = 'evo-hero-belt ' + (cfg ? cfg.class : 'branca'); beltEl.textContent = ''; }
                 var _fLabel = ModalidadeGuard.getNomenclatura(modId, 'faixa') || 'Faixa';
                 if (titleEl) titleEl.textContent = _fLabel + ' ' + faixa + (cfg ? ' ' + cfg.emoji : '');
@@ -25010,18 +25060,15 @@
                     state.loading = true;
                     ui.setLoading(true);
                     try {
-                        // Paraleliza: clientes + planos + modalidades
-                        var [resContratos, resPlanos] = await Promise.all([
-                            secureFetch('getSAModalidades', {}),
-                            secureFetch('getPlanos', {})
-                        ]);
-                        state.clientes = (resContratos && resContratos.contratos) || [];
-                        state.planos   = (resPlanos && resPlanos.planos)          || [];
-                        state.modalidades = (typeof _saModCatalogo !== 'undefined') ? _saModCatalogo : [];
-                        // Se catálogo ainda não carregado, aguarda saModInit
-                        if (!state.modalidades.length) {
-                            await saModInit();
-                            state.modalidades = (typeof _saModCatalogo !== 'undefined') ? _saModCatalogo : [];
+                        // Uma chamada traz tudo: contratos + planos + catálogo de modalidades
+                        var res = await secureFetch('getContratos', {});
+                        if (!res || !res.success) throw new Error(res && res.message ? res.message : 'Erro ao carregar contratos');
+                        state.clientes    = res.contratos    || [];
+                        state.planos      = res.planos       || [];
+                        state.modalidades = res.modsCatalogo || [];
+                        // Sincroniza o catálogo global usado por outras partes do app
+                        if (state.modalidades.length && typeof _saModCatalogo !== 'undefined') {
+                            _saModCatalogo = state.modalidades;
                         }
                         state.clientesFiltro = state.clientes.slice();
                         ui.renderStats();
@@ -25657,42 +25704,288 @@
         }
 
         function showTrialBlocked(data) {
-            // Se for admin, redireciona direto para a tela de assinatura
             var isAdm = typeof currentUser !== 'undefined' && currentUser &&
                         (currentUser.admin === true || currentUser.admin === 'TRUE' || currentUser.role === 'admin');
+
+            // Admin já logado → vai direto para aba de assinatura no app
             if (isAdm) {
-                // Esconde telas e vai para assinatura
                 ['appScreen','bottomNav'].forEach(function(id){
                     var el = document.getElementById(id); if(el) el.style.display='none';
                 });
                 var adminScreen = document.getElementById('adminScreen');
                 if (adminScreen) adminScreen.style.display = 'flex';
-                // Abre aba de assinatura
                 if (typeof switchAdminTab === 'function') switchAdminTab('adm-assinatura');
                 if (typeof asnIniciarSeNecessario === 'function') setTimeout(asnIniciarSeNecessario, 200);
-                // Mostra banner explicativo
                 _showTrialBanner(data);
                 return;
             }
-            // Aluno/professor: mostra overlay com botão "Ver planos"
+
+            // Usuário não logado ou aluno/professor — mostra o overlay de login + assinatura
             var overlay = document.getElementById('trialBlockedOverlay');
             if (!overlay) return;
-            var msg = document.getElementById('trialBlockedMsg');
+
+            // Preenche data de expiração
             var sub = document.getElementById('trialBlockedSub');
-            var waLink = document.getElementById('trialWALink');
-            if (msg) msg.textContent = 'Para continuar usando o CTM Manager, escolha um plano.';
             if (sub) {
                 sub.textContent = data.expirado && data.dataExpiracao
                     ? 'Período de teste encerrado em ' + new Date(data.dataExpiracao).toLocaleDateString('pt-BR')
-                    : '';
+                    : (data.bloqueado ? 'Acesso bloqueado — entre em contato com o suporte' : '');
             }
-            if (waLink && data.suporteWhatsApp) {
-                waLink.href = 'https://wa.me/' + data.suporteWhatsApp + '?text=Ol%C3%A1%2C%20gostaria%20de%20contratar%20o%20CTM%20Manager';
+
+            // Se o usuário já está logado como admin mas trial bloqueou DEPOIS do login,
+            // pré-carrega a fase de assinatura
+            if (typeof currentUser !== 'undefined' && currentUser && currentUser.email) {
+                _trialMostrarFaseAssinatura();
+            } else {
+                // Mostra fase de login
+                var loginBox = document.getElementById('trialLoginBox');
+                var asnBox   = document.getElementById('trialAsnBox');
+                if (loginBox) loginBox.style.display = 'block';
+                if (asnBox)   asnBox.style.display   = 'none';
+                // Pré-preenche e-mail se disponível
+                var emailSalvo = localStorage.getItem('lastEmail') || '';
+                var emailEl = document.getElementById('trialLoginEmail');
+                if (emailEl && emailSalvo) emailEl.value = emailSalvo;
             }
-            overlay.style.display = 'flex';
-            ['appScreen','adminScreen','loginScreen','bottomNav','adminNav'].forEach(function(id) {
+
+            overlay.style.display = 'block';
+            ['appScreen','adminScreen','loginScreen','bottomNav','adminNav'].forEach(function(id){
                 var el = document.getElementById(id); if (el) el.style.display = 'none';
             });
+        }
+
+        // ── Login dentro do overlay de trial ──────────────────────────────
+        async function trialFazerLogin() {
+            var emailEl  = document.getElementById('trialLoginEmail');
+            var senhaEl  = document.getElementById('trialLoginSenha');
+            var msgEl    = document.getElementById('trialLoginMsg');
+            var btn      = document.getElementById('trialLoginBtn');
+
+            var email = (emailEl && emailEl.value || '').trim();
+            var senha = (senhaEl && senhaEl.value || '').trim();
+
+            if (!email || !senha) {
+                if (msgEl) { msgEl.textContent = '⚠️ Informe e-mail e senha'; msgEl.style.color = '#f87171'; }
+                return;
+            }
+
+            if (btn) { btn.disabled = true; btn.textContent = 'Entrando...'; }
+            if (msgEl) { msgEl.textContent = ''; }
+
+            try {
+                var resp = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body:   JSON.stringify({ action: 'login', email: email, senha: senha })
+                });
+                var r = await resp.json();
+
+                if (!r.success) {
+                    if (msgEl) { msgEl.textContent = '❌ ' + (r.message || 'Credenciais inválidas'); msgEl.style.color = '#f87171'; }
+                    if (btn)   { btn.disabled = false; btn.textContent = 'Entrar e ver planos →'; }
+                    return;
+                }
+
+                // Login OK — salva sessão e mostra fase de assinatura
+                if (r.token)  sessionStorage.setItem('sessionToken', r.token);
+                if (r.userId) sessionStorage.setItem('userId', r.userId);
+                localStorage.setItem('lastEmail', email);
+                currentUser = r.user || r.userData || { email: email };
+
+                if (msgEl) { msgEl.textContent = '✅ ' + (currentUser.nome || email); msgEl.style.color = '#4ade80'; }
+                setTimeout(_trialMostrarFaseAssinatura, 400);
+
+            } catch(e) {
+                if (msgEl) { msgEl.textContent = '❌ Erro de conexão'; msgEl.style.color = '#f87171'; }
+                if (btn)   { btn.disabled = false; btn.textContent = 'Entrar e ver planos →'; }
+            }
+        }
+
+        // Mostra a fase de assinatura dentro do overlay
+        async function _trialMostrarFaseAssinatura() {
+            var loginBox = document.getElementById('trialLoginBox');
+            var asnBox   = document.getElementById('trialAsnBox');
+            var container= document.getElementById('trialAsnContainer');
+
+            if (loginBox) loginBox.style.display = 'none';
+            if (asnBox)   asnBox.style.display   = 'block';
+
+            if (!container) return;
+            container.innerHTML = '<div style="text-align:center;padding:24px;color:rgba(255,255,255,0.4);font-size:12px;">⏳ Carregando planos...</div>';
+
+            try {
+                // Busca planos disponíveis
+                var resp  = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body:   JSON.stringify({ action: 'getPlanos' })
+                });
+                var r     = await resp.json();
+                var planos= (r && r.planos) ? r.planos : [];
+
+                if (!planos.length) {
+                    container.innerHTML = '<div style="text-align:center;padding:24px;color:rgba(255,255,255,0.4);">Nenhum plano disponível no momento.<br>Entre em contato com o suporte.</div>';
+                    return;
+                }
+
+                // Renderiza cartões de planos + form de cartão/pix
+                var html = '<div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:14px;text-align:center;">Escolha o plano para reativar o acesso</div>';
+                html += '<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px;" id="trialPlanosList">';
+                planos.forEach(function(p, i) {
+                    var pid   = p.id || p.id_plano || '';
+                    var freq  = {mensal:'/ mês', trimestral:'/ trim.', semestral:'/ sem.', anual:'/ ano'}[p.frequencia] || '/ mês';
+                    html +=
+                        '<div data-planoid="'+pid+'" onclick="_trialSelecionarPlano(this)" ' +
+                        'style="padding:14px 16px;background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.08);border-radius:12px;cursor:pointer;transition:all .15s;" ' +
+                        'class="trial-plan-card">' +
+                        '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+                        '<span style="font-size:13px;font-weight:700;color:#fff;">'+escapeHtml(p.nome)+'</span>' +
+                        '<span style="font-size:16px;font-weight:800;color:#C9A23A;">' + (p.valor ? 'R$ '+parseFloat(p.valor).toFixed(2) : '') + ' <span style="font-size:10px;font-weight:500;color:rgba(255,255,255,0.4);">'+freq+'</span></span>' +
+                        '</div>' +
+                        (p.descricao ? '<div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:4px;">'+escapeHtml(p.descricao)+'</div>' : '') +
+                        '</div>';
+                });
+                html += '</div>';
+
+                // Método de pagamento (cartão ou PIX)
+                html +=
+                    '<div id="trialMetodoBox" style="display:none;">' +
+                    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">' +
+                    '<button id="trialBtnCartao" data-trialmetodo="cartao" style="padding:10px;background:rgba(201,162,58,0.1);color:#C9A23A;border:1.5px solid rgba(201,162,58,0.3);border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;">💳 Cartão</button>' +
+                    '<button id="trialBtnPix" data-trialmetodo="pix" style="padding:10px;background:rgba(34,197,94,0.08);color:#22c55e;border:1.5px solid rgba(34,197,94,0.25);border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;">🟢 PIX</button>' +
+                    '</div>' +
+                    // Formulário de cartão
+                    '<div id="trialCartaoForm" style="display:none;display:flex;flex-direction:column;gap:8px;">' +
+                    _trialInputStyle('Número do Cartão','trialCardNum','tel','0000 0000 0000 0000','19') +
+                    _trialInputStyle('Nome no Cartão','trialCardNome','text','Como impresso no cartão','') +
+                    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">' +
+                    _trialInputStyle('Validade','trialCardVal','tel','MM/AA','5') +
+                    _trialInputStyle('CVV','trialCardCVV','tel','123','4') +
+                    '</div>' +
+                    _trialInputStyle('CPF do Titular','trialCardCPF','tel','000.000.000-00','14') +
+                    '</div>' +
+                    // PIX placeholder
+                    '<div id="trialPixArea" style="display:none;text-align:center;padding:16px;background:rgba(34,197,94,0.06);border-radius:10px;border:1px solid rgba(34,197,94,0.15);">' +
+                    '<div style="font-size:11px;color:rgba(255,255,255,0.5);">Clique em "Ativar" para gerar o QR Code PIX</div></div>' +
+                    '<div id="trialAsnMsg" style="font-size:11px;text-align:center;margin-top:8px;min-height:14px;"></div>' +
+                    '<button id="trialBtnAtivar" style="width:100%;margin-top:12px;padding:14px;background:linear-gradient(135deg,#C9A23A,#f5c542);color:#000;border:none;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;">' +
+                    '🚀 Ativar acesso</button>' +
+                    '</div>';
+
+                container.innerHTML = html;
+
+                // Event delegation — avoids inline onclick with quote conflicts
+                container.onclick = function(e) {
+                    var metBtn = e.target.closest('[data-trialmetodo]');
+                    if (metBtn) { _trialMetodo(metBtn.getAttribute('data-trialmetodo')); return; }
+                    var ativBtn = e.target.closest('#trialBtnAtivar');
+                    if (ativBtn) { _trialAtivePlan(); return; }
+                    var planCard = e.target.closest('.trial-plan-card');
+                    if (planCard) { _trialSelecionarPlano(planCard); return; }
+                };
+
+            } catch(e) {
+                container.innerHTML = '<div style="color:#f87171;text-align:center;padding:20px;font-size:12px;">Erro ao carregar planos: '+e.message+'</div>';
+            }
+        }
+
+        function _trialInputStyle(label, id, type, placeholder, maxlen) {
+            return '<div><label style="display:block;font-size:9px;color:rgba(255,255,255,0.4);font-weight:700;margin-bottom:3px;text-transform:uppercase;">'+label+'</label>' +
+                '<input type="'+type+'" id="'+id+'" placeholder="'+placeholder+'"'+(maxlen?' maxlength="'+maxlen+'"':'')+
+                ' style="width:100%;box-sizing:border-box;padding:10px 12px;background:rgba(255,255,255,0.06);color:#fff;border:1px solid rgba(255,255,255,0.12);border-radius:8px;font-size:13px;"></div>';
+        }
+
+        function _trialSelecionarPlano(el) {
+            document.querySelectorAll('.trial-plan-card').forEach(function(c){
+                c.style.borderColor='rgba(255,255,255,0.08)';
+                c.style.background='rgba(255,255,255,0.04)';
+            });
+            el.style.borderColor='#C9A23A';
+            el.style.background='rgba(201,162,58,0.08)';
+            window._trialPlanoSelecionado = el.getAttribute('data-planoid');
+            var metodoBox = document.getElementById('trialMetodoBox');
+            if (metodoBox) metodoBox.style.display = 'block';
+        }
+
+        function _trialMetodo(metodo) {
+            window._trialMetodoSel = metodo;
+            var cartaoForm = document.getElementById('trialCartaoForm');
+            var pixArea    = document.getElementById('trialPixArea');
+            var btnCartao  = document.getElementById('trialBtnCartao');
+            var btnPix     = document.getElementById('trialBtnPix');
+            if (cartaoForm) cartaoForm.style.display = metodo==='cartao' ? 'flex' : 'none';
+            if (pixArea)    pixArea.style.display    = metodo==='pix'    ? 'block' : 'none';
+            if (btnCartao)  { btnCartao.style.borderColor = metodo==='cartao' ? '#C9A23A' : 'rgba(201,162,58,0.3)'; }
+            if (btnPix)     { btnPix.style.borderColor    = metodo==='pix'    ? '#22c55e' : 'rgba(34,197,94,0.25)'; }
+        }
+
+        async function _trialAtivePlan() {
+            var planoId = window._trialPlanoSelecionado;
+            var metodo  = window._trialMetodoSel || 'pix';
+            var msgEl   = document.getElementById('trialAsnMsg');
+
+            if (!planoId) { if(msgEl){msgEl.textContent='Selecione um plano';msgEl.style.color='#f87171';} return; }
+            if (!metodo)  { if(msgEl){msgEl.textContent='Selecione cartão ou PIX';msgEl.style.color='#f87171';} return; }
+
+            if (metodo === 'pix') {
+                // Gera PIX via backend
+                if (msgEl) { msgEl.textContent = 'Gerando PIX...'; msgEl.style.color='rgba(255,255,255,0.4)'; }
+                try {
+                    var resp = await secureFetch('gerarPixAssinatura', {
+                        email:     currentUser.email,
+                        nomeAluno: currentUser.nome || currentUser.email,
+                        planoId:   planoId
+                    });
+                    if (!resp.success) throw new Error(resp.message || 'Erro');
+                    var pixArea = document.getElementById('trialPixArea');
+                    if (pixArea) {
+                        pixArea.innerHTML =
+                            '<div style="font-size:12px;font-weight:700;color:#22c55e;margin-bottom:10px;">📲 Escaneie ou copie o código PIX</div>' +
+                            (resp.qrBase64 ? '<img src="data:image/png;base64,'+resp.qrBase64+'" style="width:160px;height:160px;border-radius:8px;margin-bottom:10px;">' : '') +
+                            '<div style="font-size:9px;font-family:monospace;word-break:break-all;color:rgba(255,255,255,0.6);background:rgba(0,0,0,0.2);padding:8px;border-radius:6px;cursor:pointer;" onclick="navigator.clipboard&&navigator.clipboard.writeText(this.textContent)" title="Clique para copiar">'+escapeHtml(resp.pixCode||'')+'</div>' +
+                            '<div style="font-size:10px;color:rgba(255,255,255,0.4);margin-top:8px;">Acesso liberado automaticamente após confirmação.</div>';
+                        // Polling
+                        window._trialPixId = resp.pixId;
+                        window._trialPixPoll = setInterval(async function(){
+                            try {
+                                var c = await secureFetch('confirmarPixAssinatura',{email:currentUser.email,pixId:window._trialPixId,planoId:planoId});
+                                if (c.success) { clearInterval(window._trialPixPoll); trialAcessoLiberado(); }
+                            } catch(e2){}
+                        }, 8000);
+                    }
+                    if (msgEl) { msgEl.textContent = '⏳ Aguardando pagamento PIX...'; msgEl.style.color='#22c55e'; }
+                } catch(e) { if(msgEl){msgEl.textContent='❌ '+e.message;msgEl.style.color='#f87171';} }
+
+            } else {
+                // Cartão — tokeniza e chama criarAssinatura
+                if (msgEl) { msgEl.textContent = 'Processando cartão...'; msgEl.style.color='rgba(255,255,255,0.4)'; }
+                if (typeof asnAssinar === 'function') {
+                    // Reutiliza o fluxo de cartão existente injetando os valores
+                    asnAssinar();
+                } else {
+                    if(msgEl){msgEl.textContent='Use a aba Assinatura para pagar com cartão';msgEl.style.color='#fbbf24';}
+                }
+            }
+        }
+
+        function trialAcessoLiberado() {
+            var overlay = document.getElementById('trialBlockedOverlay');
+            if (overlay) overlay.style.display = 'none';
+            // Recarrega o app
+            window.location.reload();
+        }
+
+        function trialLogout() {
+            currentUser = null;
+            sessionStorage.removeItem('sessionToken');
+            var loginBox = document.getElementById('trialLoginBox');
+            var asnBox   = document.getElementById('trialAsnBox');
+            var senhaEl  = document.getElementById('trialLoginSenha');
+            var msgEl    = document.getElementById('trialLoginMsg');
+            if (loginBox) loginBox.style.display = 'block';
+            if (asnBox)   asnBox.style.display   = 'none';
+            if (senhaEl)  senhaEl.value           = '';
+            if (msgEl)    msgEl.textContent       = '';
+            var btn = document.getElementById('trialLoginBtn');
+            if (btn) { btn.disabled = false; btn.textContent = 'Entrar e ver planos →'; }
         }
 
         function _showTrialBanner(data) {
@@ -25706,15 +25999,8 @@
         }
 
         function trialIrParaAssinatura() {
-            // Para alunos: fecha overlay e abre tela de assinatura
-            var overlay = document.getElementById('trialBlockedOverlay');
-            if (overlay) overlay.style.display = 'none';
-            var appScreen = document.getElementById('appScreen');
-            if (appScreen) appScreen.style.display = 'flex';
-            var bottomNav = document.getElementById('bottomNav');
-            if (bottomNav) bottomNav.style.display = 'flex';
-            if (typeof switchTab === 'function') switchTab('assinatura-tab');
-            if (typeof asnIniciarSeNecessario === 'function') setTimeout(asnIniciarSeNecessario, 200);
+            // Compatibilidade legada — agora o overlay tem tudo inline
+            _trialMostrarFaseAssinatura();
         }
 
         function showTrialBanner(diasRestantes) {
@@ -27155,7 +27441,7 @@
                 'vincularGatewayCT','salvarPlano','deletarPlano',
                 'getPagamentosAdmin','atribuirPlanoAluno','marcarPago',
                 'salvarConfigMP','saveWellnessConfig','saveModalidade','deleteModalidade',
-                'painelCriarCliente','ativarClienteAdmin',
+                'painelCriarCliente','ativarClienteAdmin','getContratos',
             ],
             professor: [
                 'approveAccount','rejectAccount','approveCheckin','rejectCheckin',
