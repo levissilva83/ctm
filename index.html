@@ -6547,6 +6547,90 @@
 
         /* ── Reset local ─────────────────────────── */
 
+        /* ── CTM Contratos Page ──────────────────────────────── */
+        .cm-bloco {
+            padding: 14px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--adm-border);
+            border-radius: 10px;
+            margin-bottom: 12px;
+        }
+        .cm-bloco-title {
+            font-size: 10px;
+            font-weight: 800;
+            color: var(--adm-primary);
+            text-transform: uppercase;
+            letter-spacing: .6px;
+            margin-bottom: 12px;
+        }
+        .cm-campo { margin-bottom: 8px; }
+        .cm-campo:last-child { margin-bottom: 0; }
+        .cm-label {
+            display: block;
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--adm-text-3);
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            margin-bottom: 3px;
+        }
+        .cm-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1.2fr 1fr 1fr 80px;
+            gap: 0;
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--adm-border);
+            cursor: pointer;
+            transition: background .12s;
+        }
+        .cm-row:hover { background: rgba(255,255,255,0.03); }
+        .cm-row.selected { background: rgba(201,162,58,0.06); border-left: 3px solid var(--adm-primary); }
+        .cm-row-cell {
+            display: flex;
+            align-items: center;
+            font-size: 11px;
+            color: var(--adm-text-2);
+            padding-right: 8px;
+            overflow: hidden;
+        }
+        .cm-badge {
+            font-size: 9px;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+        .cm-stat-card {
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.02);
+            text-align: center;
+        }
+        .cm-stat-num { font-size: 20px; font-weight: 800; color: var(--adm-text-1); }
+        .cm-stat-lbl { font-size: 9px; color: var(--adm-text-3); font-weight: 600; margin-top: 2px; }
+        .cm-mod-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1.5px solid var(--adm-border);
+            background: var(--adm-bg-card);
+            cursor: pointer;
+            transition: all .12s;
+        }
+        .cm-mod-card.checked {
+            background: rgba(201,162,58,0.07);
+        }
+        @media (max-width: 600px) {
+            #cmPainelEditor > div[style*="grid-template-columns"] {
+                grid-template-columns: 1fr !important;
+            }
+            .cm-row { grid-template-columns: 2fr 1fr 80px !important; }
+            .cm-row-cell:nth-child(3), .cm-row-cell:nth-child(4), .cm-row-cell:nth-child(5) { display: none; }
+        }
+
         /* ── Sub-tabs internos do adm-sistema ───────────── */
         .sis-subtab-nav {
             display: flex; gap: 0;
@@ -9230,433 +9314,276 @@
 
             <!-- TAB: SUPER ADMIN -->
             <div id="adm-superadmin" class="adm-tab">
-                <div class="admin-container">
-                    <div class="adm-page-title">
-                        <h2>🔑 Super Admin</h2>
-                        <p>Acesso restrito — configurações globais do sistema</p>
+                <div class="admin-container" style="padding-bottom:40px;">
+
+                    <!-- ══ PAGE HEADER ══════════════════════════════════════ -->
+                    <div class="adm-page-title" style="margin-bottom:0;">
+                        <h2>📋 Contrato de Modalidades</h2>
+                        <p>Núcleo de configuração — governa clientes, licenças e modalidades</p>
                     </div>
 
-                    <!-- Trial / Período de Teste -->
-                    <div class="admin-section">
-                        <div class="admin-section-header">
-                            <div class="admin-section-title">⏳ Período de Teste</div>
-                            <button class="admin-refresh-btn" onclick="loadSuperAdminTrialConfig()">↻</button>
-                        </div>
+                    <!-- ══ STATS BAR ════════════════════════════════════════ -->
+                    <div id="cmStatsBar" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:16px 0 20px;"></div>
 
-                        <!-- Status atual -->
-                        <div style="padding:12px;background:var(--adm-bg-elevated);border:1px solid var(--adm-border);border-radius:10px;margin-bottom:12px;">
-                            <div style="font-size:10px;color:var(--adm-text-3);margin-bottom:4px;">STATUS ATUAL</div>
-                            <div id="saTrialStatus" style="font-size:14px;">Carregando...</div>
-                            <div style="margin-top:4px;font-size:10px;color:var(--adm-text-3);">Expira em: <span id="saTrialDataExp">—</span></div>
-                        </div>
-
-                        <!-- Definir período de trial -->
-                        <div style="margin-bottom:10px;">
-                            <div style="font-size:10px;font-weight:700;color:var(--adm-text-2);margin-bottom:6px;">DEFINIR PERÍODO DE TESTE</div>
-                            <div style="display:flex;gap:6px;margin-bottom:6px;">
-                                <input type="number" id="saTrialDias" min="1" max="365" placeholder="Dias" value="30"
-                                    style="width:80px;padding:8px;background:var(--adm-bg-elevated);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:13px;text-align:center;">
-                                <input type="text" id="saTrialMotivo" placeholder="Motivo / nome do cliente..."
-                                    style="flex:1;padding:8px 10px;background:var(--adm-bg-elevated);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:12px;">
-                            </div>
-                            <button onclick="saTrialAcao('definir_trial')"
-                                style="width:100%;padding:10px;background:rgba(201,162,58,0.08);color:#C9A23A;border:1px solid rgba(201,162,58,0.25);border-radius:8px;font-size:12px;font-weight:800;cursor:pointer;margin-bottom:6px;">
-                                ⏳ Iniciar período de teste
-                            </button>
-                        </div>
-
-                        <!-- Bloqueio manual -->
-                        <div style="margin-bottom:10px;">
-                            <div style="font-size:10px;font-weight:700;color:var(--adm-text-2);margin-bottom:6px;">CONTROLE MANUAL</div>
-                            <div style="display:flex;gap:6px;">
-                                <button onclick="saTrialAcao('bloquear')"
-                                    style="flex:1;padding:10px;background:rgba(248,113,113,0.1);color:#f87171;border:1px solid rgba(248,113,113,0.3);border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;">
-                                    🔒 Bloquear agora
-                                </button>
-                                <button onclick="saTrialAcao('desbloquear')"
-                                    style="flex:1;padding:10px;background:rgba(74,222,128,0.1);color:#4ade80;border:1px solid rgba(74,222,128,0.3);border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;">
-                                    🔓 Desbloquear
-                                </button>
-                                <button onclick="saTrialAcao('remover_trial')"
-                                    style="flex:1;padding:10px;background:var(--adm-bg-elevated);color:var(--adm-text-3);border:1px solid var(--adm-border);border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;">
-                                    ♾️ Sem limite
-                                </button>
-                            </div>
-                        </div>
-
-                        <div id="saTrialMsg" style="font-size:11px;text-align:center;margin-top:4px;"></div>
-                    </div>
-
-                    <div class="admin-section">
-                        <div class="admin-section-header">
-                            <div class="admin-section-title">📊 Visão Geral</div>
-                            <button class="admin-refresh-btn" onclick="loadSuperAdminData()">↻</button>
-                        </div>
-                        <div id="saStatsGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:4px;">
-                            <div class="sa-stat-card" id="saStatAlunos">—</div>
-                            <div class="sa-stat-card" id="saStatAdmins">—</div>
-                            <div class="sa-stat-card" id="saStatProfs">—</div>
-                        </div>
-                        <div id="saCTStatsBar" style="margin-top:8px;"></div>
-                    </div>
-
-
-                    <!-- Admins cadastrados -->
-                    <div class="admin-section">
-                        <div class="admin-section-header">
-                            <div class="admin-section-title">👑 Administradores</div>
-                        </div>
-                        <div id="saAdminList"><div class="admin-empty">—</div></div>
-                    </div>
-
-                    <!-- Professores -->
-                    <div class="admin-section">
-                        <div class="admin-section-header">
-                            <div class="admin-section-title">👤 Professores</div>
-                        </div>
-                        <div id="saProfList"><div class="admin-empty">—</div></div>
-                    </div>
-
-
-                    <!-- ═══ CLIENTES & CONTRATOS ═══ -->
-                    <div class="admin-section">
-                        <div class="admin-section-header">
-                            <div class="admin-section-title">📋 Clientes & Contratos</div>
-                            <button class="admin-refresh-btn" onclick="saModInit()">↻</button>
-                        </div>
-
-                        <!-- Lista de clientes / LICENCIADOS -->
-                        <div id="saModListaContratos">
-                            <div style="text-align:center;padding:20px;color:var(--adm-text-3);font-size:12px;">⏳ Carregando...</div>
-                        </div>
-
-                        <!-- Botão novo cliente -->
-                        <button onclick="saCliNovo()" id="saFormAbrirBtn"
-                            style="width:100%;margin-top:12px;padding:13px;background:linear-gradient(135deg,rgba(201,162,58,0.15),rgba(201,162,58,0.08));color:var(--adm-primary);border:1.5px dashed rgba(201,162,58,0.4);border-radius:12px;font-size:13px;font-weight:800;cursor:pointer;letter-spacing:.3px;">
-                            ＋ Cadastrar Novo Cliente
-                        </button>
-
-                        <!-- ── FORMULÁRIO UNIFICADO ── -->
-                        <div id="saModForm" style="display:none;margin-top:14px;">
-
-                            <!-- Tabs: Novo Cliente | Editar Contrato -->
-                            <div style="display:flex;gap:6px;margin-bottom:14px;">
-                                <button id="saTabNovo" onclick="saCliAbaSelecionar('novo')"
-                                    style="flex:1;padding:9px;border-radius:10px;border:2px solid var(--adm-primary);background:rgba(201,162,58,0.1);color:var(--adm-primary);font-size:12px;font-weight:800;cursor:pointer;">
-                                    ➕ Novo Cliente
-                                </button>
-                                <button id="saTabContrato" onclick="saCliAbaSelecionar('contrato')"
-                                    style="flex:1;padding:9px;border-radius:10px;border:2px solid var(--adm-border);background:transparent;color:var(--adm-text-3);font-size:12px;font-weight:800;cursor:pointer;">
-                                    📝 Editar Contrato
-                                </button>
-                                <button onclick="saFormFechar()" style="padding:9px 12px;background:transparent;color:var(--adm-text-3);border:1px solid var(--adm-border);border-radius:10px;font-size:12px;cursor:pointer;">✕</button>
-                            </div>
-
-                            <!-- ══ PAINEL: NOVO CLIENTE ══ -->
-                            <div id="saPainelNovo" style="background:var(--adm-bg-elevated);border:1px solid rgba(201,162,58,0.2);border-radius:12px;padding:16px;">
-                                <div style="font-size:10px;font-weight:800;color:var(--adm-primary);text-transform:uppercase;letter-spacing:.6px;margin-bottom:14px;">Dados do novo cliente</div>
-
-                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
-                                    <div>
-                                        <label style="font-size:9px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px;">ctmId <span style="color:#f87171;">*</span></label>
-                                        <input type="text" id="saNovCtmId" placeholder="ex: dojo_silva" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9_]/g,'')"
-                                            style="width:100%;box-sizing:border-box;padding:9px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:12px;font-family:monospace;">
-                                    </div>
-                                    <div>
-                                        <label style="font-size:9px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px;">Dias trial</label>
-                                        <input type="number" id="saNovDias" value="30" min="1" max="365"
-                                            style="width:100%;box-sizing:border-box;padding:9px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:12px;text-align:center;">
-                                    </div>
-                                </div>
-
-                                <div style="margin-bottom:8px;">
-                                    <label style="font-size:9px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px;">Nome completo <span style="color:#f87171;">*</span></label>
-                                    <input type="text" id="saNovNome" placeholder="Nome do responsável"
-                                        style="width:100%;box-sizing:border-box;padding:9px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:12px;">
-                                </div>
-
-                                <div style="margin-bottom:8px;">
-                                    <label style="font-size:9px;color:var(--adm-primary);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px;">E-mail <span style="color:#f87171;">*</span></label>
-                                    <input type="email" id="saNovEmail" placeholder="admin@academia.com"
-                                        style="width:100%;box-sizing:border-box;padding:9px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid rgba(201,162,58,0.3);border-radius:8px;font-size:12px;">
-                                </div>
-
-                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
-                                    <div>
-                                        <label style="font-size:9px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px;">Telefone</label>
-                                        <input type="tel" id="saNovTelefone" placeholder="11987654321"
-                                            style="width:100%;box-sizing:border-box;padding:9px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:12px;">
-                                    </div>
-                                    <div>
-                                        <label style="font-size:9px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px;">Nascimento</label>
-                                        <input type="date" id="saNovNasc"
-                                            style="width:100%;box-sizing:border-box;padding:9px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:12px;">
-                                    </div>
-                                </div>
-
-                                <div style="margin-bottom:8px;">
-                                    <label style="font-size:9px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px;">Nome do Dojo / CT <span style="color:#f87171;">*</span></label>
-                                    <input type="text" id="saNovDojo" placeholder="Ex: Academia Silva Jiu-Jitsu"
-                                        style="width:100%;box-sizing:border-box;padding:9px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:12px;">
-                                </div>
-
-                                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px;">
-                                    <div>
-                                        <label style="font-size:9px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px;">Faixa</label>
-                                        <select id="saNovFaixa" style="width:100%;padding:9px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:12px;">
-                                            <option value="Branca">Branca</option>
-                                            <option value="Cinza">Cinza</option>
-                                            <option value="Amarela">Amarela</option>
-                                            <option value="Laranja">Laranja</option>
-                                            <option value="Verde">Verde</option>
-                                            <option value="Azul">Azul</option>
-                                            <option value="Roxa">Roxa</option>
-                                            <option value="Marrom">Marrom</option>
-                                            <option value="Preta" selected>Preta</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label style="font-size:9px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px;">Grau</label>
-                                        <select id="saNovGrau" style="width:100%;padding:9px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:12px;">
-                                            <option value="0">0</option><option value="1">1</option><option value="2">2</option>
-                                            <option value="3">3</option><option value="4" selected>4</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label style="font-size:9px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px;">Plano</label>
-                                        <select id="saNovPlano" style="width:100%;padding:9px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:12px;">
-                                            <option value="profissional" selected>Profissional</option>
-                                            <option value="basico">Básico</option>
-                                            <option value="premium">Premium</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div style="margin-bottom:12px;">
-                                    <label style="font-size:9px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;display:block;margin-bottom:6px;">🥋 Modalidades contratadas</label>
-                                    <div id="saFormModGrid" style="display:flex;flex-direction:column;gap:5px;"></div>
-                                    <div id="saFormContador" style="font-size:10px;color:var(--adm-text-3);margin-top:6px;"></div>
-                                </div>
-
-                                <div id="saNovResultado" style="display:none;margin-bottom:12px;padding:14px;background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2);border-radius:10px;">
-                                    <div style="font-size:11px;font-weight:700;color:#4ade80;margin-bottom:8px;">✅ Cliente criado com sucesso!</div>
-                                    <div style="font-size:10px;color:var(--adm-text-2);line-height:1.8;">
-                                        <div>🔗 Link: <span id="saNovLink" style="color:#60a5fa;font-family:monospace;"></span></div>
-                                        <div>🔑 Senha: <span id="saNovSenha" style="color:var(--adm-primary);font-family:monospace;font-weight:700;font-size:13px;"></span></div>
-                                        <div>📊 Planilha: <a id="saNovSheetUrl" href="#" target="_blank" style="color:#60a5fa;">Abrir ↗</a></div>
-                                    </div>
-                                </div>
-
-                                <div id="saNovMsg" style="font-size:11px;min-height:14px;margin-bottom:8px;text-align:center;white-space:pre-wrap;"></div>
-
-                                <button id="saBtnCriar" onclick="saCliCriar()"
-                                    style="width:100%;padding:13px;background:linear-gradient(135deg,var(--adm-primary),var(--adm-primary-bright));color:#000;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;">
-                                    🚀 Criar Cliente
-                                </button>
-                            </div>
-
-                            <!-- ══ PAINEL: EDITAR CONTRATO ══ -->
-                            <div id="saPainelContrato" style="display:none;background:var(--adm-bg-elevated);border:1px solid rgba(201,162,58,0.2);border-radius:12px;padding:16px;">
-
-                                <!-- ══ PASSO 1: Selecione o cliente ══ -->
-                                <div style="font-size:9px;font-weight:800;color:var(--adm-text-3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;">① Selecione o cliente</div>
-                                <select id="saModEmailSelectLista" onchange="saContratarSelecionarCliente(this.value)"
-                                    style="width:100%;padding:10px 12px;background:var(--adm-bg-card);color:var(--adm-text-1);border:2px solid rgba(201,162,58,0.4);border-radius:10px;font-size:13px;margin-bottom:4px;">
-                                    <option value="">— Selecione um cliente —</option>
+                    <!-- ══ TABELA DE CLIENTES ════════════════════════════════ -->
+                    <div class="admin-section" style="padding:0;overflow:hidden;">
+                        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--adm-border);">
+                            <div style="font-size:12px;font-weight:800;color:var(--adm-text-1);letter-spacing:.4px;">CLIENTES</div>
+                            <div style="display:flex;gap:8px;align-items:center;">
+                                <input id="cmFiltro" placeholder="Buscar cliente..." oninput="CTM_Contratos.ui.filtrar(this.value)"
+                                    style="padding:6px 10px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:11px;width:140px;">
+                                <select id="cmFiltroStatus" onchange="CTM_Contratos.ui.filtrar()"
+                                    style="padding:6px 8px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:11px;">
+                                    <option value="">Todos</option>
+                                    <option value="ATIVO">✅ Ativo</option>
+                                    <option value="TRIAL">⏳ Trial</option>
+                                    <option value="CANCELADO">❌ Cancelado</option>
+                                    <option value="INATIVO">⏸ Inativo</option>
+                                    <option value="SEM CONTRATO">📋 Sem contrato</option>
                                 </select>
-                                <!-- Badge de status do cliente selecionado -->
-                                <div id="saContratoStatusBar" style="min-height:28px;margin-bottom:12px;"></div>
+                                <button onclick="CTM_Contratos.data.carregar()" style="padding:6px 10px;background:transparent;color:var(--adm-text-3);border:1px solid var(--adm-border);border-radius:8px;font-size:12px;cursor:pointer;">↻</button>
+                            </div>
+                        </div>
+                        <!-- Header da tabela -->
+                        <div style="display:grid;grid-template-columns:2fr 1fr 1.2fr 1fr 1fr 80px;gap:0;padding:8px 16px;background:rgba(0,0,0,0.2);border-bottom:1px solid var(--adm-border);">
+                            <div style="font-size:9px;font-weight:800;color:var(--adm-text-3);text-transform:uppercase;letter-spacing:.5px;">Cliente / CT</div>
+                            <div style="font-size:9px;font-weight:800;color:var(--adm-text-3);text-transform:uppercase;letter-spacing:.5px;">Plano</div>
+                            <div style="font-size:9px;font-weight:800;color:var(--adm-text-3);text-transform:uppercase;letter-spacing:.5px;">Modalidades</div>
+                            <div style="font-size:9px;font-weight:800;color:var(--adm-text-3);text-transform:uppercase;letter-spacing:.5px;">Status</div>
+                            <div style="font-size:9px;font-weight:800;color:var(--adm-text-3);text-transform:uppercase;letter-spacing:.5px;">Trial / Início</div>
+                            <div></div>
+                        </div>
+                        <!-- Linhas da tabela -->
+                        <div id="cmTabelaBody">
+                            <div style="text-align:center;padding:32px;color:var(--adm-text-3);font-size:12px;">⏳ Carregando clientes...</div>
+                        </div>
+                    </div>
 
-                                <!-- Divider -->
-                                <div style="height:1px;background:var(--adm-border);margin-bottom:12px;"></div>
+                    <!-- ══ EDITOR DE CONTRATO (PAINEL LATERAL) ═══════════════ -->
+                    <div id="cmPainelEditor" style="display:none;margin-top:20px;border:1.5px solid rgba(201,162,58,0.3);border-radius:16px;overflow:hidden;">
 
-                                <!-- ══ PASSO 2: Campos do contrato ══ -->
-                                <div id="saContratoFormCampos" style="display:none;">
+                        <!-- Header do painel -->
+                        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:rgba(201,162,58,0.07);border-bottom:1px solid rgba(201,162,58,0.2);">
+                            <div>
+                                <div style="font-size:13px;font-weight:800;color:var(--adm-primary);" id="cmEditorTitulo">Editar Contrato</div>
+                                <div style="font-size:10px;color:var(--adm-text-3);" id="cmEditorSub"></div>
+                            </div>
+                            <button onclick="CTM_Contratos.ui.fecharEditor()" style="padding:6px 12px;background:transparent;color:var(--adm-text-3);border:1px solid var(--adm-border);border-radius:8px;font-size:12px;cursor:pointer;">✕ Fechar</button>
+                        </div>
 
-                                    <!-- Plano -->
-                                    <div style="margin-bottom:8px;">
-                                        <label style="font-size:9px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px;">📦 Plano contratado</label>
-                                        <select id="saFormPlano" style="width:100%;padding:10px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:13px;">
-                                            <option value="">⏳ Carregando planos...</option>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">
+
+                            <!-- ─ COLUNA ESQUERDA: Formulário ─────────── -->
+                            <div style="padding:18px;border-right:1px solid var(--adm-border);">
+
+                                <!-- BLOCO 1: Cliente -->
+                                <div class="cm-bloco" id="cmBlocoCliente">
+                                    <div class="cm-bloco-title">① Cliente</div>
+                                    <div class="cm-campo">
+                                        <label class="cm-label">Nome</label>
+                                        <input type="text" id="cmClienteNome" readonly
+                                            style="width:100%;box-sizing:border-box;padding:9px;background:rgba(0,0,0,0.2);color:var(--adm-text-2);border:1px solid var(--adm-border);border-radius:8px;font-size:12px;">
+                                    </div>
+                                    <div class="cm-campo">
+                                        <label class="cm-label">Sheet ID <span style="font-size:9px;color:var(--adm-text-3);">(planilha)</span></label>
+                                        <div style="display:flex;gap:6px;">
+                                            <input type="text" id="cmClienteSheetId"
+                                                style="flex:1;padding:9px;background:var(--adm-bg-card);color:#60a5fa;border:1px solid rgba(96,165,250,0.25);border-radius:8px;font-size:11px;font-family:monospace;box-sizing:border-box;">
+                                            <button id="cmBtnAbrirSheet" style="padding:9px 12px;background:rgba(96,165,250,0.08);color:#60a5fa;border:1px solid rgba(96,165,250,0.25);border-radius:8px;font-size:13px;cursor:pointer;">↗</button>
+                                        </div>
+                                    </div>
+                                    <div class="cm-campo">
+                                        <label class="cm-label">E-mail admin</label>
+                                        <input type="email" id="cmClienteEmail" readonly
+                                            style="width:100%;box-sizing:border-box;padding:9px;background:rgba(0,0,0,0.2);color:var(--adm-text-3);border:1px solid var(--adm-border);border-radius:8px;font-size:12px;">
+                                    </div>
+                                </div>
+
+                                <!-- BLOCO 2: Plano -->
+                                <div class="cm-bloco" id="cmBlocoPlano">
+                                    <div class="cm-bloco-title">② Plano Contratado</div>
+                                    <div class="cm-campo">
+                                        <label class="cm-label">Plano</label>
+                                        <select id="cmPlanoSelect" onchange="CTM_Contratos.ui.onPlanoChange()"
+                                            style="width:100%;padding:9px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:12px;">
+                                            <option value="">⏳ Carregando...</option>
                                         </select>
                                     </div>
-
-                                    <!-- Status + Vencimento -->
-                                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
-                                        <div>
-                                            <label style="font-size:9px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px;">🔖 Status</label>
-                                            <select id="saFormStatus" style="width:100%;padding:9px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:12px;">
-                                                <option value="TRIAL">TRIAL</option>
-                                                <option value="ATIVO">ATIVO</option>
-                                                <option value="INATIVO">INATIVO</option>
-                                                <option value="CANCELADO">CANCELADO</option>
+                                    <!-- Preview do plano selecionado -->
+                                    <div id="cmPlanoInfo" style="display:none;padding:10px;background:rgba(37,99,235,0.06);border:1px solid rgba(37,99,235,0.15);border-radius:8px;margin-top:6px;">
+                                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                                            <span style="font-size:11px;color:var(--adm-text-2);" id="cmPlanoInfoNome"></span>
+                                            <span style="font-size:14px;font-weight:800;color:#60a5fa;" id="cmPlanoInfoValor"></span>
+                                        </div>
+                                        <div style="font-size:10px;color:var(--adm-text-3);margin-top:3px;" id="cmPlanoInfoFreq"></div>
+                                        <div style="font-size:10px;color:var(--adm-text-3);margin-top:2px;" id="cmPlanoInfoDesc"></div>
+                                    </div>
+                                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
+                                        <div class="cm-campo">
+                                            <label class="cm-label">Status</label>
+                                            <select id="cmStatus" onchange="CTM_Contratos.engine.gerarPreview()"
+                                                style="width:100%;padding:9px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:12px;">
+                                                <option value="TRIAL">⏳ TRIAL</option>
+                                                <option value="ATIVO">✅ ATIVO</option>
+                                                <option value="INATIVO">⏸ INATIVO</option>
+                                                <option value="CANCELADO">❌ CANCELADO</option>
                                             </select>
                                         </div>
-                                        <div>
-                                            <label style="font-size:9px;color:var(--adm-text-3);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px;">📅 Vencimento</label>
-                                            <input type="date" id="saFormVencimento"
+                                        <div class="cm-campo">
+                                            <label class="cm-label">Próximo vencimento</label>
+                                            <input type="date" id="cmVencimento"
                                                 style="width:100%;box-sizing:border-box;padding:9px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:12px;">
                                         </div>
                                     </div>
+                                </div>
 
-                                    <!-- Sheet ID -->
-                                    <div style="margin-bottom:8px;">
-                                        <label style="font-size:9px;color:#60a5fa;font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px;">📊 Sheet ID da planilha</label>
+                                <!-- BLOCO 3: Período de teste -->
+                                <div class="cm-bloco" id="cmBlocoTrial">
+                                    <div class="cm-bloco-title">③ Período de Teste / Ativação</div>
+                                    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px;">
+                                        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+                                            <input type="radio" name="cmTrialModo" id="cmTrialModoTrial" value="trial" onchange="CTM_Contratos.ui.onTrialModoChange()" style="accent-color:#fbbf24;">
+                                            <span style="font-size:12px;color:var(--adm-text-1);">⏳ <strong>Com trial</strong> — acessa grátis por X dias</span>
+                                        </label>
+                                        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+                                            <input type="radio" name="cmTrialModo" id="cmTrialModoImediato" value="imediato" onchange="CTM_Contratos.ui.onTrialModoChange()" style="accent-color:#f87171;">
+                                            <span style="font-size:12px;color:var(--adm-text-1);">💳 <strong>Sem trial</strong> — pagar na primeira entrada</span>
+                                        </label>
+                                        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+                                            <input type="radio" name="cmTrialModo" id="cmTrialModoAtivo" value="ativo" onchange="CTM_Contratos.ui.onTrialModoChange()" style="accent-color:#4ade80;">
+                                            <span style="font-size:12px;color:var(--adm-text-1);">✅ <strong>Ativar direto</strong> — já pagou</span>
+                                        </label>
+                                    </div>
+                                    <div id="cmTrialCampos" style="display:none;padding:10px;background:rgba(251,191,36,0.05);border:1px solid rgba(251,191,36,0.2);border-radius:8px;">
+                                        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+                                            <div>
+                                                <label class="cm-label">Dias</label>
+                                                <input type="number" id="cmTrialDias" value="30" min="1" max="365"
+                                                    oninput="CTM_Contratos.engine.calcTrialDates()"
+                                                    style="width:100%;box-sizing:border-box;padding:8px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid rgba(251,191,36,0.3);border-radius:8px;font-size:13px;text-align:center;">
+                                            </div>
+                                            <div>
+                                                <label class="cm-label">Início</label>
+                                                <input type="date" id="cmTrialInicio"
+                                                    oninput="CTM_Contratos.engine.calcTrialDates()"
+                                                    style="width:100%;box-sizing:border-box;padding:8px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid rgba(251,191,36,0.3);border-radius:8px;font-size:11px;">
+                                            </div>
+                                            <div>
+                                                <label class="cm-label">Término</label>
+                                                <input type="text" id="cmTrialFim" readonly placeholder="Calculado"
+                                                    style="width:100%;box-sizing:border-box;padding:8px;background:rgba(0,0,0,0.2);color:#fbbf24;border:1px solid rgba(251,191,36,0.2);border-radius:8px;font-size:11px;font-weight:700;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- BLOCO 4: Modalidades -->
+                                <div class="cm-bloco" id="cmBlocoMods">
+                                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                                        <div class="cm-bloco-title" style="margin:0;">④ Modalidades Contratadas</div>
                                         <div style="display:flex;gap:6px;">
-                                            <input type="text" id="saFormSheetId" placeholder="ID da planilha do cliente"
-                                                style="flex:1;padding:9px;background:var(--adm-bg-card);color:#60a5fa;border:1px solid rgba(96,165,250,0.25);border-radius:8px;font-size:11px;font-family:monospace;box-sizing:border-box;">
-                                            <button onclick="saFormAbrirSheet()" style="padding:9px 12px;background:rgba(96,165,250,0.08);color:#60a5fa;border:1px solid rgba(96,165,250,0.25);border-radius:8px;font-size:13px;cursor:pointer;">↗</button>
+                                            <button onclick="CTM_Contratos.ui.selectAllMods(true)" style="padding:3px 8px;background:rgba(201,162,58,0.1);color:var(--adm-primary);border:1px solid rgba(201,162,58,0.25);border-radius:6px;font-size:9px;font-weight:700;cursor:pointer;">Todas</button>
+                                            <button onclick="CTM_Contratos.ui.selectAllMods(false)" style="padding:3px 8px;background:transparent;color:var(--adm-text-3);border:1px solid var(--adm-border);border-radius:6px;font-size:9px;font-weight:700;cursor:pointer;">Nenhuma</button>
                                         </div>
                                     </div>
-
-                                    <!-- ── PERÍODO DE TESTE ───────── -->
-                                    <div style="margin-bottom:12px;padding:12px;background:rgba(251,191,36,0.05);border:1px solid rgba(251,191,36,0.2);border-radius:10px;">
-                                        <div style="font-size:9px;font-weight:800;color:#fbbf24;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">⏳ Período de teste / Ativação</div>
-                                        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px;">
-                                            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
-                                                <input type="radio" name="saTrialModo" id="saTrialModoTrial" value="trial" onchange="_saTrialOnModoChange()" style="accent-color:#fbbf24;width:16px;height:16px;">
-                                                <span style="font-size:12px;color:var(--adm-text-1);">⏳ <strong>Com trial</strong> — acessa grátis por X dias</span>
-                                            </label>
-                                            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
-                                                <input type="radio" name="saTrialModo" id="saTrialModoImediato" value="imediato" onchange="_saTrialOnModoChange()" style="accent-color:#f87171;width:16px;height:16px;">
-                                                <span style="font-size:12px;color:var(--adm-text-1);">💳 <strong>Sem trial — pagar agora</strong></span>
-                                            </label>
-                                            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
-                                                <input type="radio" name="saTrialModo" id="saTrialModoAtivo" value="ativo" onchange="_saTrialOnModoChange()" style="accent-color:#4ade80;width:16px;height:16px;">
-                                                <span style="font-size:12px;color:var(--adm-text-1);">✅ <strong>Ativar direto</strong> — já pagou</span>
-                                            </label>
-                                        </div>
-                                        <div id="saTrialDiasWrap" style="display:none;background:rgba(251,191,36,0.05);border-radius:8px;padding:10px;border:1px solid rgba(251,191,36,0.15);">
-                                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-                                                <div>
-                                                    <label style="font-size:9px;color:var(--adm-text-3);font-weight:700;display:block;margin-bottom:3px;">Dias de trial</label>
-                                                    <input type="number" id="saTrialDiasEdit" value="30" min="1" max="365" oninput="_saTrialRecalcData()"
-                                                        style="width:100%;box-sizing:border-box;padding:8px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid rgba(251,191,36,0.3);border-radius:8px;font-size:13px;text-align:center;">
-                                                </div>
-                                                <div>
-                                                    <label style="font-size:9px;color:var(--adm-text-3);font-weight:700;display:block;margin-bottom:3px;">Cobrança a partir de</label>
-                                                    <input type="text" id="saTrialDataEdit" placeholder="dd/MM/yyyy" readonly
-                                                        style="width:100%;box-sizing:border-box;padding:8px;background:rgba(0,0,0,0.2);color:#fbbf24;border:1px solid rgba(251,191,36,0.2);border-radius:8px;font-size:12px;font-weight:700;">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- ── MODALIDADES CONTRATADAS (OBRIGATÓRIO) ── -->
-                                    <div style="margin-bottom:14px;padding:12px;background:rgba(201,162,58,0.04);border:1.5px solid rgba(201,162,58,0.25);border-radius:10px;">
-                                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-                                            <div style="font-size:9px;font-weight:800;color:var(--adm-primary);text-transform:uppercase;letter-spacing:.5px;">🥋 Modalidades contratadas</div>
-                                            <div style="display:flex;gap:6px;">
-                                                <button onclick="saModSelectAll(true)" style="padding:3px 8px;background:rgba(201,162,58,0.12);color:var(--adm-primary);border:1px solid rgba(201,162,58,0.3);border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;">Todas</button>
-                                                <button onclick="saModSelectAll(false)" style="padding:3px 8px;background:transparent;color:var(--adm-text-3);border:1px solid var(--adm-border);border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;">Nenhuma</button>
-                                            </div>
-                                        </div>
-                                        <div id="saFormModGrid2" style="display:flex;flex-direction:column;gap:6px;"></div>
-                                        <div id="saFormContador2" style="font-size:10px;color:var(--adm-text-3);margin-top:8px;padding-top:8px;border-top:1px solid var(--adm-border);font-weight:600;"></div>
-                                    </div>
-
-                                    <!-- ── AÇÕES ── -->
-                                    <button onclick="saFormSalvar()"
-                                        style="width:100%;padding:13px;background:linear-gradient(135deg,var(--adm-primary),var(--adm-primary-bright));color:#000;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:8px;">
-                                        💾 Salvar Contrato
-                                    </button>
-
-                                    <!-- Ações de controle do cliente -->
-                                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;">
-                                        <button id="saBtnBloquear" onclick="saContratoBloquear()"
-                                            style="padding:10px;background:rgba(251,191,36,0.08);color:#fbbf24;border:1.5px solid rgba(251,191,36,0.3);border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;">
-                                            🔒 Bloquear acesso
-                                        </button>
-                                        <button id="saBtnDesbloquear" onclick="saContratoDesbloquear()"
-                                            style="padding:10px;background:rgba(74,222,128,0.08);color:#4ade80;border:1.5px solid rgba(74,222,128,0.3);border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;">
-                                            🔓 Desbloquear
-                                        </button>
-                                    </div>
-
-                                    <button id="saFormExcluirBtn" onclick="saFormExcluir()"
-                                        style="width:100%;padding:10px;background:rgba(248,113,113,0.08);color:#f87171;border:1.5px solid rgba(248,113,113,0.3);border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;">
-                                        🗑️ Excluir contrato do LICENCIADOS
-                                    </button>
-
-                                    <div id="saFormMsg" style="font-size:11px;text-align:center;margin-top:10px;min-height:16px;white-space:pre-wrap;"></div>
-                                </div><!-- /saContratoFormCampos -->
-
-                                <div id="saContratoVazio" style="text-align:center;padding:20px;color:var(--adm-text-3);font-size:12px;">
-                                    ← Selecione um cliente acima para editar o contrato
+                                    <div id="cmModsGrid" style="display:flex;flex-direction:column;gap:6px;"></div>
+                                    <div id="cmModsContador" style="font-size:10px;color:var(--adm-text-3);margin-top:8px;padding-top:8px;border-top:1px solid var(--adm-border);"></div>
                                 </div>
 
                             </div>
 
-                        </div><!-- /saModForm -->
+                            <!-- ─ COLUNA DIREITA: Preview do Contrato ─── -->
+                            <div style="padding:18px;background:rgba(0,0,0,0.1);">
+                                <div class="cm-bloco-title" style="margin-bottom:14px;">⑤ Preview do Contrato</div>
+                                <div id="cmPreviewContrato" style="background:rgba(201,162,58,0.04);border:1px solid rgba(201,162,58,0.15);border-radius:10px;padding:14px;font-size:11px;color:var(--adm-text-2);line-height:1.7;min-height:280px;white-space:pre-wrap;font-family:monospace;letter-spacing:.2px;">
+                                    Selecione um cliente para gerar o preview...
+                                </div>
+                                <div style="margin-top:12px;padding:10px;background:rgba(255,255,255,0.02);border-radius:8px;border:1px solid var(--adm-border);">
+                                    <div style="font-size:9px;font-weight:700;color:var(--adm-text-3);margin-bottom:6px;">AÇÕES RÁPIDAS</div>
+                                    <div style="display:flex;flex-direction:column;gap:6px;">
+                                        <button id="cmBtnBloquear" onclick="CTM_Contratos.actions.bloquear()"
+                                            style="padding:9px;background:rgba(251,191,36,0.08);color:#fbbf24;border:1.5px solid rgba(251,191,36,0.3);border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;">
+                                            🔒 Bloquear acesso do cliente
+                                        </button>
+                                        <button id="cmBtnDesbloquear" onclick="CTM_Contratos.actions.desbloquear()"
+                                            style="padding:9px;background:rgba(74,222,128,0.08);color:#4ade80;border:1.5px solid rgba(74,222,128,0.3);border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;">
+                                            🔓 Desbloquear acesso
+                                        </button>
+                                        <button id="cmBtnExcluir" onclick="CTM_Contratos.actions.excluir()"
+                                            style="padding:9px;background:rgba(248,113,113,0.06);color:#f87171;border:1.5px solid rgba(248,113,113,0.25);border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;">
+                                            🗑️ Excluir contrato do LICENCIADOS
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="cmEditorMsg" style="font-size:11px;text-align:center;margin-top:8px;min-height:16px;"></div>
+                                <button onclick="CTM_Contratos.actions.salvar()"
+                                    style="width:100%;margin-top:12px;padding:14px;background:linear-gradient(135deg,var(--adm-primary),var(--adm-primary-bright));color:#000;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;">
+                                    💾 Salvar Contrato
+                                </button>
+                            </div>
 
-                        <!-- Compat: elementos ocultos usados por funções legadas -->
-                        <div id="saModEditor" style="display:none;">
-                            <select id="saModEmailSelect" style="display:none;"></select>
-                            <div id="saModEmailInfo" style="display:none;"></div>
-                            <input id="saModSheetIdInput" type="text" style="display:none;">
-                            <div id="saModLimitesInfo" style="display:none;"></div>
-                            <div id="saModContador" style="display:none;"></div>
-                            <div id="saModCheckboxes" style="display:none;"></div>
-                        </div>
-                        <div id="saModMsg" style="display:none;"></div>
+                        </div><!-- /grid cols -->
+                    </div><!-- /cmPainelEditor -->
 
-                    </div><!-- /Clientes & Contratos -->
-
-                    <!-- ═══ NOVIDADES DO SISTEMA ═══ -->
-                    <div class="admin-section">
+                    <!-- ══ NOVIDADES DO SISTEMA (mantido) ════════════════ -->
+                    <div class="admin-section" style="margin-top:20px;">
                         <div class="admin-section-header">
                             <div class="admin-section-title">📣 Novidades do Sistema</div>
                             <button class="admin-refresh-btn" onclick="saNovCarregar()">↻</button>
                         </div>
-                        <div style="font-size:10px;color:var(--adm-text-3);margin-bottom:12px;line-height:1.6;">
-                            Publique novidades que aparecem na <strong style="color:var(--adm-text-2);">Central de Assinatura</strong> para os clientes que ainda não assinaram ou cuja assinatura venceu.
+                        <p style="font-size:11px;color:var(--adm-text-3);margin-bottom:12px;">
+                            Publique novidades que aparecem na <strong style="color:var(--adm-text-2);">Central de Assinatura</strong> para clientes que ainda não assinaram.
+                        </p>
+                        <div id="saNovForm" style="background:var(--adm-bg-elevated);border:1px solid var(--adm-border);border-radius:12px;padding:14px;margin-bottom:14px;">
+                            <div style="display:flex;flex-direction:column;gap:8px;">
+                                <input type="text" id="saNovTitulo" placeholder="Título da novidade"
+                                    style="padding:9px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:12px;">
+                                <textarea id="saNovTexto" placeholder="Descrição..." rows="3"
+                                    style="padding:9px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:12px;resize:vertical;"></textarea>
+                                <button onclick="saNovPublicar()" style="padding:10px;background:linear-gradient(135deg,var(--adm-primary),var(--adm-primary-bright));color:#000;border:none;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer;">
+                                    📣 Publicar
+                                </button>
+                            </div>
                         </div>
-
-                        <!-- Adicionar novidade -->
-                        <div style="background:var(--adm-bg-elevated);border:1px solid var(--adm-border);border-radius:12px;padding:14px;margin-bottom:12px;">
-                            <div style="font-size:10px;font-weight:800;color:var(--adm-text-3);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:10px;">Nova publicação</div>
-
-                            <div style="margin-bottom:8px;">
-                                <label style="font-size:10px;color:var(--adm-text-3);font-weight:600;display:block;margin-bottom:3px;">TÍTULO</label>
-                                <input type="text" id="saNovTitulo" placeholder="Ex: Módulo de Pagamentos atualizado"
-                                    style="width:100%;box-sizing:border-box;padding:9px 12px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:13px;font-family:inherit;">
-                            </div>
-
-                            <div style="margin-bottom:8px;">
-                                <label style="font-size:10px;color:var(--adm-text-3);font-weight:600;display:block;margin-bottom:3px;">DESCRIÇÃO</label>
-                                <textarea id="saNovTexto" placeholder="Descreva a novidade ou melhoria..."
-                                    style="width:100%;box-sizing:border-box;padding:9px 12px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:12px;font-family:inherit;resize:vertical;min-height:70px;line-height:1.5;"></textarea>
-                            </div>
-
-                            <div style="display:flex;gap:6px;margin-bottom:10px;">
-                                <div style="flex:1;">
-                                    <label style="font-size:10px;color:var(--adm-text-3);font-weight:600;display:block;margin-bottom:3px;">TIPO</label>
-                                    <select id="saNovTipo" style="width:100%;padding:8px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:12px;font-family:inherit;">
-                                        <option value="novo">🆕 Novo</option>
-                                        <option value="melhoria">✨ Melhoria</option>
-                                        <option value="fix">🔧 Correção</option>
-                                        <option value="aviso">⚠️ Aviso</option>
-                                    </select>
-                                </div>
-                                <div style="flex:1;">
-                                    <label style="font-size:10px;color:var(--adm-text-3);font-weight:600;display:block;margin-bottom:3px;">DATA (dd/mm/aaaa)</label>
-                                    <input type="text" id="saNovData" placeholder="hoje"
-                                        style="width:100%;box-sizing:border-box;padding:8px 10px;background:var(--adm-bg-card);color:var(--adm-text-1);border:1px solid var(--adm-border);border-radius:8px;font-size:12px;font-family:inherit;">
-                                </div>
-                            </div>
-
-                            <button onclick="saNovPublicar()"
-                                style="width:100%;padding:11px;background:linear-gradient(135deg,var(--adm-primary),var(--adm-primary-bright));color:#000;border:none;border-radius:9px;font-size:13px;font-weight:800;cursor:pointer;">
-                                📣 Publicar Novidade
-                            </button>
-                        </div>
-
-                        <!-- Lista de novidades publicadas -->
                         <div id="saNovLista">
                             <div style="text-align:center;padding:16px;color:var(--adm-text-3);font-size:12px;">Carregando...</div>
                         </div>
-
                         <div id="saNovMsg" style="font-size:11px;text-align:center;margin-top:8px;min-height:18px;"></div>
+                    </div>
+
+                    <!-- Compat: elementos ocultos para funções legadas -->
+                    <div style="display:none;">
+                        <div id="saStatsGrid"></div>
+                        <div id="saCTStatsBar"></div>
+                        <div id="saAdminList"></div>
+                        <div id="saProfList"></div>
+                        <div id="saTrialStatus"></div>
+                        <div id="saTrialDataExp"></div>
+                        <div id="saTrialMsg"></div>
+                        <input id="saTrialDias" type="number">
+                        <input id="saTrialMotivo" type="text">
+                        <div id="saModListaContratos"></div>
+                        <div id="saModForm"></div>
+                        <div id="saFormAbrirBtn"></div>
+                        <select id="saModEmailSelectLista"></select>
+                        <div id="saContratoStatusBar"></div>
+                        <div id="saContratoFormCampos"></div>
+                        <div id="saContratoVazio"></div>
+                        <select id="saFormPlano"></select>
+                        <select id="saFormStatus"></select>
+                        <input id="saFormVencimento" type="date">
+                        <input id="saFormSheetId" type="text">
+                        <input type="radio" name="saTrialModo" id="saTrialModoTrial">
+                        <input type="radio" name="saTrialModo" id="saTrialModoImediato">
+                        <input type="radio" name="saTrialModo" id="saTrialModoAtivo">
+                        <div id="saTrialDiasWrap"></div>
+                        <input id="saTrialDiasEdit" type="number">
+                        <input id="saTrialDataEdit" type="text">
+                        <div id="saFormModGrid2"></div>
+                        <div id="saFormContador2"></div>
+                        <button id="saFormExcluirBtn"></button>
+                        <div id="saFormMsg"></div>
+                        <div id="saModListaContratoPreview"></div>
                     </div>
 
                 </div>
@@ -11491,7 +11418,7 @@
         var _ctmId = (function() {
             try { return localStorage.getItem('ctm_id') || 'matrix'; } catch(e) { return 'matrix'; }
         })();
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzFSxu_OzFApgFKpg6ylSXDBrpBUiIBbzFxvWQHcDm_qvBLoMacL7EyAu-bowupeK45/exec'
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzIqhPdUWvf85vSPntVB9KYsK4ulqxLqp3ICGd5358WXmgnyaa_PPKl6cfjbNz9URJx/exec'
                          + '?ctm=' + _ctmId;
 
         // ── Verifica se o cliente existe no registry ──────────────
@@ -15181,7 +15108,7 @@
                         });
                         // Se nenhum CT tem aula hoje — lembrete com próxima aula
                         if (grid.children.length === 0) {
-                            var nextInfo = findNextTrainingDay(data.cts, dayKeys);
+                            var nextInfo = findNextTrainingDay(data.cts, dayKeys, activeModality || '');
                             var dayLabels = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
                             var hojeName = dayLabels[new Date().getDay()];
 
@@ -15327,11 +15254,16 @@
          * Kids: retorna só o CT do perfil
          * Adulto: retorna TODOS os CTs com aula naquele dia
          */
-        function findNextTrainingDay(cts, dayKeys) {
+        // modAtiva: modalidade que deve ser usada para filtrar os horários.
+        // Passada explicitamente para evitar dependência no valor do global 'activeModality'
+        // que pode ainda não ter sido definido no momento da chamada.
+        function findNextTrainingDay(cts, dayKeys, modAtiva) {
             var dayLabels = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
             var now = new Date();
             var isKid = _isKidsMode || (currentUser && currentUser.isKids);
             var userCT = currentUser ? (currentUser.ct || '') : '';
+            // Usa o parâmetro explícito; cai no global apenas como último recurso
+            var modFiltro = modAtiva || activeModality || '';
 
             for (var nd = 1; nd <= 7; nd++) {
                 var checkDayIdx = (now.getDay() + nd) % 7;
@@ -15348,13 +15280,13 @@
                     var sch = ct.schedule || {};
                     if (sch[checkDay]) {
                         var hpd = ct.horariosPorDia || {};
-                        // Para alunos: filtra pelo horário da modalidade ativa
-                        var horarios = _getHorariosHoje(hpd, checkDay, ct.horarios || '', isKid ? '' : (activeModality || ''));
-                        // Se há dados por modalidade mas nenhum horário para esta modalidade neste dia, pula
+                        // Filtra SEMPRE pela modalidade ativa — nunca agrega todas as modalidades
+                        var horarios = _getHorariosHoje(hpd, checkDay, ct.horarios || '', isKid ? '' : modFiltro);
+                        // Pula o dia se há dados por-modalidade mas nenhum horário para esta modalidade
                         var DAY_KEYS_SETF = {dom:1,seg:1,ter:1,qua:1,qui:1,sex:1,sab:1,_global:1};
                         var hpdKeysF = Object.keys(hpd);
                         var isPerModF = hpdKeysF.length > 0 && hpdKeysF.every(function(k){ return !DAY_KEYS_SETF[k]; });
-                        if (isPerModF && !isKid && activeModality && !horarios) continue;
+                        if (isPerModF && !isKid && modFiltro && !horarios) continue;
                         ctsNoDia.push({ ct: ctName, horarios: horarios });
                     }
                 }
@@ -15607,7 +15539,7 @@
                 title.textContent = 'Hoje é dia de descanso';
                 sub.textContent = hojeName + ' · Sem treino hoje';
 
-                var nextInfo = findNextTrainingDay(cts, dayKeys);
+                var nextInfo = findNextTrainingDay(cts, dayKeys, activeModality || '');
                 if (nextInfo.day) {
                     var tHtml = '<div style="font-size:11px;color:var(--text-2);margin-top:4px;">';
                     tHtml += '📚 Próximo treino: <strong style="color:var(--accent);">' + nextInfo.day + '</strong>';
@@ -20193,7 +20125,11 @@
                 if (bSis) bSis.classList.add('active');
                 if (bAsn) bAsn.classList.remove('active');
             }
-            if (tabName === 'adm-superadmin') { if (isSuperAdmin()) { loadSuperAdminData(); loadSuperAdminTrialConfig(); saNovCarregar(); saModCarregar(); } }
+            if (tabName === 'adm-superadmin') { if (isSuperAdmin()) {
+                // Inicia o novo módulo CTM_Contratos na primeira abertura
+                CTM_Contratos.data.carregar();
+                saNovCarregar();
+            } }
             if (tabName === 'adm-assinatura') {
                 // Legado: redireciona para adm-sistema sub-tab assinante
                 switchAdminTab('adm-sistema', evt);
@@ -25040,6 +24976,575 @@
         // ═══════════════════════════════════════════════════
 
         // ===== SUPER ADMIN =====
+        // ╔══════════════════════════════════════════════════════════════════╗
+        // ║  CTM_Contratos — Módulo Central de Contratos                    ║
+        // ║  Camadas: DataLayer | State | ContractEngine | UI | Actions     ║
+        // ╚══════════════════════════════════════════════════════════════════╝
+        var CTM_Contratos = (function() {
+
+            // ── STATUS CONFIG ───────────────────────────────────────────────
+            var STATUS = {
+                ATIVO:         { clr:'#4ade80', bg:'rgba(74,222,128,0.12)',  icon:'✅' },
+                TRIAL:         { clr:'#fbbf24', bg:'rgba(251,191,36,0.12)',  icon:'⏳' },
+                CANCELADO:     { clr:'#f87171', bg:'rgba(248,113,113,0.12)', icon:'❌' },
+                INATIVO:       { clr:'#94a3b8', bg:'rgba(148,163,184,0.12)', icon:'⏸' },
+                INADIMPLENTE:  { clr:'#f87171', bg:'rgba(248,113,113,0.12)', icon:'🔴' },
+                'SEM CONTRATO':{ clr:'#94a3b8', bg:'rgba(148,163,184,0.06)', icon:'📋' }
+            };
+
+            // ── STATE (única fonte de verdade) ──────────────────────────────
+            var state = {
+                clientes:       [],   // Array<Contrato> — carregado do backend
+                clientesFiltro: [],   // Array filtrado para exibição
+                clienteAtivo:   null, // Contrato selecionado
+                planos:         [],   // Array<Plano>
+                modalidades:    [],   // Array<Modalidade> — catálogo completo
+                editando:       {},   // Cópia editável do contrato ativo
+                loading:        false,
+                erro:           null
+            };
+
+            // ── DATA LAYER ──────────────────────────────────────────────────
+            var data = {
+                async carregar() {
+                    state.loading = true;
+                    ui.setLoading(true);
+                    try {
+                        // Paraleliza: clientes + planos + modalidades
+                        var [resContratos, resPlanos] = await Promise.all([
+                            secureFetch('getSAModalidades', {}),
+                            secureFetch('getPlanos', {})
+                        ]);
+                        state.clientes = (resContratos && resContratos.contratos) || [];
+                        state.planos   = (resPlanos && resPlanos.planos)          || [];
+                        state.modalidades = (typeof _saModCatalogo !== 'undefined') ? _saModCatalogo : [];
+                        // Se catálogo ainda não carregado, aguarda saModInit
+                        if (!state.modalidades.length) {
+                            await saModInit();
+                            state.modalidades = (typeof _saModCatalogo !== 'undefined') ? _saModCatalogo : [];
+                        }
+                        state.clientesFiltro = state.clientes.slice();
+                        ui.renderStats();
+                        ui.renderTabela();
+                        ui.popularPlanos();
+                    } catch(e) {
+                        ui.showMsg('❌ Erro ao carregar: ' + e.message, '#f87171');
+                    }
+                    state.loading = false;
+                    ui.setLoading(false);
+                },
+
+                async salvarContrato(payload) {
+                    return await secureFetch('salvarContrato', payload);
+                }
+            };
+
+            // ── CONTRACT ENGINE (lógica pura, sem DOM) ──────────────────────
+            var engine = {
+                // Calcula data de término do trial automaticamente
+                calcTrialDates() {
+                    var diasEl  = document.getElementById('cmTrialDias');
+                    var inicioEl= document.getElementById('cmTrialInicio');
+                    var fimEl   = document.getElementById('cmTrialFim');
+                    if (!diasEl || !fimEl) return;
+                    var dias  = parseInt(diasEl.value) || 30;
+                    var inicio= inicioEl && inicioEl.value ? new Date(inicioEl.value + 'T00:00:00') : new Date();
+                    var fim   = new Date(inicio);
+                    fim.setDate(fim.getDate() + dias);
+                    var fmt = function(d){ return ('0'+d.getDate()).slice(-2)+'/'+('0'+(d.getMonth()+1)).slice(-2)+'/'+d.getFullYear(); };
+                    fimEl.value = fmt(fim);
+                    engine.gerarPreview();
+                },
+
+                // Lê o modo de trial selecionado e retorna o payload de trial
+                lerTrialPayload() {
+                    var rTrial  = document.getElementById('cmTrialModoTrial');
+                    var rImed   = document.getElementById('cmTrialModoImediato');
+                    var rAtivo  = document.getElementById('cmTrialModoAtivo');
+                    var dias    = parseInt((document.getElementById('cmTrialDias')||{}).value||30);
+                    var inicio  = (document.getElementById('cmTrialInicio')||{}).value || '';
+
+                    if (rAtivo && rAtivo.checked) {
+                        return { status:'ATIVO', dataInicioCobranca:'', semTrial:false, ativarDireto:true };
+                    }
+                    if (rImed && rImed.checked) {
+                        var hoje = new Date();
+                        var d = ('0'+hoje.getDate()).slice(-2)+'/'+('0'+(hoje.getMonth()+1)).slice(-2)+'/'+hoje.getFullYear();
+                        return { status:'TRIAL', dataInicioCobranca:d, semTrial:true, ativarDireto:false };
+                    }
+                    // Com trial
+                    var dtInicio = inicio ? new Date(inicio+'T00:00:00') : new Date();
+                    var dtFim    = new Date(dtInicio); dtFim.setDate(dtFim.getDate()+dias);
+                    var fmt = function(d){ return ('0'+d.getDate()).slice(-2)+'/'+('0'+(d.getMonth()+1)).slice(-2)+'/'+d.getFullYear(); };
+                    return { status:'TRIAL', dataInicioCobranca:fmt(dtFim), semTrial:false, ativarDireto:false };
+                },
+
+                // Gera o texto do contrato automaticamente com base nas seleções
+                gerarPreview() {
+                    var el = document.getElementById('cmPreviewContrato');
+                    if (!el || !state.clienteAtivo) return;
+
+                    var nome    = (document.getElementById('cmClienteNome')   ||{}).value || '—';
+                    var email   = (document.getElementById('cmClienteEmail')  ||{}).value || '—';
+                    var sheetId = (document.getElementById('cmClienteSheetId')||{}).value || '—';
+                    var planoSel= document.getElementById('cmPlanoSelect');
+                    var planoId = planoSel ? planoSel.value : '';
+                    var plano   = state.planos.find(function(p){ return (p.id||p.id_plano)===planoId; }) || {};
+                    var status  = (document.getElementById('cmStatus')||{}).value || '';
+                    var venc    = (document.getElementById('cmVencimento')||{}).value || '';
+                    var trial   = engine.lerTrialPayload();
+
+                    var mods = [];
+                    var grid = document.getElementById('cmModsGrid');
+                    if (grid) {
+                        grid.querySelectorAll('input[type=checkbox]:checked').forEach(function(cb){
+                            var m = state.modalidades.find(function(x){ return x.id===cb.value; });
+                            if (m) mods.push((m.icon||'🥋')+' '+m.nome);
+                        });
+                    }
+
+                    var dataHoje = new Date().toLocaleDateString('pt-BR');
+
+                    var SEP = '===================================';
+                    var SEP2= '====================================';
+                    var D   = '---';
+                    var txt = [
+                        SEP,
+                        '  CONTRATO DE LICENCA - CTM MANAGER',
+                        SEP,
+                        '',
+                        'Data: ' + dataHoje,
+                        '',
+                        '-- CLIENTE --------------------------',
+                        'Nome:   ' + nome,
+                        'Email:  ' + email,
+                        'Sheet:  ' + sheetId.substring(0,20) + (sheetId.length>20?'...':''),
+                        '',
+                        '-- PLANO ----------------------------',
+                        'Plano:  ' + (plano.nome || planoId || '-'),
+                        'Valor:  ' + (plano.valor ? 'R$ '+parseFloat(plano.valor).toFixed(2)+'/'+((plano.frequencia||'mes')) : '-'),
+                        'Status: ' + status,
+                        venc ? 'Vencto: ' + venc : '',
+                        '',
+                        '-- PERIODO DE ACESSO ----------------',
+                        trial.ativarDireto ? 'Acesso imediato - plano ativo.' :
+                        trial.semTrial     ? 'Sem trial - pagamento na primeira entrada.' :
+                                            'Trial ate: '+trial.dataInicioCobranca,
+                        '',
+                        '-- MODALIDADES CONTRATADAS ----------',
+                        mods.length ? mods.join('\n') : '(nenhuma selecionada)',
+                        '',
+                        '-- FUNCIONALIDADES INCLUIDAS --------',
+                        '* Check-in de alunos',
+                        '* Controle de graduacao',
+                        '* Cronograma de aulas',
+                        plano.cobranca==='TRUE'||plano.cobranca===true ? '* Sistema de mensalidades' : '',
+                        '* Relatorios e presencas',
+                        '',
+                        SEP2,
+                        'IDESystems Tecnologia',
+                        'idesystemstecnologia@gmail.com'
+                    ].filter(function(l){ return l !== null && l !== undefined; }).join('\n');
+
+                    el.textContent = txt;
+                    return txt;
+                }
+            };
+
+            // ── UI LAYER ────────────────────────────────────────────────────
+            var ui = {
+                setLoading(show) {
+                    var tbody = document.getElementById('cmTabelaBody');
+                    if (show && tbody) tbody.innerHTML = '<div style="text-align:center;padding:32px;color:var(--adm-text-3);font-size:12px;">⏳ Carregando...</div>';
+                },
+
+                showMsg(msg, cor) {
+                    var el = document.getElementById('cmEditorMsg');
+                    if (el) { el.textContent = msg; el.style.color = cor || 'var(--adm-text-3)'; }
+                    if (msg && cor !== '#f87171') setTimeout(function(){ if(el) el.textContent=''; }, 3000);
+                },
+
+                renderStats() {
+                    var el = document.getElementById('cmStatsBar');
+                    if (!el) return;
+                    var counts = { ATIVO:0, TRIAL:0, CANCELADO:0, INATIVO:0, INADIMPLENTE:0 };
+                    state.clientes.forEach(function(c){
+                        var s = c.status||'SEM CONTRATO';
+                        if (counts[s]!==undefined) counts[s]++;
+                    });
+                    el.innerHTML = [
+                        ['Total', state.clientes.length, '#C9A23A'],
+                        ['Ativos', counts.ATIVO, '#4ade80'],
+                        ['Trial', counts.TRIAL, '#fbbf24'],
+                        ['Inativos', counts.CANCELADO+counts.INATIVO, '#f87171']
+                    ].map(function(s){
+                        return '<div class="cm-stat-card" style="border-color:'+s[2]+'22;">' +
+                            '<div class="cm-stat-num" style="color:'+s[2]+'">'+s[1]+'</div>' +
+                            '<div class="cm-stat-lbl">'+s[0]+'</div></div>';
+                    }).join('');
+                },
+
+                filtrar(q) {
+                    var query     = (q || (document.getElementById('cmFiltro')||{}).value || '').toLowerCase();
+                    var filtStatus= ((document.getElementById('cmFiltroStatus')||{}).value || '');
+                    state.clientesFiltro = state.clientes.filter(function(c) {
+                        var matchQ = !query ||
+                            (c.ctNome||'').toLowerCase().includes(query) ||
+                            (c.email||'').toLowerCase().includes(query);
+                        var matchS = !filtStatus || (c.status||'SEM CONTRATO') === filtStatus;
+                        return matchQ && matchS;
+                    });
+                    ui.renderTabela();
+                },
+
+                renderTabela() {
+                    var tbody = document.getElementById('cmTabelaBody');
+                    if (!tbody) return;
+                    if (!state.clientesFiltro.length) {
+                        tbody.innerHTML = '<div style="text-align:center;padding:32px;color:var(--adm-text-3);font-size:12px;">Nenhum cliente encontrado</div>';
+                        return;
+                    }
+                    tbody.innerHTML = '';
+                    state.clientesFiltro.forEach(function(c) {
+                        var s   = c.status || 'SEM CONTRATO';
+                        var cfg = STATUS[s] || STATUS['SEM CONTRATO'];
+                        var mods= c.modalidades && c.modalidades.length
+                            ? c.modalidades.slice(0,3).map(function(m){ return (m.icon||'🥋'); }).join(' ')
+                              + (c.modalidades.length>3 ? ' +'+( c.modalidades.length-3) : '')
+                            : '—';
+                        var badge = '<span class="cm-badge" style="color:'+cfg.clr+';background:'+cfg.bg+';border:1px solid '+cfg.clr+'33;">'+cfg.icon+' '+s+'</span>';
+
+                        // Trial info
+                        var trialInfo = '—';
+                        if (c.dataInicioCobranca) {
+                            var pts = c.dataInicioCobranca.split('/');
+                            if (pts.length===3) {
+                                var dt = new Date(parseInt(pts[2]),parseInt(pts[1])-1,parseInt(pts[0]));
+                                var diff = Math.ceil((dt-new Date())/86400000);
+                                trialInfo = diff>0 ? diff+'d' : '<span style="color:#f87171">Exp.</span>';
+                            }
+                        } else if (s==='ATIVO') {
+                            trialInfo = '<span style="color:#4ade80">Ativo</span>';
+                        }
+
+                        var row = document.createElement('div');
+                        row.className = 'cm-row' + (state.clienteAtivo && state.clienteAtivo.email===c.email ? ' selected' : '');
+                        row.setAttribute('data-email', c.email);
+                        row.innerHTML =
+                            '<div class="cm-row-cell"><div><div style="font-size:12px;font-weight:700;color:var(--adm-text-1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(c.ctNome||c.email) + '</div>' +
+                            '<div style="font-size:9px;color:var(--adm-text-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(c.email) + '</div></div></div>' +
+                            '<div class="cm-row-cell" style="font-size:10px;">' + escapeHtml(c.plano||'—') + '</div>' +
+                            '<div class="cm-row-cell" style="font-size:11px;">' + mods + '</div>' +
+                            '<div class="cm-row-cell">' + badge + '</div>' +
+                            '<div class="cm-row-cell" style="font-size:10px;">' + trialInfo + '</div>' +
+                            '<div class="cm-row-cell" style="justify-content:flex-end;">' +
+                            '<button data-edit="'+escapeHtml(c.email)+'" style="padding:5px 10px;background:rgba(201,162,58,0.08);color:var(--adm-primary);border:1px solid rgba(201,162,58,0.2);border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;">Editar</button>' +
+                            '</div>';
+                        tbody.appendChild(row);
+                    });
+
+                    // Event delegation
+                    tbody.onclick = function(e) {
+                        var editBtn = e.target.closest('[data-edit]');
+                        if (editBtn) { CTM_Contratos.ui.abrirEditor(editBtn.getAttribute('data-edit')); return; }
+                        var row2 = e.target.closest('[data-email]');
+                        if (row2) CTM_Contratos.ui.abrirEditor(row2.getAttribute('data-email'));
+                    };
+                },
+
+                popularPlanos() {
+                    var sel = document.getElementById('cmPlanoSelect');
+                    if (!sel) return;
+                    sel.innerHTML = '<option value="">— Selecione o plano —</option>';
+                    state.planos.forEach(function(p) {
+                        var opt = document.createElement('option');
+                        opt.value = p.id || p.id_plano;
+                        opt.textContent = p.nome + (p.valor ? ' — R$'+parseFloat(p.valor).toFixed(2) : '');
+                        sel.appendChild(opt);
+                    });
+                    // Adiciona trial como opção sempre
+                    if (!state.planos.find(function(p){ return (p.id||p.id_plano)==='trial'; })) {
+                        var opt2 = document.createElement('option');
+                        opt2.value='trial'; opt2.textContent='Trial (período de teste)';
+                        sel.appendChild(opt2);
+                    }
+                },
+
+                onPlanoChange() {
+                    var sel = document.getElementById('cmPlanoSelect');
+                    var planoId = sel ? sel.value : '';
+                    var p = state.planos.find(function(x){ return (x.id||x.id_plano)===planoId; });
+                    var infoEl = document.getElementById('cmPlanoInfo');
+                    if (p && infoEl) {
+                        infoEl.style.display = 'block';
+                        var freq = {mensal:'/ mês',trimestral:'/ trim.',semestral:'/ sem.',anual:'/ ano'}[p.frequencia] || '';
+                        document.getElementById('cmPlanoInfoNome').textContent = p.nome;
+                        document.getElementById('cmPlanoInfoValor').textContent = p.valor ? 'R$ '+parseFloat(p.valor).toFixed(2)+' '+freq : '—';
+                        document.getElementById('cmPlanoInfoFreq').textContent = 'Frequência: '+(p.frequencia||'mensal');
+                        document.getElementById('cmPlanoInfoDesc').textContent = p.descricao || '';
+                    } else if (infoEl) {
+                        infoEl.style.display = 'none';
+                    }
+                    engine.gerarPreview();
+                },
+
+                onTrialModoChange() {
+                    var rTrial = document.getElementById('cmTrialModoTrial');
+                    var camposEl = document.getElementById('cmTrialCampos');
+                    if (camposEl) camposEl.style.display = (rTrial && rTrial.checked) ? 'block' : 'none';
+                    engine.calcTrialDates();
+                },
+
+                renderMods(selecionadas) {
+                    var grid = document.getElementById('cmModsGrid');
+                    var ctr  = document.getElementById('cmModsContador');
+                    if (!grid) return;
+                    grid.innerHTML = '';
+                    var selSet = {};
+                    (selecionadas||[]).forEach(function(id){ selSet[id.toLowerCase?id.toLowerCase():id]=true; });
+                    state.modalidades.forEach(function(m) {
+                        var checked = !!(selSet[m.id] || selSet[(m.id||'').toLowerCase()]);
+                        var cor     = m.cor || '#C9A23A';
+                        var corRGB  = m.corRGB || '201,162,58';
+                        var card    = document.createElement('div');
+                        card.className = 'cm-mod-card' + (checked ? ' checked' : '');
+                        card.style.borderColor = checked ? cor : 'var(--adm-border)';
+                        card.style.background  = checked ? 'rgba('+corRGB+',0.07)' : 'var(--adm-bg-card)';
+                        card.setAttribute('data-cor', cor);
+                        card.setAttribute('data-rgb', corRGB);
+                        card.innerHTML =
+                            '<input type="checkbox" value="'+escapeHtml(m.id)+'"'+(checked?' checked':'')+' style="accent-color:'+cor+';width:16px;height:16px;flex-shrink:0;">' +
+                            '<span style="font-size:15px;">'+(m.icon||'🥋')+'</span>' +
+                            '<span style="flex:1;font-size:12px;font-weight:600;color:var(--adm-text-1);">'+escapeHtml(m.nome)+'</span>' +
+                            '<div style="width:8px;height:8px;border-radius:50%;background:'+cor+';flex-shrink:0;"></div>';
+                        card.onclick = function(e) {
+                            var cb = card.querySelector('input');
+                            if (e.target !== cb) cb.checked = !cb.checked;
+                            var c2 = cb.checked;
+                            card.classList.toggle('checked', c2);
+                            card.style.borderColor = c2 ? this.getAttribute('data-cor') : 'var(--adm-border)';
+                            card.style.background  = c2 ? 'rgba('+this.getAttribute('data-rgb')+',0.07)' : 'var(--adm-bg-card)';
+                            ui.atualizarContador();
+                            engine.gerarPreview();
+                        };
+                        grid.appendChild(card);
+                    });
+                    ui.atualizarContador();
+                },
+
+                selectAllMods(check) {
+                    var grid = document.getElementById('cmModsGrid');
+                    if (!grid) return;
+                    grid.querySelectorAll('.cm-mod-card').forEach(function(card) {
+                        var cb  = card.querySelector('input');
+                        var cor = card.getAttribute('data-cor');
+                        var rgb = card.getAttribute('data-rgb');
+                        cb.checked = check;
+                        card.classList.toggle('checked', check);
+                        card.style.borderColor = check ? cor : 'var(--adm-border)';
+                        card.style.background  = check ? 'rgba('+rgb+',0.07)' : 'var(--adm-bg-card)';
+                    });
+                    ui.atualizarContador();
+                    engine.gerarPreview();
+                },
+
+                atualizarContador() {
+                    var grid = document.getElementById('cmModsGrid');
+                    var el   = document.getElementById('cmModsContador');
+                    if (!grid || !el) return;
+                    var total   = grid.querySelectorAll('input[type=checkbox]').length;
+                    var marcadas= grid.querySelectorAll('input[type=checkbox]:checked').length;
+                    el.textContent = marcadas + ' de ' + total + ' modalidades selecionadas' + (marcadas===0 ? ' — todas as modalidades ativas serão liberadas' : '');
+                },
+
+                abrirEditor(email) {
+                    var c = state.clientes.find(function(x){ return x.email===email; });
+                    if (!c) return;
+                    state.clienteAtivo = c;
+                    state.editando     = Object.assign({}, c);
+
+                    // Painel
+                    var painel = document.getElementById('cmPainelEditor');
+                    if (painel) {
+                        painel.style.display = 'block';
+                        setTimeout(function(){ painel.scrollIntoView({behavior:'smooth',block:'nearest'}); }, 100);
+                    }
+                    document.getElementById('cmEditorTitulo').textContent = c.ctNome || c.email;
+                    document.getElementById('cmEditorSub').textContent    = c.email + (c.status ? ' · '+c.status : '');
+
+                    // Bloco 1: Cliente
+                    document.getElementById('cmClienteNome').value    = c.ctNome || '';
+                    document.getElementById('cmClienteEmail').value   = c.email  || '';
+                    document.getElementById('cmClienteSheetId').value = c.sheetId|| '';
+                    var btnSheet = document.getElementById('cmBtnAbrirSheet');
+                    if (btnSheet) btnSheet.onclick = function(){
+                        if (c.sheetId) window.open('https://docs.google.com/spreadsheets/d/'+c.sheetId+'/edit','_blank');
+                    };
+
+                    // Bloco 2: Plano + Status + Vencimento
+                    var planoSel = document.getElementById('cmPlanoSelect');
+                    if (planoSel) { planoSel.value = c.plano || ''; ui.onPlanoChange(); }
+                    var statusSel = document.getElementById('cmStatus');
+                    if (statusSel) statusSel.value = c.status || 'TRIAL';
+                    var vencEl = document.getElementById('cmVencimento');
+                    if (vencEl && c.proximoVencimento) {
+                        var pts = c.proximoVencimento.split('/');
+                        vencEl.value = pts.length===3 ? pts[2]+'-'+pts[1]+'-'+pts[0] : '';
+                    } else if (vencEl) {
+                        var d30 = new Date(); d30.setDate(d30.getDate()+30);
+                        vencEl.value = d30.toISOString().substring(0,10);
+                    }
+
+                    // Bloco 3: Trial
+                    var dataInicio = c.dataInicioCobranca || '';
+                    var rTrial  = document.getElementById('cmTrialModoTrial');
+                    var rImed   = document.getElementById('cmTrialModoImediato');
+                    var rAtivo  = document.getElementById('cmTrialModoAtivo');
+                    if (c.status==='ATIVO')           { if(rAtivo)  rAtivo.checked=true; }
+                    else if (!dataInicio)             { if(rImed)   rImed.checked=true; }
+                    else                              { if(rTrial)  rTrial.checked=true; }
+                    // Preenche data de início
+                    var inicioEl = document.getElementById('cmTrialInicio');
+                    if (inicioEl) inicioEl.value = new Date().toISOString().substring(0,10);
+                    if (dataInicio) {
+                        var pts2 = dataInicio.split('/');
+                        if (pts2.length===3 && inicioEl) {
+                            var dtFim2 = new Date(parseInt(pts2[2]),parseInt(pts2[1])-1,parseInt(pts2[0]));
+                            var diasR  = Math.max(0, Math.ceil((dtFim2-new Date())/86400000));
+                            var diasEl = document.getElementById('cmTrialDias');
+                            if (diasEl) diasEl.value = diasR || 30;
+                        }
+                    }
+                    ui.onTrialModoChange();
+                    engine.calcTrialDates();
+
+                    // Bloco 4: Modalidades
+                    var selMods = [];
+                    if (c.modalidades && c.modalidades.length) {
+                        selMods = c.modalidades.map(function(m){ return m.id||m; });
+                    } else if (c.lista && c.lista.length) {
+                        selMods = c.lista.map(function(m){ return m.id||m; });
+                    }
+                    ui.renderMods(selMods);
+
+                    // Preview
+                    engine.gerarPreview();
+
+                    // Atualiza seleção na tabela
+                    ui.renderTabela();
+                },
+
+                fecharEditor() {
+                    state.clienteAtivo = null;
+                    var painel = document.getElementById('cmPainelEditor');
+                    if (painel) painel.style.display = 'none';
+                    ui.renderTabela();
+                }
+            };
+
+            // ── ACTIONS ─────────────────────────────────────────────────────
+            var actions = {
+                async salvar() {
+                    var c = state.clienteAtivo;
+                    if (!c) { ui.showMsg('Nenhum cliente selecionado', '#f87171'); return; }
+
+                    var sheetId = (document.getElementById('cmClienteSheetId')||{}).value || '';
+                    var plano   = (document.getElementById('cmPlanoSelect')||{}).value || '';
+                    var statusStatus = (document.getElementById('cmStatus')||{}).value || 'TRIAL';
+                    var vencISO = (document.getElementById('cmVencimento')||{}).value || '';
+                    var vencBR  = '';
+                    if (vencISO) {
+                        var pts = vencISO.split('-');
+                        if (pts.length===3) vencBR = pts[2]+'/'+pts[1]+'/'+pts[0];
+                    }
+
+                    // Modalidades
+                    var grid = document.getElementById('cmModsGrid');
+                    var mods = [];
+                    if (grid) grid.querySelectorAll('input[type=checkbox]:checked').forEach(function(cb){ mods.push(cb.value); });
+
+                    // Trial
+                    var trial = engine.lerTrialPayload();
+                    if (trial.ativarDireto) statusStatus = 'ATIVO';
+
+                    if (!sheetId) { ui.showMsg('⚠️ Sheet ID obrigatório', '#f87171'); return; }
+
+                    ui.showMsg('Salvando...', 'var(--adm-text-3)');
+                    try {
+                        var res = await data.salvarContrato({
+                            targetEmail:        c.email,
+                            plano:              plano,
+                            status:             statusStatus,
+                            vencimento:         vencBR,
+                            dataInicioCobranca: trial.dataInicioCobranca || '',
+                            sheetId:            sheetId,
+                            modalidades:        mods,
+                            semTrial:           trial.semTrial,
+                            ativarDireto:       trial.ativarDireto
+                        });
+                        if (res.success) {
+                            ui.showMsg('✅ Contrato salvo com sucesso!', '#4ade80');
+                            setTimeout(function(){ data.carregar(); }, 1000);
+                        } else {
+                            ui.showMsg('❌ ' + (res.message||'Erro'), '#f87171');
+                        }
+                    } catch(e) {
+                        ui.showMsg('❌ ' + e.message, '#f87171');
+                    }
+                },
+
+                async bloquear() {
+                    var c = state.clienteAtivo;
+                    if (!c) return;
+                    if (!confirm('Bloquear acesso de ' + c.email + '?')) return;
+                    ui.showMsg('Bloqueando...', 'var(--adm-text-3)');
+                    try {
+                        var res = await data.salvarContrato({
+                            targetEmail:''+c.email, plano:c.plano||'', status:'INATIVO',
+                            vencimento:'', dataInicioCobranca:'',
+                            sheetId:c.sheetId||'', modalidades:[], semTrial:true, ativarDireto:false
+                        });
+                        ui.showMsg(res.success ? '🔒 Bloqueado!' : '❌ Erro', res.success?'#fbbf24':'#f87171');
+                        if (res.success) setTimeout(function(){ data.carregar(); }, 1000);
+                    } catch(e) { ui.showMsg('❌ '+e.message, '#f87171'); }
+                },
+
+                async desbloquear() {
+                    var c = state.clienteAtivo;
+                    if (!c) return;
+                    ui.showMsg('Desbloqueando...', 'var(--adm-text-3)');
+                    try {
+                        var res = await data.salvarContrato({
+                            targetEmail:''+c.email, plano:c.plano||'', status:'ATIVO',
+                            vencimento:'', dataInicioCobranca:'',
+                            sheetId:c.sheetId||'', modalidades:[], semTrial:false, ativarDireto:true
+                        });
+                        ui.showMsg(res.success ? '🔓 Desbloqueado!' : '❌ Erro', res.success?'#4ade80':'#f87171');
+                        if (res.success) setTimeout(function(){ data.carregar(); }, 1000);
+                    } catch(e) { ui.showMsg('❌ '+e.message, '#f87171'); }
+                },
+
+                async excluir() {
+                    var c = state.clienteAtivo;
+                    if (!c) return;
+                    if (!confirm('Excluir o contrato de ' + c.email + ' do LICENCIADOS?\nEssa ação não pode ser desfeita.')) return;
+                    ui.showMsg('Excluindo...', 'var(--adm-text-3)');
+                    try {
+                        var res = await secureFetch('excluirContrato', { targetEmail: c.email });
+                        ui.showMsg(res.success ? '🗑️ Contrato excluído' : '❌ '+(res.message||'Erro'), res.success?'#f87171':'#f87171');
+                        if (res.success) { ui.fecharEditor(); setTimeout(function(){ data.carregar(); }, 800); }
+                    } catch(e) { ui.showMsg('❌ '+e.message, '#f87171'); }
+                }
+            };
+
+            // API pública
+            return { data, state, engine, ui, actions };
+
+        })(); // fim CTM_Contratos
+
+        // Inicializa quando a aba Super Admin é aberta
+        var _ctmContratosIniciado = false;
+
         async function loadSuperAdminData() {
             var elAdm  = document.getElementById('saAdminList');
             var elProf = document.getElementById('saProfList');
