@@ -11462,7 +11462,7 @@
         var _ctmId = (function() {
             try { return localStorage.getItem('ctm_id') || 'matrix'; } catch(e) { return 'matrix'; }
         })();
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxr--f1VRWGm8_ld7nB2jqOBuxpn8MQ75Uq8bbgecQgD7sg2LavU9snqlKa1rjdQPJZ/exec'
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzIqhPdUWvf85vSPntVB9KYsK4ulqxLqp3ICGd5358WXmgnyaa_PPKl6cfjbNz9URJx/exec'
                          + '?ctm=' + _ctmId;
 
         // ── Verifica se o cliente existe no registry ──────────────
@@ -25775,7 +25775,7 @@
             try {
                 var resp = await fetch(SCRIPT_URL, {
                     method: 'POST',
-                    body:   JSON.stringify({ action: 'login', email: email, senha: senha })
+                    body:   JSON.stringify({ action: 'login', email: email, password: senha, senha: senha })
                 });
                 var r = await resp.json();
 
