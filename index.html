@@ -11781,7 +11781,7 @@
                 MODALIDADES_SCHEMA[modId] = {
                   id: modId,
                   graduacao: { tipo: m.gradTipo || 'faixa_cintura', hasGraduacao: true, hasFaixa: true, hasPrajied: false, faixas: [], maxGrausPorFaixa: 4, labelFaixa: 'Faixa', labelGrau: 'Grau', labelGrauPlural: 'Graus', simbolo: 'stripe' },
-                  nomenclatura: { treino:'Treino', professor:'Professor', aluno:'Aluno', faixa:'Faixa', grau:'Grau', graus:'Graus', confirmarBtn:'✓ Confirmar Treino', roadmapTitulo:'🥋 Sistema de Graduação', roadmapSub:'' },
+                  nomenclatura: { treino:'Treino', professor:'Professor', aluno:'Aluno', faixa:'Faixa', grau:'Grau', graus:'Graus', confirmarBtn:'🥋 Treinei', roadmapTitulo:'🥋 Sistema de Graduação', roadmapSub:'' },
                   ui: { mostrarFaixa:true, mostrarGraus:true, mostrarPrajied:false, mostrarRoadmap:true, mostrarFrequencia:true, mostrarCriterios:true, roadmapTipo:'cintura', iconeEvo:'🥋' }
                 };
               }
@@ -11830,7 +11830,7 @@
                 corRGB:    corRGB,
                 gradient:  'linear-gradient(135deg,' + cor + ' 0%,' + cor + ' 100%)',
                 gradientBg:'radial-gradient(ellipse at 20% 10%,rgba(' + corRGB + ',0.18) 0%,transparent 60%)',
-                btnLabel:  '✓ Confirmar Treino de ' + (m.nome || m.id),
+                btnLabel:  (m.emoji || '🥋') + ' Treinei',
                 btnClass:  'mod-btn-' + m.id.replace(/_/g,'-'),
                 cardBg:    'linear-gradient(145deg,rgba(' + corRGB + ',0.12) 0%,rgba(' + corRGB + ',0.06) 100%)',
                 tag:       (MOD_GRAD_TIPO_STYLES[m.gradTipo] || {}).tag || '',
@@ -11913,7 +11913,7 @@
                         treino:'Treino', aula:'Aula', professor:'Professor',
                         aluno:'Aluno', academia:'CT / Academia',
                         faixa:'Faixa', faixas:'Faixas', grau:'Grau', graus:'Graus',
-                        confirmarBtn:'✓ Confirmar Treino',
+                        confirmarBtn:'🥋 Treinei',
                         evolucaoTitulo:'Minha Evolução',
                         roadmapTitulo:'🥋 ' + (mod.nome||mod.id),
                         roadmapSub:'Sua jornada em ' + (mod.nome||mod.id)
@@ -11983,7 +11983,7 @@
                     faixas:        'Faixas',
                     grau:          'Grau',
                     graus:         'Graus',
-                    confirmarBtn:  '✓ Confirmar Treino',
+                    confirmarBtn:  '🥋 Treinei',
                     evolucaoTitulo:'Minha Evolução',
                     roadmapTitulo: '🥋 Sistema de Graduação — BJJ',
                     roadmapSub:    'Toque em uma faixa para ver sua jornada',
@@ -12035,7 +12035,7 @@
                     faixas:        'Faixas',
                     grau:          'Kyu / Dan',
                     graus:         'Kyus / Dans',
-                    confirmarBtn:  '✓ Confirmar Treino de Judô',
+                    confirmarBtn:  '🥋 Treinei',
                     evolucaoTitulo:'Minha Progressão',
                     roadmapTitulo: '🎌 Sistema de Graduação — Judô',
                     roadmapSub:    'Do 6º Kyu ao 10º Dan',
@@ -12095,7 +12095,7 @@
                     faixas:        'Kruang Prajieds',
                     grau:          'Grau',
                     graus:         'Graus',
-                    confirmarBtn:  '✓ Confirmar Treino de Muay Thai',
+                    confirmarBtn:  '🥊 Treinei',
                     evolucaoTitulo:'Minha Progressão',
                     roadmapTitulo: '🥷 Kruang Prajied — Muay Thai CBMT',
                     roadmapSub:    'Do Grau 1 (Branco) ao Grau 16 (Grão Mestre Honorário)',
@@ -12150,7 +12150,7 @@
                     faixas:        'Kruang Prajieds',
                     grau:          'Grau',
                     graus:         'Graus',
-                    confirmarBtn:  '✓ Confirmar Treino de Muay Thai',
+                    confirmarBtn:  '🥊 Treinei',
                     evolucaoTitulo:'Minha Progressão',
                     roadmapTitulo: '🥷 Kruang Prajied — Muay Thai Infantil',
                     roadmapSub:    'Do Grau 1 (Branco) ao Grau 11 (Laranja Ponta Azul)',
@@ -12188,7 +12188,7 @@
                     faixas:        null,
                     grau:          null,
                     graus:         null,
-                    confirmarBtn:  '✓ Confirmar Treino de MMA',
+                    confirmarBtn:  '🤼 Treinei',
                     evolucaoTitulo:'Meu Desenvolvimento',
                     roadmapTitulo: null,
                     roadmapSub:    null,
@@ -12239,7 +12239,7 @@
                     faixas:        'Faixas',
                     grau:          'Kyu / Dan',
                     graus:         'Kyus / Dans',
-                    confirmarBtn:  '✓ Confirmar Treino de Karatê',
+                    confirmarBtn:  '🥋 Treinei',
                     evolucaoTitulo:'Minha Progressão',
                     roadmapTitulo: '🥋 Sistema de Graduação — Karatê',
                     roadmapSub:    'Do 10º Kyu ao 10º Dan',
@@ -12272,7 +12272,7 @@
                 },
                 nomenclatura: { treino:'Treino',aula:'Aula',professor:'Professor / Coach',aluno:'Atleta',
                     academia:'CT / Academia',faixa:'Faixa',faixas:'Faixas',grau:'Dan',graus:'Dans',
-                    confirmarBtn:'✓ Confirmar Treino de Kickboxing',
+                    confirmarBtn:'🥊 Treinei',
                     evolucaoTitulo:'Minha Progressão',
                     roadmapTitulo:'🥊 Sistema de Graduação — Kickboxing',
                     roadmapSub:'Da Faixa Branca à Faixa Preta 10º Dan',
@@ -12321,7 +12321,7 @@
                     faixas:        'Cordões',
                     grau:          'Nível',
                     graus:         'Níveis',
-                    confirmarBtn:  '✓ Confirmar Treino de Capoeira',
+                    confirmarBtn:  '🌀 Treinei',
                     evolucaoTitulo:'Minha Progressão',
                     roadmapTitulo: '🌀 Sistema de Cordões — Capoeira',
                     roadmapSub:    'Do Sem Cordão ao Cordão Branco (Mestre)',
@@ -12676,7 +12676,7 @@
 
             /** Texto do botão confirmar treino */
             confirmarBtn: function() {
-                return ModalidadeUI.t('confirmarBtn', '✓ Confirmar Treino');
+                return ModalidadeUI.t('confirmarBtn', '🥋 Treinei');
             },
 
             /** Título da seção de selos/graus */
@@ -14986,7 +14986,7 @@
                             cor: cor, corDark: corDark, corLight: corLight, corRGB: corRGB,
                             gradient: 'linear-gradient(135deg,'+cor+' 0%,'+corLight+' 55%,'+corDark+' 100%)',
                             gradientBg: 'radial-gradient(ellipse at 20% 10%,rgba('+corRGB+',0.18) 0%,transparent 60%)',
-                            btnLabel: '✓ Confirmar Treino de '+nome,
+                            btnLabel: '🥋 Treinei',
                             cardBg: 'linear-gradient(145deg,rgba('+corRGB+',0.12) 0%,rgba('+corRGB+',0.05) 100%)',
                             tag: nome.toUpperCase(), tagColor: cor,
                             ativo: mod.ativo !== false
@@ -15009,7 +15009,7 @@
                                 treino: 'Treino', aula: 'Aula', professor: 'Professor',
                                 aluno: 'Atleta', academia: 'Academia',
                                 faixa: labelF, faixas: labelF+'s', grau: labelG, graus: labelG+'s',
-                                confirmarBtn: '✓ Confirmar Treino de '+nome,
+                                confirmarBtn: '🥋 Treinei',
                                 evolucaoTitulo: 'Minha Progressão',
                                 roadmapTitulo: icon+' Sistema de Graduação — '+nome,
                                 roadmapSub: 'Evolução em '+nome
@@ -28795,7 +28795,7 @@
                 corRGB: corRGB,
                 gradient: 'linear-gradient(135deg, '+cor+' 0%, #'+[Math.min(255,r+80),Math.min(255,g+80),Math.min(255,b+80)].map(function(x){return ('0'+x.toString(16)).slice(-2);}).join('')+' 55%, '+corDark+' 100%)',
                 gradientBg: 'radial-gradient(ellipse at 20% 10%, rgba('+corRGB+',0.18) 0%, transparent 60%)',
-                btnLabel: '✓ Confirmar Treino de '+nome,
+                btnLabel: '🥋 Treinei',
                 cardBg: 'linear-gradient(145deg, rgba('+corRGB+',0.12) 0%, rgba('+corRGB+',0.05) 100%)',
                 tag: nome.toUpperCase(), tagColor: cor
             };
@@ -28816,7 +28816,7 @@
                     treino: 'Treino', aula: 'Aula', professor: 'Professor',
                     aluno: 'Atleta', academia: 'Academia',
                     faixa: labelF, faixas: labelF+'s', grau: labelG, graus: labelG+'s',
-                    confirmarBtn: '✓ Confirmar Treino de '+nome,
+                    confirmarBtn: '🥋 Treinei',
                     evolucaoTitulo: 'Minha Progressão',
                     roadmapTitulo: icon+' Sistema de Graduação — '+nome,
                     roadmapSub: 'Evolução em '+nome
