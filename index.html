@@ -10346,6 +10346,21 @@
         <div class="asn-page-header-title">Central de<br><span>Assinatura</span></div>
       </div>
 
+      <!-- CTA PAGAR AGORA (topo — alta visibilidade) ─── -->
+      <div id="asnPagarAgoraBox" class="asn-animate" style="margin:12px 0 4px;">
+        <!-- Trial ativo: aviso de dias restantes + CTA -->
+        <div id="asnTrialAvisoBox" style="display:none;padding:14px 16px;background:rgba(251,191,36,0.08);border:1.5px solid rgba(251,191,36,0.3);border-radius:14px;text-align:center;margin-bottom:12px;">
+          <div style="font-size:13px;font-weight:800;color:#fbbf24;margin-bottom:4px;" id="asnTrialAvisoTexto">⏳ Seu trial termina em breve</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.5);">Assine agora e garanta acesso ininterrupto</div>
+        </div>
+        <!-- Botão principal Pagar agora -->
+        <button id="asnBtnPagarAgora" onclick="asnPagarAgora()"
+          style="width:100%;padding:16px;background:linear-gradient(135deg,#C9A23A,#f5c542);color:#000;border:none;border-radius:14px;font-size:16px;font-weight:900;cursor:pointer;letter-spacing:.3px;box-shadow:0 4px 20px rgba(201,162,58,0.3);">
+          🚀 Assinar e pagar agora
+        </button>
+        <div style="font-size:10px;color:rgba(255,255,255,0.3);text-align:center;margin-top:6px;">Cartão ou PIX · Ativação imediata</div>
+      </div>
+
       <!-- NOVIDADES ───────────────────────────── -->
       <div id="asnNovidadesBox" class="asn-novidades asn-animate asn-animate-d1" style="display:none;margin-top:16px;">
         <div class="asn-novidades-header">
@@ -26852,16 +26867,60 @@
 
                 if (!res.success) throw new Error(res.message || 'Erro ao criar cliente');
 
-                // Exibe resultado
+                // Monta mensagem de boas-vindas para WhatsApp
+                var _link   = res.linkCliente || '';
+                var _senha  = res.senhaTemp   || '';
+                var _nome   = dojo || nome || '';
+                var _dias   = parseInt(dias) || 30;
+                var _ytLink = 'https://www.youtube.com/watch?v=nqyErbbObOY';
+
+                var waMsgRaw = 'Olá, ' + _nome + '! 🥋\n\nSeja bem-vindo(a) ao *CTM Manager*! Seu acesso está pronto.\n\n🔗 *Link de acesso:*\n' + _link + '\n\n📧 *E-mail:* ' + email + '\n🔑 *Senha inicial:* ' + _senha + '\n\n⏳ Você tem *' + _dias + ' dias* de trial gratuito.\n\n▶️ *Treinamento inicial (assista antes de começar):*\n' + _ytLink + '\n\n📌 *Primeiros passos:*\n1. Acesse o link acima\n2. Faça login com seu e-mail e senha\n3. Assista o vídeo de treinamento\n4. Cadastre seus alunos em Admin → Alunos\n5. Configure os horários em Admin → Sistema\n\nQualquer dúvida estou à disposição! 💪\n_IDESystems Tecnologia_';
+
+                var waEncoded  = encodeURIComponent(waMsgRaw);
+                var waTelefone = res.telefone || '';
+                var waUrl = waTelefone
+                    ? 'https://wa.me/55' + waTelefone.replace(/\D/g,'') + '?text=' + waEncoded
+                    : 'https://wa.me/?text=' + waEncoded;
+
+                // Exibe resultado expandido
                 var resultEl = document.getElementById('saNovResultado');
-                var linkEl   = document.getElementById('saNovLink');
-                var senhaEl  = document.getElementById('saNovSenha');
-                var sheetEl  = document.getElementById('saNovSheetUrl');
-                if (resultEl) resultEl.style.display = 'block';
-                if (linkEl)   linkEl.textContent     = res.linkCliente || '';
-                if (senhaEl)  senhaEl.textContent    = res.senhaTemp   || '';
-                if (sheetEl)  { sheetEl.href = res.sheetUrl || '#'; sheetEl.textContent = 'Abrir planilha ↗'; }
-                if (msgEl)    { msgEl.textContent = ''; }
+                if (resultEl) {
+                    resultEl.style.display = 'block';
+                    resultEl.innerHTML =
+                        '<div style="font-size:12px;font-weight:800;color:#4ade80;margin-bottom:12px;">✅ Cliente criado com sucesso!</div>' +
+
+                        // Dados de acesso
+                        '<div style="background:rgba(0,0,0,0.25);border-radius:10px;padding:12px;margin-bottom:10px;font-size:11px;line-height:1.8;">' +
+                        '<div>🔗 <strong>Link:</strong> <a href="' + escapeHtml(_link) + '" target="_blank" style="color:#60a5fa;">' + escapeHtml(_link) + '</a></div>' +
+                        '<div>📧 <strong>E-mail:</strong> <span style="color:var(--adm-text-2);">' + escapeHtml(email) + '</span></div>' +
+                        '<div>🔑 <strong>Senha:</strong> <span style="color:#C9A23A;font-weight:800;font-family:monospace;font-size:14px;">' + escapeHtml(_senha) + '</span></div>' +
+                        '<div>⏳ <strong>Trial:</strong> <span style="color:#fbbf24;">' + _dias + ' dias</span></div>' +
+                        '</div>' +
+
+                        // Preview da mensagem
+                        '<div style="font-size:9px;font-weight:700;color:var(--adm-text-3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Mensagem de boas-vindas</div>' +
+                        '<textarea readonly style="width:100%;box-sizing:border-box;padding:10px;background:rgba(0,0,0,0.3);color:rgba(255,255,255,0.75);border:1px solid rgba(255,255,255,0.08);border-radius:8px;font-size:10px;line-height:1.6;height:180px;resize:none;font-family:inherit;">' + escapeHtml(waMsgRaw) + '</textarea>' +
+
+                        // Botões de ação
+                        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;">' +
+                        '<button id="saBtnCopiarMsg" style="padding:10px;background:rgba(255,255,255,0.06);color:var(--adm-text-2);border:1px solid var(--adm-border);border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;">📋 Copiar mensagem</button>' +
+                        '<a href="' + escapeHtml(waUrl) + '" target="_blank" style="padding:10px;background:rgba(37,211,102,0.12);color:#25D366;border:1.5px solid rgba(37,211,102,0.3);border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;text-decoration:none;text-align:center;display:block;">🟢 Enviar WhatsApp</a>' +
+                        '</div>' +
+
+                        '<div style="margin-top:8px;text-align:center;">' +
+                        '<a href="' + escapeHtml(res.sheetUrl||'#') + '" target="_blank" style="font-size:10px;color:#60a5fa;text-decoration:none;">📊 Abrir planilha do cliente ↗</a>' +
+                        '</div>';
+
+                    // Wira botão copiar
+                    var copyBtn = document.getElementById('saBtnCopiarMsg');
+                    if (copyBtn) copyBtn.onclick = function() {
+                        navigator.clipboard && navigator.clipboard.writeText(waMsgRaw);
+                        copyBtn.textContent = '✅ Copiado!';
+                        setTimeout(function(){ copyBtn.textContent = '📋 Copiar mensagem'; }, 2000);
+                    };
+                }
+
+                if (msgEl) msgEl.textContent = '';
 
                 // Atualiza lista de contratos
                 setTimeout(function(){ saModInit(); }, 1500);
@@ -33472,6 +33531,11 @@
 
         function _renderStatus() {
             var a = _assinatura; if (!a) return;
+            // Atualiza aviso de dias restantes na tela Sem Assinatura
+            try {
+                var dRestantes = (typeof _diasRestantesTrial !== 'undefined') ? _diasRestantesTrial : null;
+                _asnAtualizarAvisoPagarAgora(dRestantes);
+            } catch(eTrialBox) {}
             var badge = _el('asnStatusBadge');
             if (badge) { badge.textContent = a.status || '-'; }
             _txt('asnNomePlano',       a.nomePlano || a.plano || '-');
@@ -33617,6 +33681,47 @@
         })();
 
         // Opens the upgrade plan selector
+        // Botão "Pagar agora" — leva direto para o primeiro plano disponível
+        // ou abre o seletor de planos com foco no pagamento
+        window.asnPagarAgora = function() {
+            // Se já tem plano selecionado, vai direto para o formulário de pagamento
+            if (_planoSel) {
+                asnAbrirFormCartao();
+                return;
+            }
+            // Seleciona automaticamente o primeiro plano disponível
+            var firstCard = document.querySelector('.asn-plan-card');
+            if (firstCard) {
+                firstCard.click();
+                setTimeout(function() {
+                    var botao = document.getElementById('asnBotaoAssinarBox');
+                    if (botao) botao.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 300);
+            } else {
+                // Fallback: vai para a seção de planos
+                var planosSection = document.querySelector('.asn-plans');
+                if (planosSection) planosSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        };
+
+        // Mostra/oculta o aviso de trial com dias restantes
+        function _asnAtualizarAvisoPagarAgora(diasRestantes) {
+            var box  = document.getElementById('asnTrialAvisoBox');
+            var txt  = document.getElementById('asnTrialAvisoTexto');
+            var wrap = document.getElementById('asnPagarAgoraBox');
+            if (!wrap) return;
+            if (diasRestantes !== null && diasRestantes !== undefined && diasRestantes >= 0) {
+                if (box) box.style.display = 'block';
+                if (txt) {
+                    if (diasRestantes === 0) txt.textContent = '⏰ Último dia de trial — assine hoje!';
+                    else if (diasRestantes <= 3) txt.textContent = '⏳ ' + diasRestantes + ' dia(s) de trial restante(s)';
+                    else txt.textContent = '⏳ Trial termina em ' + diasRestantes + ' dias';
+                }
+            } else {
+                if (box) box.style.display = 'none';
+            }
+        }
+
         window.asnAbrirUpgrade = function() {
             var trocarBtn = document.querySelector('[onclick*="asnAbrirTrocarPlano"], [onclick*="trocarPlano"]');
             if (trocarBtn) { trocarBtn.click(); return; }
