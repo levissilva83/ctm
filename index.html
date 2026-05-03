@@ -7,7 +7,7 @@
          CNPJ: 00.000.000/0001-00 | contato@idesystems.com.br
     ═══════════════════════════════════════════════════════════════ -->
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="theme-color" content="#060607">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -7436,6 +7436,26 @@
         .asn-animate-d3 { animation-delay: 0.15s; }
         .asn-animate-d4 { animation-delay: 0.20s; }
         
+
+        /* ── iOS auto-zoom fix ─────────────────────────────────────
+           iOS Safari zooms when input font-size < 16px.
+           This resets to 16px on focus then restores via transform.
+           Prevents the "stuck zoomed" bug on mobile.
+        ──────────────────────────────────────────────────────────── */
+        @media screen and (-webkit-min-device-pixel-ratio: 0) {
+            select,
+            input[type="text"],
+            input[type="email"],
+            input[type="tel"],
+            input[type="number"],
+            input[type="password"],
+            input[type="date"],
+            input[type="search"],
+            textarea {
+                font-size: 16px !important;
+            }
+        }
+
 </style>
 
     <script>
@@ -7567,6 +7587,29 @@
 
     })();
     // ═════════════════════════════════════════════════════════════
+    </script>
+
+    <script>
+    // iOS viewport zoom reset — fires when any input loses focus
+    (function() {
+        function resetViewport() {
+            var meta = document.querySelector('meta[name="viewport"]');
+            if (!meta) return;
+            // Temporarily set maximum-scale=1 to reset zoom
+            var content = meta.getAttribute('content');
+            meta.setAttribute('content', content + ', maximum-scale=1');
+            // Restore after a tick so user can still pinch-zoom
+            requestAnimationFrame(function() {
+                meta.setAttribute('content', content);
+            });
+        }
+        document.addEventListener('focusout', function(e) {
+            var tag = (e.target.tagName || '').toLowerCase();
+            if (tag === 'input' || tag === 'textarea' || tag === 'select') {
+                resetViewport();
+            }
+        }, { passive: true });
+    })();
     </script>
 </head>
 <body>
@@ -16216,20 +16259,21 @@
         const BELT_ACCUMULATED = { 'Branca': 0, 'Azul': 120, 'Roxa': 430, 'Marrom': 860, 'Preta': 1380 };
 
         // Kids graduation system (IBJJF)
+        // Emojis: círculo da cor principal da faixa — faixas mistas têm dois círculos
         const BELT_CONFIG_KIDS = {
-            'Branca':          { order: 0,  emoji: '⚪', class: 'branca',   next: 'Cinza-Branca' },
-            'Cinza-Branca':    { order: 1,  emoji: '⬜', class: 'cinza-b',  next: 'Cinza' },
-            'Cinza':           { order: 2,  emoji: '🩶', class: 'cinza',    next: 'Cinza-Preta' },
-            'Cinza-Preta':     { order: 3,  emoji: '🖤', class: 'cinza-p',  next: 'Amarela-Branca' },
-            'Amarela-Branca':  { order: 4,  emoji: '⬜', class: 'amarela-b',next: 'Amarela' },
-            'Amarela':         { order: 5,  emoji: '🟡', class: 'amarela',  next: 'Amarela-Preta' },
-            'Amarela-Preta':   { order: 6,  emoji: '🖤', class: 'amarela-p',next: 'Laranja-Branca' },
-            'Laranja-Branca':  { order: 7,  emoji: '⬜', class: 'laranja-b',next: 'Laranja' },
-            'Laranja':         { order: 8,  emoji: '🟠', class: 'laranja',  next: 'Laranja-Preta' },
-            'Laranja-Preta':   { order: 9,  emoji: '🖤', class: 'laranja-p',next: 'Verde-Branca' },
-            'Verde-Branca':    { order: 10, emoji: '⬜', class: 'verde-b',  next: 'Verde' },
-            'Verde':           { order: 11, emoji: '🟢', class: 'verde',    next: 'Verde-Preta' },
-            'Verde-Preta':     { order: 12, emoji: '🖤', class: 'verde-p',  next: null }
+            'Branca':          { order: 0,  emoji: '⚪',    class: 'branca',   next: 'Cinza-Branca' },
+            'Cinza-Branca':    { order: 1,  emoji: '⚪🩶',  class: 'cinza-b',  next: 'Cinza' },
+            'Cinza':           { order: 2,  emoji: '🩶',    class: 'cinza',    next: 'Cinza-Preta' },
+            'Cinza-Preta':     { order: 3,  emoji: '🩶⚫',  class: 'cinza-p',  next: 'Amarela-Branca' },
+            'Amarela-Branca':  { order: 4,  emoji: '⚪🟡',  class: 'amarela-b',next: 'Amarela' },
+            'Amarela':         { order: 5,  emoji: '🟡',    class: 'amarela',  next: 'Amarela-Preta' },
+            'Amarela-Preta':   { order: 6,  emoji: '🟡⚫',  class: 'amarela-p',next: 'Laranja-Branca' },
+            'Laranja-Branca':  { order: 7,  emoji: '⚪🟠',  class: 'laranja-b',next: 'Laranja' },
+            'Laranja':         { order: 8,  emoji: '🟠',    class: 'laranja',  next: 'Laranja-Preta' },
+            'Laranja-Preta':   { order: 9,  emoji: '🟠⚫',  class: 'laranja-p',next: 'Verde-Branca' },
+            'Verde-Branca':    { order: 10, emoji: '⚪🟢',  class: 'verde-b',  next: 'Verde' },
+            'Verde':           { order: 11, emoji: '🟢',    class: 'verde',    next: 'Verde-Preta' },
+            'Verde-Preta':     { order: 12, emoji: '🟢⚫',  class: 'verde-p',  next: null }
         };
         const BELT_ORDER_KIDS = ['Branca','Cinza-Branca','Cinza','Cinza-Preta','Amarela-Branca','Amarela','Amarela-Preta','Laranja-Branca','Laranja','Laranja-Preta','Verde-Branca','Verde','Verde-Preta'];
 
@@ -16645,18 +16689,18 @@
 
         var IBJJF_BELTS_KIDS = [
             { id: 'branca',       name: 'Branca',          cls: 'branca',    age: '4+',  graus: 0, minMonths: 0,  minTreinos: 0 },
-            { id: 'cinza-b',      name: 'Cinza/Branca',    cls: 'cinza-b',   age: '4+',  graus: 0, minMonths: 6,  minTreinos: 30 },
-            { id: 'cinza',        name: 'Cinza',           cls: 'cinza',     age: '4+',  graus: 0, minMonths: 6,  minTreinos: 50 },
-            { id: 'cinza-p',      name: 'Cinza/Preta',     cls: 'cinza-p',   age: '4+',  graus: 0, minMonths: 6,  minTreinos: 70 },
-            { id: 'amarela-b',    name: 'Amarela/Branca',  cls: 'amarela-b', age: '7+',  graus: 0, minMonths: 6,  minTreinos: 90 },
-            { id: 'amarela',      name: 'Amarela',         cls: 'amarela',   age: '7+',  graus: 0, minMonths: 6,  minTreinos: 110 },
-            { id: 'amarela-p',    name: 'Amarela/Preta',   cls: 'amarela-p', age: '7+',  graus: 0, minMonths: 6,  minTreinos: 130 },
-            { id: 'laranja-b',    name: 'Laranja/Branca',  cls: 'laranja-b', age: '10+', graus: 0, minMonths: 6,  minTreinos: 150 },
-            { id: 'laranja',      name: 'Laranja',         cls: 'laranja',   age: '10+', graus: 0, minMonths: 6,  minTreinos: 170 },
-            { id: 'laranja-p',    name: 'Laranja/Preta',   cls: 'laranja-p', age: '10+', graus: 0, minMonths: 6,  minTreinos: 190 },
-            { id: 'verde-b',      name: 'Verde/Branca',    cls: 'verde-b',   age: '13+', graus: 0, minMonths: 6,  minTreinos: 210 },
-            { id: 'verde',        name: 'Verde',           cls: 'verde',     age: '13+', graus: 0, minMonths: 6,  minTreinos: 230 },
-            { id: 'verde-p',      name: 'Verde/Preta',     cls: 'verde-p',   age: '15+', graus: 0, minMonths: 6,  minTreinos: 250 }
+            { id: 'cinza-b',      name: 'Cinza/Branca',    emoji: '⚪🩶', cls: 'cinza-b',   age: '4+',  graus: 0, minMonths: 6,  minTreinos: 30 },
+            { id: 'cinza',        name: 'Cinza',           emoji: '🩶',   cls: 'cinza',     age: '4+',  graus: 0, minMonths: 6,  minTreinos: 50 },
+            { id: 'cinza-p',      name: 'Cinza/Preta',     emoji: '🩶⚫', cls: 'cinza-p',   age: '4+',  graus: 0, minMonths: 6,  minTreinos: 70 },
+            { id: 'amarela-b',    name: 'Amarela/Branca',  emoji: '⚪🟡', cls: 'amarela-b', age: '7+',  graus: 0, minMonths: 6,  minTreinos: 90 },
+            { id: 'amarela',      name: 'Amarela',         emoji: '🟡',   cls: 'amarela',   age: '7+',  graus: 0, minMonths: 6,  minTreinos: 110 },
+            { id: 'amarela-p',    name: 'Amarela/Preta',   emoji: '🟡⚫', cls: 'amarela-p', age: '7+',  graus: 0, minMonths: 6,  minTreinos: 130 },
+            { id: 'laranja-b',    name: 'Laranja/Branca',  emoji: '⚪🟠', cls: 'laranja-b', age: '10+', graus: 0, minMonths: 6,  minTreinos: 150 },
+            { id: 'laranja',      name: 'Laranja',         emoji: '🟠',   cls: 'laranja',   age: '10+', graus: 0, minMonths: 6,  minTreinos: 170 },
+            { id: 'laranja-p',    name: 'Laranja/Preta',   emoji: '🟠⚫', cls: 'laranja-p', age: '10+', graus: 0, minMonths: 6,  minTreinos: 190 },
+            { id: 'verde-b',      name: 'Verde/Branca',    emoji: '⚪🟢', cls: 'verde-b',   age: '13+', graus: 0, minMonths: 6,  minTreinos: 210 },
+            { id: 'verde',        name: 'Verde',           emoji: '🟢',   cls: 'verde',     age: '13+', graus: 0, minMonths: 6,  minTreinos: 230 },
+            { id: 'verde-p',      name: 'Verde/Preta',     emoji: '🟢⚫', cls: 'verde-p',   age: '15+', graus: 0, minMonths: 6,  minTreinos: 250 }
         ];
 
         var FAIXA_TO_IBJJF_KIDS = {
@@ -27693,7 +27737,7 @@
                 'saveCampEvento','aprovarInscricao','rejeitarInscricao',
                 'createCT','deleteCT',
                 'vincularGatewayCT','salvarPlano','deletarPlano',
-                'getPagamentosAdmin','atribuirPlanoAluno','marcarPago',
+                'getPagamentosAdmin','atribuirPlanoAluno','marcarPago','setDiaCobrancaAluno','getDiaCobrancaAluno',
                 'salvarConfigMP','saveWellnessConfig','saveModalidade','deleteModalidade',
                 'painelCriarCliente','ativarClienteAdmin','getContratos','cobrarAgora',
             ],
@@ -29255,6 +29299,7 @@
                         h += '<button onclick="cobrarAgoraAlunoPainel(\'' + escapeHtml(p.email) + '\',this)" style="padding:4px 10px;border-radius:7px;background:rgba(201,162,58,0.15);color:var(--adm-primary);border:1px solid rgba(201,162,58,0.35);font-size:9px;font-weight:700;cursor:pointer;">⚡ Cobrar agora</button>';
                     }
                     h += '<button onclick="atribuirPlanoModal(\'' + escapeHtml(p.email) + '\')" style="padding:4px 10px;border-radius:7px;background:rgba(201,162,58,0.08);color:var(--adm-primary);border:1px solid rgba(201,162,58,0.2);font-size:9px;font-weight:700;cursor:pointer;">📋 Atribuir plano</button>';
+                    h += '<button onclick="definirDiaCobrancaAluno(\'' + escapeHtml(p.email) + '\',' + (p.diaCobranca||0) + ')" style="padding:4px 10px;border-radius:7px;background:rgba(37,99,235,0.08);color:#60a5fa;border:1px solid rgba(37,99,235,0.2);font-size:9px;font-weight:700;cursor:pointer;" title="Definir dia de cobrança individual">📅 Dia ' + (p.diaCobranca ? p.diaCobranca : 'padrão') + '</button>';
                     h += '</div>';
 
                     h += '</div>';
@@ -29272,6 +29317,42 @@
                 if (data.success) { loadPagamentosAdmin(); }
                 else alert('❌ ' + data.message);
             } catch(e) { alert('Erro de conexão'); }
+        }
+
+        // Define ou remove o dia de cobrança individual do aluno
+        async function definirDiaCobrancaAluno(email, diaAtual) {
+            var _diaAtualStr = diaAtual ? ' (atual: dia ' + diaAtual + ')' : ' (usando padrão do CT)';
+            var resp = prompt(
+                'Dia de cobrança para ' + email + _diaAtualStr + '\n\n' +
+                'Digite um número de 1 a 28 para definir um dia específico\n' +
+                'ou deixe em branco para usar o padrão do CT:\n',
+                diaAtual || ''
+            );
+            if (resp === null) return; // cancelou
+
+            var limpar = resp.trim() === '';
+            var dia    = limpar ? 0 : parseInt(resp.trim());
+
+            if (!limpar && (isNaN(dia) || dia < 1 || dia > 28)) {
+                alert('Dia inválido. Use um número de 1 a 28.');
+                return;
+            }
+
+            try {
+                var res = await secureFetch('setDiaCobrancaAluno', {
+                    email:  email,
+                    dia:    dia,
+                    limpar: limpar
+                });
+                if (res.success) {
+                    alert('✅ ' + res.message);
+                    loadPagamentosAdmin();
+                } else {
+                    alert('❌ ' + (res.message || 'Erro'));
+                }
+            } catch(e) {
+                alert('Erro de conexão: ' + e.message);
+            }
         }
 
         function atribuirPlanoModal(email) {
