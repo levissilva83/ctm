@@ -8,6 +8,8 @@
     ═══════════════════════════════════════════════════════════════ -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
+    <link id="appleTouchIcon" rel="apple-touch-icon" href="">
+    <link id="pwaManifestLink" rel="manifest" href="">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="theme-color" content="#060607">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -7590,6 +7592,37 @@
     </script>
 
     <script>
+    // Dynamic PWA manifest — uses CT logo as app icon
+    function _injectPWAManifest(iconDataUrl) {
+        var iconUrl = iconDataUrl || '';
+        var manifest = {
+            name: 'CT Manager',
+            short_name: 'CT Manager',
+            start_url: window.location.href,
+            display: 'standalone',
+            background_color: '#0f1729',
+            theme_color: '#C9A23A',
+            icons: iconUrl ? [
+                { src: iconUrl, sizes: '192x192', type: 'image/png' },
+                { src: iconUrl, sizes: '512x512', type: 'image/png' }
+            ] : []
+        };
+        var blob   = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+        var url    = URL.createObjectURL(blob);
+        var link   = document.getElementById('pwaManifestLink');
+        if (link) link.href = url;
+        // Apple touch icon
+        var appleLink = document.getElementById('appleTouchIcon');
+        if (appleLink && iconUrl) appleLink.href = iconUrl;
+    }
+
+    // Called after logo is loaded — updates PWA manifest
+    window._onLogoLoaded = function(src) {
+        if (src) _injectPWAManifest(src);
+    };
+    </script>
+
+    <script>
     // iOS viewport zoom reset — fires when any input loses focus
     (function() {
         function resetViewport() {
@@ -8936,6 +8969,7 @@
                         </div>
 
                         <!-- ── Tab 6: Checkin por Foto ─────────────────── -->
+                        <!-- ── Tab 6: Checkin por Foto ─────────────────── -->
                         <div id="admPainelTab6" class="adm-painel-tab-panel" style="display:none;padding:12px;">
 
                             <!-- FASE 0: upload da foto -->
@@ -9131,7 +9165,7 @@
                             </div>
                             <div style="padding:0 12px 8px;">
                                 <!-- Criar CT — RECURSO PREMIUM (bloqueado) -->
-                                <div style="border:1.5px dashed rgba(201,162,58,0.35);border-radius:10px;padding:14px;background:rgba(201,162,58,0.04);margin-bottom:10px;">
+                                <div id="addCTSection" style="border:1.5px dashed rgba(201,162,58,0.35);border-radius:10px;padding:14px;background:rgba(201,162,58,0.04);margin-bottom:10px;">
                                     <div style="display:flex;align-items:center;gap:10px;">
                                         <span style="font-size:22px;flex-shrink:0;">🔒</span>
                                         <div style="flex:1;">
@@ -9841,7 +9875,7 @@
 
 
                     <!-- QR CODE CHECK-IN -->
-                    <div class="admin-section">
+                    <div id="qrCodeSection" class="admin-section">
                         <div class="admin-section-header">
                             <div class="admin-section-title">📲 QR Code de Check-in</div>
                             <button class="admin-refresh-btn" onclick="loadQRCodes()">↻</button>
@@ -9851,7 +9885,7 @@
                     </div>
 
                     <!-- REDES DE BENEFÍCIO: Wellhub & TotalPass -->
-                    <div class="admin-section">
+                    <div id="redesBeneficioSection" class="admin-section">
                         <div class="admin-section-header">
                             <div class="admin-section-title">🏋️ Redes de Benefício</div>
                             <button class="admin-refresh-btn" onclick="loadWellnessConfig()">↻</button>
@@ -11820,7 +11854,7 @@
 
         // Catálogo de modalidades disponíveis — pode ser expandido pelo admin
         // ── Plano e limites globais (carregado via getAssinatura) ──
-        var _planLimits = { alunos: 9999, modalidades: 99, filiais: 99, cobranca: true };
+        var _planLimits = { alunos: 9999, modalidades: 99, filiais: 99, cobranca: true, redesBeneficio: true, fotoCheckin: true, qrCode: true };
         var _planId     = '';
         var _planNomes  = {
             'basico':       'CT Manager Básico',
@@ -11892,19 +11926,46 @@
         function _aplicarLocksPlano() {
             // Remove locks antigos
             document.querySelectorAll('.plan-lock-overlay').forEach(function(el){ el.remove(); });
+
+            // Se _planId não veio do getAssinatura, tenta usar o plano do currentUser ou LICENCIADOS
+            if (!_planId && currentUser && currentUser.plano) {
+                _planId = currentUser.plano;
+            }
+            // Sem plano identificado — não aplica locks (evita bloquear clientes indefinidamente)
+            if (!_planId) return;
+
+            // Aplica _planLimits do plano identificado se ainda padrão
+            if (_planLimits.alunos === 9999) {
+                var _lim = { basico: { alunos:100, modalidades:1, filiais:1, cobranca:false, redesBeneficio:false, fotoCheckin:false, qrCode:false },
+                             profissional: { alunos:200, modalidades:3, filiais:1, cobranca:true,  redesBeneficio:true,  fotoCheckin:false, qrCode:true  },
+                             premium:      { alunos:500, modalidades:5, filiais:3, cobranca:true,  redesBeneficio:true,  fotoCheckin:true,  qrCode:true  },
+                             trial:        { alunos:20,  modalidades:1, filiais:1, cobranca:false, redesBeneficio:false, fotoCheckin:false, qrCode:false } };
+                if (_lim[_planId]) _planLimits = _lim[_planId];
+            }
+
             // Atualiza ícone de cadeado no nav
             var navLock = document.getElementById('bnavPagLock');
             if (navLock) navLock.style.display = _planLimits.cobranca ? 'none' : 'inline';
-            if (!_planId) return;
             // Cobrança (Básico não tem)
             if (!_planLimits.cobranca) {
                 _lockByPlan('pagamentosAdminSection',  '💳 Sistema de Cobrança', 'profissional');
                 _lockByPlan('admPagamentos',           '💳 Sistema de Cobrança', 'profissional');
             }
-            // Filiais (Básico/Pro limitados)
+            // Redes de Benefício (Básico não tem)
+            if (_planLimits.redesBeneficio === false) {
+                _lockByPlan('redesBeneficioSection', '🏋️ Redes de Benefício', 'profissional');
+            }
+            // QR Code (Básico não tem)
+            if (_planLimits.qrCode === false) {
+                _lockByPlan('qrCodeSection', '📲 QR Code de Check-in', 'profissional');
+            }
+            // Checkin por Foto (somente Premium)
+            if (_planLimits.fotoCheckin === false) {
+                _lockByPlan('admPainelTab6', '📸 Checkin por Foto', 'premium');
+            }
+            // Filiais (somente Premium)
             if (_planLimits.filiais < 3) {
-                var planNeeded = _planLimits.filiais < 2 ? 'profissional' : 'premium';
-                _lockByPlan('addCTSection', '🏠 Múltiplas Filiais', planNeeded);
+                _lockByPlan('addCTSection', '🏠 Criar Filiais / CTs', 'premium');
             }
         }
 
@@ -12398,6 +12459,69 @@
                     evolucaoTitulo:'Minha Progressão',
                     roadmapTitulo: '🥋 Sistema de Graduação — Karatê',
                     roadmapSub:    'Do 10º Kyu ao 10º Dan',
+                },
+                ui: {
+                    mostrarFaixa:     true,
+                    mostrarGraus:     true,
+                    mostrarPrajied:   false,
+                    mostrarRoadmap:   true,
+                    mostrarFrequencia:true,
+                    mostrarCriterios: false,
+                    roadmapTipo:      'cintura',
+                    iconeEvo:         '🥋',
+                },
+            },
+
+            karate_kyokushin: {
+                id: 'karate_kyokushin',
+                graduacao: {
+                    tipo:             'faixa_cintura',
+                    hasGraduacao:     true,
+                    hasFaixa:         true,
+                    hasPrajied:       false,
+                    labelFaixa:       'Faixa / Kyu',
+                    labelGrau:        'Dan',
+                    labelGrauPlural:  'Dans',
+                    maxGrausPorFaixa: null,
+                    simbolo:          'kyu_dan',
+                    faixas: [
+                        { id:'Mukyu',         label:'Mukyu — Branca (10º Kyu)',       emoji:'⚪',   cor:'#e8e8e8', cssClass:'branca',       next:'Laranja',       kyu:10, ordemProgresso:1  },
+                        { id:'Laranja',        label:'10º Kyu — Laranja',              emoji:'🟠',   cor:'#f97316', cssClass:'laranja',      next:'Laranja-Preta', kyu:10, ordemProgresso:2  },
+                        { id:'Laranja-Preta',  label:'9º Kyu — Laranja c/ Ponta Preta',emoji:'🟠⚫', cor:'#f97316', cssClass:'laranja-p',    next:'Azul',          kyu:9,  ordemProgresso:3  },
+                        { id:'Azul',           label:'8º Kyu — Azul',                  emoji:'🔵',   cor:'#1565c0', cssClass:'azul',         next:'Azul-Amarela',  kyu:8,  ordemProgresso:4  },
+                        { id:'Azul-Amarela',   label:'7º Kyu — Azul c/ Ponta Amarela', emoji:'🔵🟡', cor:'#1565c0', cssClass:'azul-amarela', next:'Amarela',       kyu:7,  ordemProgresso:5  },
+                        { id:'Amarela',        label:'6º Kyu — Amarela',               emoji:'🟡',   cor:'#fdd835', cssClass:'amarela',      next:'Amarela-Verde', kyu:6,  ordemProgresso:6  },
+                        { id:'Amarela-Verde',  label:'5º Kyu — Amarela c/ Ponta Verde',emoji:'🟡🟢', cor:'#fdd835', cssClass:'amarela-verde',next:'Verde',         kyu:5,  ordemProgresso:7  },
+                        { id:'Verde',          label:'4º Kyu — Verde',                 emoji:'🟢',   cor:'#2e7d32', cssClass:'verde',        next:'Verde-Marrom',  kyu:4,  ordemProgresso:8  },
+                        { id:'Verde-Marrom',   label:'3º Kyu — Verde c/ Ponta Marrom', emoji:'🟢🟤', cor:'#2e7d32', cssClass:'verde-marrom', next:'Marrom',        kyu:3,  ordemProgresso:9  },
+                        { id:'Marrom',         label:'2º Kyu — Marrom',                emoji:'🟤',   cor:'#5d4037', cssClass:'marrom',       next:'Marrom-Preta',  kyu:2,  ordemProgresso:10 },
+                        { id:'Marrom-Preta',   label:'1º Kyu — Marrom c/ Ponta Preta', emoji:'🟤⚫', cor:'#5d4037', cssClass:'marrom-preta', next:'Preta-1Dan',    kyu:1,  ordemProgresso:11 },
+                        { id:'Preta-1Dan',     label:'1º Dan — Shodan',                emoji:'⚫',   cor:'#1a1a1a', cssClass:'preta',        next:'Preta-2Dan',    dan:1,  ordemProgresso:12 },
+                        { id:'Preta-2Dan',     label:'2º Dan — Nidan',                 emoji:'⚫',   cor:'#1a1a1a', cssClass:'preta',        next:'Preta-3Dan',    dan:2,  ordemProgresso:13 },
+                        { id:'Preta-3Dan',     label:'3º Dan — Sandan',                emoji:'⚫',   cor:'#1a1a1a', cssClass:'preta',        next:'Preta-4Dan',    dan:3,  ordemProgresso:14 },
+                        { id:'Preta-4Dan',     label:'4º Dan — Yondan',                emoji:'⚫',   cor:'#1a1a1a', cssClass:'preta',        next:'Preta-5Dan',    dan:4,  ordemProgresso:15 },
+                        { id:'Preta-5Dan',     label:'5º Dan — Godan ★',               emoji:'⚫⭐', cor:'#1a1a1a', cssClass:'preta',        next:'Preta-6Dan',    dan:5,  ordemProgresso:16 },
+                        { id:'Preta-6Dan',     label:'6º Dan — Rokudan',               emoji:'⚫⭐', cor:'#1a1a1a', cssClass:'preta',        next:'Preta-7Dan',    dan:6,  ordemProgresso:17 },
+                        { id:'Preta-7Dan',     label:'7º Dan — Shichidan',             emoji:'⚫⭐', cor:'#1a1a1a', cssClass:'preta',        next:'Preta-8Dan',    dan:7,  ordemProgresso:18 },
+                        { id:'Preta-8Dan',     label:'8º Dan — Hachidan',              emoji:'⚫⭐', cor:'#1a1a1a', cssClass:'preta',        next:'Preta-9Dan',    dan:8,  ordemProgresso:19 },
+                        { id:'Preta-9Dan',     label:'9º Dan — Kudan',                 emoji:'⚫⭐', cor:'#1a1a1a', cssClass:'preta',        next:'Preta-10Dan',   dan:9,  ordemProgresso:20 },
+                        { id:'Preta-10Dan',    label:'10º Dan — Judan',                emoji:'⚫⭐', cor:'#1a1a1a', cssClass:'preta',        next:null,            dan:10, ordemProgresso:21 },
+                    ],
+                },
+                nomenclatura: {
+                    treino:        'Treino / Kumite',
+                    aula:          'Aula',
+                    professor:     'Sensei / Shihan',
+                    aluno:         'Karateka',
+                    academia:      'Dojo',
+                    faixa:         'Faixa',
+                    faixas:        'Faixas',
+                    grau:          'Kyu / Dan',
+                    graus:         'Kyus / Dans',
+                    confirmarBtn:  '🥋 Treinei',
+                    evolucaoTitulo:'Minha Progressão',
+                    roadmapTitulo: '🥋 Sistema Kyokushin — Kyu / Dan',
+                    roadmapSub:    'Do Mukyu ao 10º Dan',
                 },
                 ui: {
                     mostrarFaixa:     true,
@@ -16270,6 +16394,32 @@
         const BELT_ORDER = ['Branca', 'Azul', 'Roxa', 'Marrom', 'Preta'];
         // Acumulado: total de aulas até alcançar cada faixa (Alliance)
         const BELT_ACCUMULATED = { 'Branca': 0, 'Azul': 120, 'Roxa': 430, 'Marrom': 860, 'Preta': 1380 };
+
+
+        // ── Karate Kyokushin belt config ─────────────────────────
+        const BELT_CONFIG_KYOKUSHIN = {
+            'Mukyu':         { order:  1, emoji: '⚪',   cls: 'branca',       next: 'Laranja' },
+            'Laranja':       { order:  2, emoji: '🟠',   cls: 'laranja',      next: 'Laranja-Preta' },
+            'Laranja-Preta': { order:  3, emoji: '🟠⚫', cls: 'laranja-p',    next: 'Azul' },
+            'Azul':          { order:  4, emoji: '🔵',   cls: 'azul',         next: 'Azul-Amarela' },
+            'Azul-Amarela':  { order:  5, emoji: '🔵🟡', cls: 'azul-amarela', next: 'Amarela' },
+            'Amarela':       { order:  6, emoji: '🟡',   cls: 'amarela',      next: 'Amarela-Verde' },
+            'Amarela-Verde': { order:  7, emoji: '🟡🟢', cls: 'amarela-verde',next: 'Verde' },
+            'Verde':         { order:  8, emoji: '🟢',   cls: 'verde',        next: 'Verde-Marrom' },
+            'Verde-Marrom':  { order:  9, emoji: '🟢🟤', cls: 'verde-marrom', next: 'Marrom' },
+            'Marrom':        { order: 10, emoji: '🟤',   cls: 'marrom',       next: 'Marrom-Preta' },
+            'Marrom-Preta':  { order: 11, emoji: '🟤⚫', cls: 'marrom-preta', next: 'Preta-1Dan' },
+            'Preta-1Dan':    { order: 12, emoji: '⚫',   cls: 'preta',        next: 'Preta-2Dan' },
+            'Preta-2Dan':    { order: 13, emoji: '⚫',   cls: 'preta',        next: 'Preta-3Dan' },
+            'Preta-3Dan':    { order: 14, emoji: '⚫',   cls: 'preta',        next: 'Preta-4Dan' },
+            'Preta-4Dan':    { order: 15, emoji: '⚫',   cls: 'preta',        next: 'Preta-5Dan' },
+            'Preta-5Dan':    { order: 16, emoji: '⚫⭐', cls: 'preta',        next: 'Preta-6Dan' },
+            'Preta-6Dan':    { order: 17, emoji: '⚫⭐', cls: 'preta',        next: 'Preta-7Dan' },
+            'Preta-7Dan':    { order: 18, emoji: '⚫⭐', cls: 'preta',        next: 'Preta-8Dan' },
+            'Preta-8Dan':    { order: 19, emoji: '⚫⭐', cls: 'preta',        next: 'Preta-9Dan' },
+            'Preta-9Dan':    { order: 20, emoji: '⚫⭐', cls: 'preta',        next: 'Preta-10Dan' },
+            'Preta-10Dan':   { order: 21, emoji: '⚫⭐', cls: 'preta',        next: null }
+        };
 
         // Kids graduation system (IBJJF)
         // Emojis: círculo da cor principal da faixa — faixas mistas têm dois círculos
@@ -20308,6 +20458,8 @@
             if (tabName === 'adm-presenca') initPresencaList();
             if (tabName === 'adm-campeonato') initCampAdmin();
             if (tabName === 'adm-sistema') {
+                // Aplica locks baseados no plano ao abrir o painel de sistema
+                setTimeout(_aplicarLocksPlano, 300);
                 // Atualiza preview de logo no painel admin
                 try {
                     var _lpEl = document.getElementById('adminLogoPreview');
@@ -25226,6 +25378,8 @@
                 var el = document.getElementById(id);
                 if (el) { el.src = src; el.style.display = 'block'; }
             });
+            // Atualiza manifest PWA com o logo
+            if (typeof _onLogoLoaded === 'function') _onLogoLoaded(src);
         }
 
         // Abre seletor de arquivo para o admin trocar o logo
@@ -25399,45 +25553,84 @@
 
                     var dataHoje = new Date().toLocaleDateString('pt-BR');
 
-                    var SEP = '===================================';
-                    var SEP2= '====================================';
-                    var D   = '---';
+                    // Funcionalidades baseadas no plano
+                    var lims = state.planos.find(function(p){ return (p.id||p.id_plano)===planoId; }) || {};
+                    var temCobranca  = lims.cobranca === true || lims.cobranca === 'TRUE' || lims.cobranca === 'true';
+                    var temRedes     = lims.redes_beneficio === true || lims.redes_beneficio === 'TRUE' || lims.redes_beneficio === 'true';
+                    var temFoto      = lims.foto_checkin === true || lims.foto_checkin === 'TRUE' || lims.foto_checkin === 'true';
+                    var maxAlunos    = lims.max_alunos    ? String(lims.max_alunos)    : (planoId==='basico'?'100':planoId==='profissional'?'200':'500');
+                    var maxMods      = lims.max_modalidades ? String(lims.max_modalidades) : (planoId==='basico'?'1':planoId==='profissional'?'3':'5');
+                    var maxFiliais   = lims.max_filiais   ? String(lims.max_filiais)   : (planoId==='premium'?'3':'1');
+
+                    var funcList = [
+                        '✅ Check-in de alunos',
+                        '✅ Controle de graduacao e faixas',
+                        '✅ Cronograma de aulas',
+                        '✅ Controle de presencas',
+                        '✅ Alunos: ate ' + maxAlunos,
+                        '✅ Modalidades: ate ' + maxMods,
+                        maxFiliais > 1 ? '✅ Filiais: ate ' + maxFiliais : '❌ Multiplas filiais (Premium)',
+                        temCobranca  ? '✅ Sistema de cobranca/mensalidades' : '❌ Cobranca (Profissional+)',
+                        temRedes     ? '✅ Redes de Beneficio (Wellhub/TotalPass)' : '❌ Redes de Beneficio (Profissional+)',
+                        '✅ QR Code de check-in',
+                        temFoto      ? '✅ Check-in por Foto (IA)' : '❌ Check-in por Foto (Premium)',
+                    ].filter(Boolean).join('\n');
+
+                    var acessoTxt = trial.ativarDireto ? 'Acesso imediato — plano ATIVO.' :
+                                    trial.semTrial     ? 'Sem periodo de teste — pagamento exigido.' :
+                                                        'Trial ate: ' + trial.dataInicioCobranca;
+
+                    var SEP  = '================================================';
+                    var SEP2 = '------------------------------------------------';
                     var txt = [
                         SEP,
-                        '  CONTRATO DE LICENCA - CTM MANAGER',
+                        '   CONTRATO DE LICENCA — CTM MANAGER',
+                        '   IDESystems Tecnologia',
                         SEP,
                         '',
-                        'Data: ' + dataHoje,
-                        '',
-                        '-- CLIENTE --------------------------',
-                        'Nome:   ' + nome,
-                        'Email:  ' + email,
-                        'Sheet:  ' + sheetId.substring(0,20) + (sheetId.length>20?'...':''),
-                        '',
-                        '-- PLANO ----------------------------',
-                        'Plano:  ' + (plano.nome || planoId || '-'),
-                        'Valor:  ' + (plano.valor ? 'R$ '+parseFloat(plano.valor).toFixed(2)+'/'+((plano.frequencia||'mes')) : '-'),
-                        'Status: ' + status,
-                        venc ? 'Vencto: ' + venc : '',
-                        '',
-                        '-- PERIODO DE ACESSO ----------------',
-                        trial.ativarDireto ? 'Acesso imediato - plano ativo.' :
-                        trial.semTrial     ? 'Sem trial - pagamento na primeira entrada.' :
-                                            'Trial ate: '+trial.dataInicioCobranca,
-                        '',
-                        '-- MODALIDADES CONTRATADAS ----------',
-                        mods.length ? mods.join('\n') : '(nenhuma selecionada)',
-                        '',
-                        '-- FUNCIONALIDADES INCLUIDAS --------',
-                        '* Check-in de alunos',
-                        '* Controle de graduacao',
-                        '* Cronograma de aulas',
-                        plano.cobranca==='TRUE'||plano.cobranca===true ? '* Sistema de mensalidades' : '',
-                        '* Relatorios e presencas',
+                        'Data de emissao: ' + dataHoje,
                         '',
                         SEP2,
+                        'CONTRATANTE (CLIENTE)',
+                        SEP2,
+                        'Nome:   ' + nome,
+                        'Email:  ' + email,
+                        'Link:   https://ctapp.online/?ctm=' + (sheetId||'').substring(0,15),
+                        '',
+                        SEP2,
+                        'PLANO CONTRATADO',
+                        SEP2,
+                        'Plano:  ' + (plano.nome || planoId || '—'),
+                        'Valor:  ' + (plano.valor ? 'R$ '+parseFloat(plano.valor).toFixed(2)+' / '+(plano.frequencia||'mes') : '—'),
+                        'Status: ' + status,
+                        venc ? 'Vence em: ' + venc : '',
+                        '',
+                        SEP2,
+                        'PERIODO DE ACESSO',
+                        SEP2,
+                        acessoTxt,
+                        '',
+                        SEP2,
+                        'MODALIDADES CONTRATADAS (' + mods.length + ')',
+                        SEP2,
+                        mods.length ? mods.join('\n') : '(nenhuma selecionada)',
+                        '',
+                        SEP2,
+                        'FUNCIONALIDADES INCLUIDAS',
+                        SEP2,
+                        funcList,
+                        '',
+                        SEP2,
+                        'SUPORTE E CONTATO',
+                        SEP2,
                         'IDESystems Tecnologia',
-                        'idesystemstecnologia@gmail.com'
+                        'idesystemstecnologia@gmail.com',
+                        'https://ctapp.online',
+                        '',
+                        SEP,
+                        'Ao utilizar o sistema, o contratante',
+                        'concorda com os termos de uso.',
+                        SEP
                     ].filter(function(l){ return l !== null && l !== undefined; }).join('\n');
 
                     el.textContent = txt;
@@ -26137,19 +26330,27 @@
             try {
                 // Fetch direto sem auth (getPlanos é público)
                 var _ctmIdParaPlanos = (typeof _currentCtmId !== 'undefined' && _currentCtmId) ? _currentCtmId : '';
+                // GAS exige Content-Type + redirect:follow para retornar JSON corretamente
                 var resp = await fetch(SCRIPT_URL, {
-                    method: 'POST',
+                    method:   'POST',
                     redirect: 'follow',
-                    body: JSON.stringify({ action: 'getPlanos', ctmId: _ctmIdParaPlanos })
+                    headers:  { 'Content-Type': 'application/json' },
+                    body:     JSON.stringify({ action: 'getPlanos', ctmId: _ctmIdParaPlanos })
                 });
                 var text = await resp.text();
                 var r = {};
-                try { r = JSON.parse(text); } catch(eJson) {
-                    // GAS pode retornar HTML em caso de redirect — tenta extrair JSON
-                    var match = text.match(/\{[\s\S]*\}/);
-                    if (match) { try { r = JSON.parse(match[0]); } catch(e2) {} }
+                try {
+                    r = JSON.parse(text);
+                } catch(eJson) {
+                    // Tenta extrair JSON do HTML de redirect do GAS
+                    var jStart = text.indexOf('{');
+                    var jEnd   = text.lastIndexOf('}');
+                    if (jStart !== -1 && jEnd > jStart) {
+                        try { r = JSON.parse(text.substring(jStart, jEnd + 1)); } catch(e2) {}
+                    }
                 }
                 var planos = (r && r.planos) ? r.planos : [];
+                console.log('[CTM] getPlanos response:', r, 'planos:', planos.length);
 
                 if (!planos.length) {
                     listEl.innerHTML =
@@ -27792,6 +27993,11 @@
             try {
                 var data = await secureFetch('checkIsSuperAdmin', {});
                 _isSuperAdmin = !!(data && data.isSuperAdmin);
+            // Aplica plano do cliente nos locks de funcionalidades
+            if (currentUser && currentUser.plano) {
+                _planId = currentUser.plano;
+                setTimeout(_aplicarLocksPlano, 800);
+            }
             // Carrega logo do CT (padrão ou personalizado)
             try {
                 var _logoCtmId = (typeof _currentCtmId !== 'undefined') ? _currentCtmId : '';
@@ -27842,7 +28048,7 @@
                 'saveCampEvento','aprovarInscricao','rejeitarInscricao',
                 'createCT','deleteCT',
                 'vincularGatewayCT','salvarPlano','deletarPlano',
-                'getPagamentosAdmin','atribuirPlanoAluno','marcarPago','setDiaCobrancaAluno','getDiaCobrancaAluno',
+                'getPagamentosAdmin','atribuirPlanoAluno','marcarPago','setDiaCobrancaAluno','getDiaCobrancaAluno','setModalidadesAluno',
                 'salvarConfigMP','saveWellnessConfig','saveModalidade','deleteModalidade',
                 'painelCriarCliente','ativarClienteAdmin','getContratos','cobrarAgora',
             ],
